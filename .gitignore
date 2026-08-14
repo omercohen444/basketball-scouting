@@ -1,0 +1,68 @@
+# ---- Secrets ----
+.env
+.env.*
+!.env.example
+*.key
+credentials.json
+service_account*.json
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- Data: raw + processed are local-only ----
+# Raw source dumps and derived artifacts are reproducible and can be large.
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Validation fixtures ARE tracked (small, needed for reproducible tests).
+# Only their locally-generated run outputs are ignored.
+data/validation/runs/
+
+# ---- Video / large media (never commit) ----
+*.mp4
+*.mkv
+*.webm
+*.mov
+*.avi
+*.m4a
+*.ts
+
+# ---- Spike + debug artifacts ----
+# Probe dumps and run telemetry are large/reproducible and stay local-only.
+artifacts/probe/
+artifacts/runs/
+scripts/spikes/output/
+
+# Checkpoint evidence reports (CP1-CP4) ARE tracked — small markdown, the
+# audit trail per docs/VIDEO_STAGE_PLAN.md §19.1. Everything else under
+# artifacts/cp*/ (e.g. large raw usage_metadata dumps) stays ignored.
+artifacts/cp*/*
+!artifacts/cp*/*.md
+
+# ---- Editor / OS ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Notebooks ----
+.ipynb_checkpoints/

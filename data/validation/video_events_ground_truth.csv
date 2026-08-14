@@ -1,0 +1,1 @@
+event_id,game_id,video_url,event_seconds,start_seconds,end_seconds,period,game_clock,team,pbp_description,human_shot_contest,model_shot_contest,match_shot_contest,human_possession_type,model_possession_type,match_possession_type,human_shot_creation,model_shot_creation,match_shot_creation,notes

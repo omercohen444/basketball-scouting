@@ -1,0 +1,733 @@
+{
+  "gameInfo": {
+    "gameId": "136",
+    "apiId": "",
+    "id": 136,
+    "time": "2026-01-11T21:05:00",
+    "homeTeam": {
+      "name": "MACCABI TEL AVIV",
+      "nameLocal": "מכבי Rapyd ת\"א",
+      "id": "2",
+      "apiId": null,
+      "Score": 0,
+      "shortName": "MACCABI TEL AVIV",
+      "shortNameLocal": "מכבי ת\"א",
+      "players": [
+        {
+          "id": "1640",
+          "apiId": "",
+          "firstName": "IFFE",
+          "lastName": "LUNDBERG",
+          "firstNameLocal": "איפה",
+          "lastNameLocal": "לונדברג",
+          "inRoster": 2,
+          "jerseyNumber": 0
+        },
+        {
+          "id": "1025",
+          "apiId": "1025",
+          "firstName": "TAMIR",
+          "lastName": "BLATT",
+          "firstNameLocal": "תמיר",
+          "lastNameLocal": "בלאט",
+          "inRoster": 2,
+          "jerseyNumber": 45
+        },
+        {
+          "id": "1200",
+          "apiId": "1200",
+          "firstName": "OREN",
+          "lastName": "SAHAR",
+          "firstNameLocal": "אורן",
+          "lastNameLocal": "סהר",
+          "inRoster": 2,
+          "jerseyNumber": 7
+        },
+        {
+          "id": "1014",
+          "apiId": "",
+          "firstName": "JIMMY",
+          "lastName": "CLARK III",
+          "firstNameLocal": "ג'ימי",
+          "lastNameLocal": "קלארק",
+          "inRoster": 2,
+          "jerseyNumber": 2
+        },
+        {
+          "id": "1020",
+          "apiId": "1020",
+          "firstName": "OSHAE",
+          "lastName": "BRISSETT",
+          "firstNameLocal": "אושיי",
+          "lastNameLocal": "בריסט",
+          "inRoster": 2,
+          "jerseyNumber": 10
+        },
+        {
+          "id": "1209",
+          "apiId": "",
+          "firstName": "TAMIR",
+          "lastName": "GOLD",
+          "firstNameLocal": "תמיר",
+          "lastNameLocal": "גולד",
+          "inRoster": 0,
+          "jerseyNumber": 13
+        },
+        {
+          "id": "1023",
+          "apiId": "1023",
+          "firstName": "JEFF",
+          "lastName": "DOWTIN JR.",
+          "firstNameLocal": "ג'ף",
+          "lastNameLocal": "דאוטין ג'וניור",
+          "inRoster": 0,
+          "jerseyNumber": 21
+        },
+        {
+          "id": "1000",
+          "apiId": "",
+          "firstName": "JAYLEN",
+          "lastName": "HOARD",
+          "firstNameLocal": "ג'יילן",
+          "lastNameLocal": "הורד",
+          "inRoster": 2,
+          "jerseyNumber": 1
+        },
+        {
+          "id": "1874",
+          "apiId": "",
+          "firstName": "ZACH",
+          "lastName": "HANKINS",
+          "firstNameLocal": "זאק",
+          "lastNameLocal": "הנקינס",
+          "inRoster": 0,
+          "jerseyNumber": 35
+        },
+        {
+          "id": "1024",
+          "apiId": "1024",
+          "firstName": "TJ",
+          "lastName": "LEAF",
+          "firstNameLocal": "טי ג'יי",
+          "lastNameLocal": "ליף",
+          "inRoster": 2,
+          "jerseyNumber": 22
+        },
+        {
+          "id": "1015",
+          "apiId": "",
+          "firstName": "MARCIO",
+          "lastName": "SANTOS",
+          "firstNameLocal": "מרסיו",
+          "lastNameLocal": "סנטוס",
+          "inRoster": 2,
+          "jerseyNumber": 3
+        },
+        {
+          "id": "1021",
+          "apiId": "1021",
+          "firstName": "WILL",
+          "lastName": "RAYMAN",
+          "firstNameLocal": "וויל",
+          "lastNameLocal": "ריימן",
+          "inRoster": 2,
+          "jerseyNumber": 11
+        },
+        {
+          "id": "1018",
+          "apiId": "1018",
+          "firstName": "LONNIE",
+          "lastName": "WALKER IV",
+          "firstNameLocal": "לוני",
+          "lastNameLocal": "ווקר",
+          "inRoster": 0,
+          "jerseyNumber": 8
+        },
+        {
+          "id": "1022",
+          "apiId": "1022",
+          "firstName": "JOHN",
+          "lastName": "DIBARTOLOMEO",
+          "firstNameLocal": "ג'ון",
+          "lastNameLocal": "דיברתולומאו",
+          "inRoster": 2,
+          "jerseyNumber": 12
+        },
+        {
+          "id": "1019",
+          "apiId": "1019",
+          "firstName": "ROMAN",
+          "lastName": "SORKIN",
+          "firstNameLocal": "רומן",
+          "lastNameLocal": "סורקין",
+          "inRoster": 2,
+          "jerseyNumber": 9
+        },
+        {
+          "id": "1016",
+          "apiId": "",
+          "firstName": "GUR",
+          "lastName": "LAVY",
+          "firstNameLocal": "גור",
+          "lastNameLocal": "לביא",
+          "inRoster": 2,
+          "jerseyNumber": 4
+        }
+      ]
+    },
+    "awayTeam": {
+      "name": "HAPOEL JERUSALEM",
+      "nameLocal": "הפועל מידטאון ירושלים",
+      "id": "4",
+      "apiId": null,
+      "Score": 0,
+      "shortName": "HAPOEL JERUSALEM",
+      "shortNameLocal": "הפועל ירושלים",
+      "players": [
+        {
+          "id": "1045",
+          "apiId": "",
+          "firstName": "AUSTIN",
+          "lastName": "WILEY",
+          "firstNameLocal": "אוסטין",
+          "lastNameLocal": "ווילי",
+          "inRoster": 2,
+          "jerseyNumber": 5
+        },
+        {
+          "id": "1051",
+          "apiId": "",
+          "firstName": "NIMROD",
+          "lastName": "LEVI",
+          "firstNameLocal": "נמרוד",
+          "lastNameLocal": "לוי",
+          "inRoster": 2,
+          "jerseyNumber": 15
+        },
+        {
+          "id": "1054",
+          "apiId": "",
+          "firstName": "DMYTRO",
+          "lastName": "SKAPINTSEV",
+          "firstNameLocal": "דמיטרו",
+          "lastNameLocal": "סקפינצב",
+          "inRoster": 0,
+          "jerseyNumber": 44
+        },
+        {
+          "id": "1048",
+          "apiId": "",
+          "firstName": "CASSIUS",
+          "lastName": "WINSTON",
+          "firstNameLocal": "קשיוס",
+          "lastNameLocal": "ווינסטון",
+          "inRoster": 2,
+          "jerseyNumber": 8
+        },
+        {
+          "id": "1049",
+          "apiId": "",
+          "firstName": "ROI",
+          "lastName": "HUBER",
+          "firstNameLocal": "רועי",
+          "lastNameLocal": "הובר",
+          "inRoster": 2,
+          "jerseyNumber": 13
+        },
+        {
+          "id": "1043",
+          "apiId": "",
+          "firstName": "JARED",
+          "lastName": "HARPER",
+          "firstNameLocal": "ג'ארד",
+          "lastNameLocal": "הארפר",
+          "inRoster": 2,
+          "jerseyNumber": 1
+        },
+        {
+          "id": "1046",
+          "apiId": "1046",
+          "firstName": "ROY",
+          "lastName": "PARETSKY",
+          "firstNameLocal": "רועי",
+          "lastNameLocal": "פריצקי",
+          "inRoster": 2,
+          "jerseyNumber": 6
+        },
+        {
+          "id": "1186",
+          "apiId": "1186",
+          "firstName": "YUVAL",
+          "lastName": "BEN ATAR",
+          "firstNameLocal": "יובל",
+          "lastNameLocal": "בן עטר",
+          "inRoster": 2,
+          "jerseyNumber": 11
+        },
+        {
+          "id": "1055",
+          "apiId": "",
+          "firstName": "YOVEL",
+          "lastName": "ZOOSMAN",
+          "firstNameLocal": "יובל",
+          "lastNameLocal": "זוסמן",
+          "inRoster": 2,
+          "jerseyNumber": 50
+        },
+        {
+          "id": "1886",
+          "apiId": "",
+          "firstName": "AFEK",
+          "lastName": "AMSALEM",
+          "firstNameLocal": "אפק",
+          "lastNameLocal": "אמסלם",
+          "inRoster": 0,
+          "jerseyNumber": 23
+        },
+        {
+          "id": "1187",
+          "apiId": "",
+          "firstName": "RANI",
+          "lastName": "BELAGA",
+          "firstNameLocal": "רני",
+          "lastNameLocal": "בלגה",
+          "inRoster": 0,
+          "jerseyNumber": 4
+        },
+        {
+          "id": "1044",
+          "apiId": "",
+          "firstName": "KHADEEN",
+          "lastName": "CARRINGTON",
+          "firstNameLocal": "קאדין",
+          "lastNameLocal": "קרינגטון",
+          "inRoster": 2,
+          "jerseyNumber": 3
+        },
+        {
+          "id": "1050",
+          "apiId": "",
+          "firstName": "NIR",
+          "lastName": "PERRI",
+          "firstNameLocal": "ניר",
+          "lastNameLocal": "פרי",
+          "inRoster": 2,
+          "jerseyNumber": 14
+        },
+        {
+          "id": "1056",
+          "apiId": "1056",
+          "firstName": "JOSIAH-JORDAN",
+          "lastName": "JAMES",
+          "firstNameLocal": "ג'וזאיה-ג'ורדן",
+          "lastNameLocal": "ג'יימס",
+          "inRoster": 0,
+          "jerseyNumber": 91
+        },
+        {
+          "id": "1887",
+          "apiId": "",
+          "firstName": "ISAHIAH",
+          "lastName": "MOBLEY",
+          "firstNameLocal": "אייזיה",
+          "lastNameLocal": "מובלי",
+          "inRoster": 0,
+          "jerseyNumber": 33
+        },
+        {
+          "id": "1002",
+          "apiId": "",
+          "firstName": "JUSTIN",
+          "lastName": "SMITH",
+          "firstNameLocal": "ג'סטין",
+          "lastNameLocal": "סמית'",
+          "inRoster": 2,
+          "jerseyNumber": 0
+        },
+        {
+          "id": "1053",
+          "apiId": "",
+          "firstName": "ANTHONY",
+          "lastName": "LAMB",
+          "firstNameLocal": "אנתוני",
+          "lastNameLocal": "לאמב",
+          "inRoster": 2,
+          "jerseyNumber": 22
+        }
+      ]
+    },
+    "competition": {
+      "name": "Winner League"
+    },
+    "numberOfQuarters": 4,
+    "gameFinished": true,
+    "currentQuarter": 4,
+    "currentQuarterTime": {
+      "m": 0,
+      "s": 0
+    }
+  },
+  "actions": [
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": null,
+        "player": null,
+        "type": "start-of-game"
+      },
+      "id": 1360001,
+      "parentActionId": 0,
+      "userTime": "17:52:13",
+      "quarterTime": "10:00",
+      "type": "game",
+      "playerId": 0,
+      "teamId": 0
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": null,
+        "player": null,
+        "quarter": 1,
+        "type": "start-of-quarter"
+      },
+      "id": 1360002,
+      "parentActionId": 0,
+      "userTime": "18:51:12",
+      "quarterTime": "10:00",
+      "type": "quarter",
+      "playerId": 0,
+      "teamId": 0
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 2,
+        "playerIn": "0",
+        "playerOut": null
+      },
+      "id": 1360003,
+      "parentActionId": 0,
+      "userTime": "18:51:13",
+      "quarterTime": "10:00",
+      "type": "substitution",
+      "playerId": 1002,
+      "teamId": 4
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 2,
+        "playerOut": "0",
+        "playerIn": null
+      },
+      "id": 1360004,
+      "parentActionId": 0,
+      "userTime": "18:51:14",
+      "quarterTime": "10:00",
+      "type": "substitution",
+      "playerId": 1002,
+      "teamId": 4
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 2,
+        "playerIn": "1",
+        "playerOut": null
+      },
+      "id": 1360005,
+      "parentActionId": 0,
+      "userTime": "18:51:26",
+      "quarterTime": "10:00",
+      "type": "substitution",
+      "playerId": 1043,
+      "teamId": 4
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 2,
+        "player": "5",
+        "type": "personal",
+        "kind": "shooting",
+        "fouledOn": "0",
+        "freeThrows": "1"
+      },
+      "id": 1360016,
+      "parentActionId": 0,
+      "userTime": "19:07:17",
+      "quarterTime": "09:53",
+      "type": "foul",
+      "playerId": 1045,
+      "teamId": 4
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 1,
+        "player": "0",
+        "made": "made",
+        "freeThrowsAwarded": 2,
+        "freeThrowNumber": 1,
+        "fastBreak": false,
+        "secondChancePoints": false,
+        "pointsFromTurnover": false
+      },
+      "id": 1360018,
+      "parentActionId": 1360016,
+      "userTime": "19:07:21",
+      "quarterTime": "09:53",
+      "type": "freeThrow",
+      "score": "0-1",
+      "totalPlayerPoints": "1",
+      "playerId": 1640,
+      "teamId": 2
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 1,
+        "player": "0",
+        "made": "missed",
+        "freeThrowsAwarded": 2,
+        "freeThrowNumber": 2,
+        "fastBreak": false,
+        "secondChancePoints": false,
+        "pointsFromTurnover": false
+      },
+      "id": 1360019,
+      "parentActionId": 1360016,
+      "userTime": "19:07:35",
+      "quarterTime": "09:53",
+      "type": "freeThrow",
+      "playerId": 1640,
+      "teamId": 2
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 2,
+        "player": "1",
+        "coordX": 510.00000000000006,
+        "coordY": 1120.0,
+        "points": 3,
+        "type": "jump-shot",
+        "fastBreak": false,
+        "secondChancePoints": false,
+        "pointsFromTurnover": false,
+        "made": "missed"
+      },
+      "id": 1360022,
+      "parentActionId": 0,
+      "userTime": "19:07:59",
+      "quarterTime": "09:43",
+      "type": "shot",
+      "playerId": 1043,
+      "teamId": 4
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 1,
+        "player": "2",
+        "coordX": 674.9999999999999,
+        "coordY": 644.0,
+        "points": 2,
+        "type": "lay-up",
+        "fastBreak": false,
+        "secondChancePoints": false,
+        "pointsFromTurnover": false,
+        "made": "missed"
+      },
+      "id": 1360025,
+      "parentActionId": 0,
+      "userTime": "19:08:18",
+      "quarterTime": "09:24",
+      "type": "shot",
+      "playerId": 1014,
+      "teamId": 2
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 2,
+        "player": "1",
+        "coordX": 570.0,
+        "coordY": 168.0,
+        "points": 2,
+        "type": "lay-up",
+        "fastBreak": true,
+        "secondChancePoints": false,
+        "pointsFromTurnover": false,
+        "made": "blocked"
+      },
+      "id": 1360028,
+      "parentActionId": 0,
+      "userTime": "19:08:23",
+      "quarterTime": "09:19",
+      "type": "shot",
+      "playerId": 1043,
+      "teamId": 4
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 2,
+        "player": "3",
+        "coordX": 285.0,
+        "coordY": 979.9999999999999,
+        "points": 3,
+        "type": "jump-shot",
+        "fastBreak": true,
+        "secondChancePoints": false,
+        "pointsFromTurnover": false,
+        "made": "made"
+      },
+      "id": 1360032,
+      "parentActionId": 0,
+      "userTime": "19:08:28",
+      "quarterTime": "09:15",
+      "type": "shot",
+      "score": "3-1",
+      "totalPlayerPoints": "3",
+      "playerId": 1044,
+      "teamId": 4
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 1,
+        "player": "9",
+        "coordX": 825.0000000000001,
+        "coordY": 1120.0,
+        "points": 3,
+        "type": "jump-shot",
+        "fastBreak": false,
+        "secondChancePoints": false,
+        "pointsFromTurnover": false,
+        "made": "missed"
+      },
+      "id": 1360034,
+      "parentActionId": 0,
+      "userTime": "19:08:38",
+      "quarterTime": "09:04",
+      "type": "shot",
+      "playerId": 1019,
+      "teamId": 2
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 2,
+        "player": "5",
+        "coordX": 675.0,
+        "coordY": 140.0,
+        "points": 2,
+        "type": "dunk",
+        "fastBreak": false,
+        "secondChancePoints": false,
+        "pointsFromTurnover": false,
+        "made": "made"
+      },
+      "id": 1360037,
+      "parentActionId": 0,
+      "userTime": "19:08:50",
+      "quarterTime": "08:52",
+      "type": "shot",
+      "score": "5-1",
+      "totalPlayerPoints": "2",
+      "playerId": 1045,
+      "teamId": 4
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 2,
+        "player": "15"
+      },
+      "id": 1360038,
+      "parentActionId": 1360037,
+      "userTime": "19:08:51",
+      "quarterTime": "08:51",
+      "type": "assist",
+      "playerId": 1051,
+      "teamId": 4
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 1,
+        "player": "2",
+        "coordX": 900.0,
+        "coordY": 140.0000000000001,
+        "points": 2,
+        "type": "lay-up",
+        "fastBreak": false,
+        "secondChancePoints": false,
+        "pointsFromTurnover": false,
+        "made": "missed"
+      },
+      "id": 1360040,
+      "parentActionId": 0,
+      "userTime": "19:09:12",
+      "quarterTime": "08:39",
+      "type": "shot",
+      "playerId": 1014,
+      "teamId": 2
+    },
+    {
+      "quarter": 1,
+      "parameters": {
+        "team": 2,
+        "player": "3",
+        "coordX": 1110.0,
+        "coordY": 168.0,
+        "points": 2,
+        "type": "jump-shot",
+        "fastBreak": false,
+        "secondChancePoints": false,
+        "pointsFromTurnover": false,
+        "made": "missed"
+      },
+      "id": 1360043,
+      "parentActionId": 0,
+      "userTime": "19:09:26",
+      "quarterTime": "08:26",
+      "type": "shot",
+      "playerId": 1044,
+      "teamId": 4
+    },
+    {
+      "quarter": 4,
+      "parameters": {
+        "team": null,
+        "player": null,
+        "quarter": 4,
+        "type": "end-of-quarter"
+      },
+      "id": 1360875,
+      "parentActionId": 0,
+      "userTime": "21:03:28",
+      "quarterTime": "00:00",
+      "type": "quarter",
+      "playerId": 0,
+      "teamId": 0
+    },
+    {
+      "quarter": 4,
+      "parameters": {
+        "team": null,
+        "player": null,
+        "type": "end-of-game"
+      },
+      "id": 1360876,
+      "parentActionId": 0,
+      "userTime": "21:03:31",
+      "quarterTime": "00:00",
+      "type": "game",
+      "playerId": 0,
+      "teamId": 0
+    }
+  ]
+}

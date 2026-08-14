@@ -1,0 +1,21 @@
+# Minimal dependency set for the CURRENT build stage (video risk day + PBP probe).
+# Do not add the full future stack here. Each later stage adds its own deps
+# when that stage actually starts.
+#
+#   python -m venv .venv
+#   .venv\Scripts\python.exe -m pip install -r requirements.txt   (Windows)
+#   .venv/bin/python -m pip install -r requirements.txt           (POSIX)
+
+google-genai>=1.0
+requests>=2.31
+beautifulsoup4>=4.12
+lxml>=5.0
+pydantic>=2.7
+python-dotenv>=1.0
+
+# Routes TLS verification through the OS trust store. Required on the current
+# dev machine, where certifi's roots are rejected (see src/basketball_scout/net.py).
+truststore>=0.9
+
+# dev
+pytest>=8.0

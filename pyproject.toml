@@ -1,0 +1,37 @@
+[project]
+name = "basketball-analytics-scouting"
+version = "0.1.0"
+description = "Basketball analytics and AI scouting system (Israeli Premier League MVP)"
+requires-python = ">=3.11"
+
+# Kept deliberately minimal: only what the current build stage actually needs.
+# Later stages (CrewAI, FastAPI, Supabase, PDF rendering) add their own deps
+# when that stage starts — not before.
+dependencies = [
+    "google-genai>=1.0",
+    "requests>=2.31",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+    "pydantic>=2.7",
+    "python-dotenv>=1.0",
+    "truststore>=0.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+# `src` layout without requiring an editable install — keeps setup friction low.
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "network: test performs real network/API calls (deselected by default runs)",
+]

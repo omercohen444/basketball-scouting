@@ -1,0 +1,115 @@
+{
+  "games": [
+    {
+      "game_id": "IBPL-2025-26-G136",
+      "season": "2025-26",
+      "competition": "Winner League",
+      "date_utc": "2026-01-11",
+      "source": {
+        "segev_game_id": 136
+      },
+      "home": {
+        "team_id": "IBPL-MACCABI-TA",
+        "segev_team_id": 2,
+        "name": "MACCABI TEL AVIV"
+      },
+      "away": {
+        "team_id": "IBPL-HAPOEL-JLM",
+        "segev_team_id": 4,
+        "name": "HAPOEL JERUSALEM"
+      },
+      "video": {
+        "provider": "youtube",
+        "url": "https://www.youtube.com/watch?v=-pIwVedZO3I",
+        "verified_full_game": true,
+        "duration_s": 5222.0
+      },
+      "sync": {
+        "video_duration_s": 5222.0,
+        "slope": 0.94562,
+        "tolerance_s": 5.0,
+        "anchors": [
+          {
+            "quarter": 1,
+            "source_action_id": 1360032,
+            "pbp_user_time_s": 68908.0,
+            "video_time_s": 94.0,
+            "method": "manual",
+            "note": "Q1 first made FG, Carrington 3PT"
+          },
+          {
+            "quarter": 2,
+            "source_action_id": 1360235,
+            "pbp_user_time_s": 70220.0,
+            "video_time_s": 1191.0,
+            "method": "manual",
+            "note": "Q2 first made FG, Leaf lay-up"
+          },
+          {
+            "quarter": 3,
+            "source_action_id": 1360469,
+            "pbp_user_time_s": 72697.0,
+            "video_time_s": 2604.0,
+            "method": "manual",
+            "note": "Q3 first made FG, Hoard dunk"
+          },
+          {
+            "quarter": 4,
+            "source_action_id": 1360717,
+            "pbp_user_time_s": 74420.0,
+            "video_time_s": 4135.0,
+            "method": "manual",
+            "note": "Q4 first made FG, Carrington 3PT"
+          }
+        ],
+        "checks": [
+          {
+            "quarter": 1,
+            "source_action_id": 1360204,
+            "predicted_video_s": 1140.80134,
+            "observed_video_s": 1138.0,
+            "residual_s": -2.8,
+            "status": "ok"
+          },
+          {
+            "quarter": 2,
+            "source_action_id": 1360428,
+            "predicted_video_s": 2503.52056,
+            "observed_video_s": 2519.0,
+            "residual_s": 15.48,
+            "status": "cut"
+          },
+          {
+            "quarter": 3,
+            "source_action_id": 1360629,
+            "predicted_video_s": 3639.4539,
+            "observed_video_s": 3630.0,
+            "residual_s": -9.45,
+            "status": "drift"
+          },
+          {
+            "quarter": 4,
+            "source_action_id": 1360871,
+            "predicted_video_s": 5190.31192,
+            "observed_video_s": 5189.0,
+            "residual_s": -1.31,
+            "status": "ok"
+          },
+          {
+            "quarter": 2,
+            "source_action_id": 1360302,
+            "predicted_video_s": 1659.0819000000001,
+            "observed_video_s": 1686.0,
+            "residual_s": 26.92,
+            "status": "cut"
+          }
+        ],
+        "quality": "failed",
+        "operator_lag_estimate_s": 5.77,
+        "operator_lag_std_s": 13.39,
+        "calibrated_by": "manual",
+        "calibrated_at": "2026-08-14T22:08:42.439243+00:00"
+      }
+    }
+  ]
+}
