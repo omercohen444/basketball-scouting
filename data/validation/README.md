@@ -103,3 +103,18 @@ model that answers `uncertain` for everything is impossible to read correctly.
 
 ~20 events establishes *feasibility*, not accuracy. Treat the number as
 "obviously workable / obviously broken / unclear", not as a benchmark score.
+
+---
+
+## `segev_game136_full.json`
+
+A verbatim, complete copy of the real Segev `getActions` response for
+`game_id=136` (MACCABI TEL AVIV 95 - HAPOEL JERUSALEM 84, 2026-01-11 Winner
+League) — all 867 actions. Used by the statistics layer's real-data
+integration test (`tests/test_stats_integration_game136.py`), which needs
+every action type (rebounds, turnovers, free throws, fouls), not just shots —
+`segev_game136_trimmed.json` above is shot-only and too small for that.
+
+Kept whole rather than re-trimmed: the statistics layer's box-score
+reconciliation checks (final score, ORB/DRB, TOV, etc.) are only meaningful
+against a complete game.
