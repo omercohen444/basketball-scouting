@@ -117,3 +117,68 @@ def compute_segment_metrics(
         fg3a_rate=formulas.three_point_rate(components_for.fg3a, components_for.fga),
         ast_to_ratio=formulas.ast_to_ratio(components_for.ast, components_for.tov),
     )
+
+
+def _sum_components(components_list: list[TeamGameComponents]) -> TeamGameComponents:
+    return TeamGameComponents(
+        fgm=sum(c.fgm for c in components_list), fga=sum(c.fga for c in components_list),
+        fg3m=sum(c.fg3m for c in components_list), fg3a=sum(c.fg3a for c in components_list),
+        ftm=sum(c.ftm for c in components_list), fta=sum(c.fta for c in components_list),
+        orb=sum(c.orb for c in components_list), drb=sum(c.drb for c in components_list),
+        ast=sum(c.ast for c in components_list), tov=sum(c.tov for c in components_list),
+        pf=sum(c.pf for c in components_list), points=sum(c.points for c in components_list),
+    )
+
+
+def build_canonical_aggregate_metrics(games: list) -> DerivedMetrics:
+    """The canonical, volume-weighted season/window aggregate for the ten
+    core metrics — reused for :mod:`evidence`'s ``EvidenceObject.value``
+    (2026-08-15 management audit).
+
+    ``games`` is a list of ``TeamGameStats`` (already-accepted per-game
+    records — this operates on ``components_for``/``components_against``/
+    ``game_minutes``, not possessions). Sums the raw components across
+    every game FIRST, then calls the identical ``formulas.py`` functions
+    ONCE on the totals — no new formula, no duplicated arithmetic, exactly
+    the same pattern ``compute_segment_metrics`` already uses for a
+    possession subset, just with pre-aggregated per-game components as the
+    input instead of raw possessions.
+
+    This is standard basketball-statistics convention (matching how
+    ``profile.py``'s own ``_season_shot_mix`` already treats 2PA/3PA share
+    — volume-weighted, not an average of nightly percentages — season
+    eFG%/TOV%/ORtg/etc. are conventionally computed the same way, e.g.
+    season eFG% = sum(FGM + 0.5*3PM) / sum(FGA), never the mean of each
+    game's own eFG%). Deliberately DIFFERENT from
+    ``stability.mean``/``profile.py``'s ``basic.metrics``, which both
+    remain the unweighted per-game mean — that is a legitimate, separate,
+    distribution-focused statistic, not replaced by this function.
+    """
+    if not games:
+        return DerivedMetrics(
+            offensive_rating=None, defensive_rating=None, net_rating=None, pace=None,
+            efg_pct=None, tov_pct=None, orb_pct=None, ft_rate=None, fg3a_rate=None, ast_to_ratio=None,
+        )
+
+    total_for = _sum_components([g.components_for for g in games])
+    total_against = _sum_components([g.components_against for g in games])
+    total_minutes = sum(g.game_minutes for g in games)
+
+    team_poss = formulas.estimate_possessions(total_for, total_against)
+    opp_poss = formulas.estimate_possessions(total_against, total_for)
+
+    off_rtg = formulas.offensive_rating(total_for.points, team_poss)
+    def_rtg = formulas.defensive_rating(total_against.points, opp_poss)
+
+    return DerivedMetrics(
+        offensive_rating=off_rtg,
+        defensive_rating=def_rtg,
+        net_rating=formulas.net_rating(off_rtg, def_rtg),
+        pace=formulas.pace(team_poss, opp_poss, total_minutes) if total_minutes > 0 else None,
+        efg_pct=formulas.effective_fg_pct(total_for.fgm, total_for.fg3m, total_for.fga),
+        tov_pct=formulas.turnover_pct(total_for.tov, total_for.fga, total_for.fta),
+        orb_pct=formulas.off_reb_pct(total_for.orb, total_against.drb),
+        ft_rate=formulas.free_throw_rate(total_for.fta, total_for.fga),
+        fg3a_rate=formulas.three_point_rate(total_for.fg3a, total_for.fga),
+        ast_to_ratio=formulas.ast_to_ratio(total_for.ast, total_for.tov),
+    )

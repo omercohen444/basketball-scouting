@@ -66,12 +66,25 @@ def build_points_off_turnovers_profile(
 
 @dataclass(frozen=True)
 class SecondChanceProfile:
+    """Offensive-rebound consequences (§9, 2026-08-15 v2). All fields below
+    ``second_chance_scoring_conversion`` are v2 additions built directly on
+    top of the same OREB-possession subset — no double counting against
+    ``second_chance_points``: each is a different view of the identical
+    "after the first OREB, within the same possession" window.
+    """
+
     offensive_rebound_possessions: int
     second_chance_points: int
     second_chance_points_per_game: float | None
     second_chance_points_share_of_points: float | None
     points_per_second_chance_possession: float | None
     second_chance_scoring_conversion: float | None  # % of OREB possessions scoring >=1 pt after the OREB
+    zero_point_rate_after_oreb: float | None  # 1 - second_chance_scoring_conversion, kept explicit for readability
+    scoring_oreb_possessions: int  # numerator behind second_chance_scoring_conversion — exposed for season recompute
+    fga_after_oreb: int  # shot attempts taken after the first OREB, same possession
+    fga_after_oreb_per_oreb_possession: float | None
+    multi_oreb_possessions: int  # possessions with >=2 offensive rebounds (extra second chances)
+    additional_orebs: int  # orb count beyond the first, summed across OREB possessions
 
     def to_dict(self) -> dict[str, Any]:
         return dict(self.__dict__)
@@ -82,15 +95,24 @@ def build_second_chance_profile(team_possessions: list[Possession], *, games_n: 
     scp = sum(p.points_after_first_oreb for p in oreb_possessions)
     total_points = _sum_points(team_possessions)
     scoring_oreb_possessions = sum(1 for p in oreb_possessions if p.points_after_first_oreb > 0)
+    conversion = (scoring_oreb_possessions / len(oreb_possessions)) if oreb_possessions else None
+    fga_after = sum(p.fga_after_first_oreb for p in oreb_possessions)
+    multi_oreb = sum(1 for p in oreb_possessions if p.orb >= 2)
+    additional_orebs = sum(p.orb - 1 for p in oreb_possessions)  # orb>=1 guaranteed by had_offensive_rebound
+
     return SecondChanceProfile(
         offensive_rebound_possessions=len(oreb_possessions),
         second_chance_points=scp,
         second_chance_points_per_game=(scp / games_n) if games_n > 0 else None,
         second_chance_points_share_of_points=(scp / total_points) if total_points > 0 else None,
         points_per_second_chance_possession=(scp / len(oreb_possessions)) if oreb_possessions else None,
-        second_chance_scoring_conversion=(
-            scoring_oreb_possessions / len(oreb_possessions) if oreb_possessions else None
-        ),
+        second_chance_scoring_conversion=conversion,
+        zero_point_rate_after_oreb=(1.0 - conversion) if conversion is not None else None,
+        scoring_oreb_possessions=scoring_oreb_possessions,
+        fga_after_oreb=fga_after,
+        fga_after_oreb_per_oreb_possession=(fga_after / len(oreb_possessions)) if oreb_possessions else None,
+        multi_oreb_possessions=multi_oreb,
+        additional_orebs=additional_orebs,
     )
 
 

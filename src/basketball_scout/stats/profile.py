@@ -148,7 +148,9 @@ def _dynamics_summary(pairs: list[TeamGamePair]) -> dict[str, Any]:
 
 _SCORING_SOURCE_ATTRS = {
     "points_off_turnovers": ["points_off_turnovers", "opponent_turnovers"],
-    "second_chance": ["offensive_rebound_possessions", "second_chance_points"],
+    "second_chance": ["offensive_rebound_possessions", "second_chance_points",
+                      "fga_after_oreb", "multi_oreb_possessions", "additional_orebs",
+                      "scoring_oreb_possessions"],
     "fast_break": ["provider_fast_break_points"],
     "assisted": ["assisted_fgm", "unassisted_fgm", "assisted_2pm", "unassisted_2pm",
                  "assisted_3pm", "unassisted_3pm", "total_provider_assists",
@@ -205,6 +207,21 @@ def build_team_profile(team_id: str, pairs: list[TeamGamePair], *, window: str =
     total = assisted.get("total_provider_assists") or 0
     unresolved = assisted.get("unresolved_assist_count") or 0
     assisted["unresolved_assist_rate"] = (unresolved / total) if total > 0 else None
+
+    # Rates recomputed from summed season counts, not averaged as
+    # independent per-game ratios — same convention as shot_mix/assisted
+    # above (a 1-OREB-possession game and a 15-OREB-possession game must
+    # not weigh equally in the season conversion rate).
+    sc = profile["scoring_sources"]["second_chance"]
+    oreb_poss = sc.get("offensive_rebound_possessions") or 0
+    sc_points = sc.get("second_chance_points") or 0
+    fga_after = sc.get("fga_after_oreb") or 0
+    sc["points_per_second_chance_possession"] = (sc_points / oreb_poss) if oreb_poss > 0 else None
+    sc["fga_after_oreb_per_oreb_possession"] = (fga_after / oreb_poss) if oreb_poss > 0 else None
+    scoring_oreb = sc.get("scoring_oreb_possessions") or 0
+    conversion = (scoring_oreb / oreb_poss) if oreb_poss > 0 else None
+    sc["second_chance_scoring_conversion"] = conversion
+    sc["zero_point_rate_after_oreb"] = (1.0 - conversion) if conversion is not None else None
 
     return profile
 

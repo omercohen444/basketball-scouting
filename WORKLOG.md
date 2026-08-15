@@ -5,6 +5,151 @@ session — not a place for terminal output.
 
 ---
 
+## 2026-08-15 — Run 9: Stats Enrichment v2 — final semantic integrity check (`stats-layer`, not committed)
+
+**Objective:** Two final checks before commit — the canonical-aggregate-
+value question raised by the previous handoff's own wording, and a timeout
+deduplication confirmation. One real bug found in each. No new features,
+no scope expansion.
+
+**1. Canonical aggregate vs. per-game mean — real bug, fixed.** Audited
+what v1's own accepted engine treats as "canonical": found v1 already has
+**two coexisting conventions** — `profile.py`'s `basic.metrics` (unweighted
+mean of per-game ratios) for the ten core metrics, vs. `_season_shot_mix`
+(volume-weighted, sum-of-raw-counts) for shot-mix shares. Standard
+basketball-statistics convention (season eFG%, TOV%, ORtg, etc. are always
+volume-weighted, matching how `_season_shot_mix` already treats shot-mix)
+sides with the weighted convention. `EvidenceObject.value` was using the
+unweighted mean for season-level ten-metric evidence — genuinely
+inconsistent with basketball convention and with v1's own shot-mix
+precedent. **Fixed:** new `segment_metrics.build_canonical_aggregate_metrics()`
+sums raw `TeamGameComponents` across every eligible game and calls the
+*same* `formulas.py` functions once on the totals — no new formula, same
+pattern `compute_segment_metrics` already uses for possession subsets,
+applied instead to pre-aggregated per-game components. `build_evidence()`
+gained `use_canonical_aggregate: bool` (season-level evidence in the v2
+preview script now passes `True`); `stability.mean` is completely
+unaffected — it still and always means "unweighted per-game distribution",
+now with an explicit `stability_definition` provenance field alongside
+`value_definition` so a consumer never has to guess which convention
+either field uses. Real-data confirmation (Beer Sheva season eFG%):
+canonical value 0.5166 vs. unweighted mean 0.5202 — a genuine, measurable
+divergence, not just the synthetic textbook example. Segment-level
+evidence (clutch, quarter, score-state cuts) still uses the unweighted
+mean — no raw-component aggregation path exists yet for possession-derived
+segments — honestly labeled via the same provenance field, not silently
+left ambiguous.
+
+**2. Timeout deduplication — real bug, fixed.** Two consecutive timeouts
+by the same team with no possession between them were each independently
+matched to the identical next possession and its points/FGA/FGM were
+**summed twice** (`after_timeout_possessions_found=2, points=8` for a
+game truly containing one 4-point possession). Fixed: the matched
+possession is now deduplicated by `possession_index` — contributes to the
+sample at most once regardless of how many timeout actions point to it.
+`own_timeouts_with_team` is unaffected (still counts every real timeout
+action — a legitimate, separate fact). Confirmed with the exact
+adversarial case from both this run and different-team-consecutive-
+timeout variant.
+
+**Full revalidation:** offline suite **366 passed, 6 skipped, 0 failed**
+(up from 362: +4 new — 2 timeout-dedup regression tests, 3 canonical-
+aggregate tests net of one consolidated). v1 182-game sweep: 0 anomalies
+(v1 untouched). v2 182-game sweep: 0 anomalies (both fixes verified across
+all 14 teams' real data, including NaN/Inf and rank/percentile bounds
+checks now run against the canonical-aggregate values).
+
+**Files changed:** `stats/segment_metrics.py` (+`build_canonical_aggregate_metrics`),
+`stats/evidence.py` (`use_canonical_aggregate` param,
+`value_definition`/`stability_definition` provenance, expanded class
+docstring), `stats/possession_context.py` (timeout dedup fix + docstring),
+`scripts/enrichment_v2_validate_and_preview.py` (wire canonical aggregate
+into season evidence + markdown clarification), 2 test files extended.
+
+**Not committed.** Final `git status`/diff in the handoff report.
+
+---
+
+## 2026-08-15 — Run 8: Stats Enrichment v2 — agent-oriented evidence layer (`stats-layer`, not committed)
+
+**Objective:** Make the accepted v1 enrichment layer (commit `a01c484`)
+substantially more useful to the future Data Analysis Agent — league
+context, stability, recent-window deltas, a single evidence-object
+representation, and transparent (non-composite) candidate-signal flags —
+plus three bounded audits (run-response, after-timeout, turnover taxonomy).
+No redesign of v1; no new formulas duplicated.
+
+**Built:** `stats/league_context.py` (deterministic rank/percentile vs. the
+rest of the league; competition-ranking tie handling; direction is
+caller-supplied, never invented), `stats/stability.py` (mean/median/std/IQR/
+min/max/CV over per-game values, each gated by a minimum-n applicability
+rule), `stats/evidence.py` (`RecentDelta`, the full `EvidenceObject`
+combining league context + stability + recent + win/loss over one
+already-computed per-game value, and four transparent `SignalFlags` —
+`league_extreme`/`win_loss_signal`/`recent_shift`/`stable_pattern` — each a
+documented module-level threshold, deliberately not one composite score).
+
+**OREB consequences** (`scoring_sources.py`, extends `SecondChanceProfile`
+without duplicating v1's `second_chance_points`): `zero_point_rate_after_oreb`,
+`fga_after_oreb`, `multi_oreb_possessions`, `additional_orebs` —
+required one new possession field, `fga_after_first_oreb`, mirroring the
+existing `points_after_first_oreb` pattern exactly.
+
+**Bounded audits, all three implementable, all three implemented:**
+- **Turnover taxonomy** — audited all 182 games' raw `turnover.parameters.type`:
+  10 stable provider categories, 0% null, no artifacts. Implemented
+  verbatim (`turnover_taxonomy.py`) — provider categories exposed as-is,
+  nothing coarser invented on top.
+- **Run-response** (`possession_context.py`) — audited the exact
+  double-count risk named in the brief (a continuing run past the 8-point
+  threshold must trigger once, not retrigger every time the total keeps
+  climbing) and verified the fix with real data. Response = the run-on
+  team's first possession (by the validated possession model) at or after
+  the run-crossing play; truncation (no subsequent possession, e.g. run
+  ends the game) excludes the instance rather than fabricating a value.
+- **After-own-timeout** (`possession_context.py`) — audited real edge
+  cases: 3.9% of timeouts carry no team attribution (excluded, not
+  guessed), 3.3% occur mid-free-throw-trip (handled automatically by the
+  "first possession whose offense matches the calling team" rule, which
+  naturally skips a continuing trip rather than needing a special case).
+  Timeouts where the calling team doesn't get the ball next (defensive/
+  reactive timeouts) are excluded by the same offense-match check.
+
+**Real-data validation across all 182 games / 14 teams: 0 anomalies** —
+percentile always in [0,100], rank always in [1, eligible_teams], recent
+deltas equal their own component difference to floating tolerance, no
+NaN/Inf anywhere in evidence output, OREB-consequence totals never exceed
+game totals, run-response/after-timeout sample counts never exceed their
+own opportunity counts (no double counting).
+
+**Tests:** 40 new across 4 new test files (`test_stats_league_context.py`,
+`test_stats_stability.py`, `test_stats_evidence.py`,
+`test_stats_possession_context.py`) — direction/tie/insufficient-sample
+handling for league context; n-gated applicability for stability; recent-
+delta arithmetic and all four signal-flag thresholds for evidence; run-
+crossing no-double-count, truncation exclusion, and timeout team-mismatch
+exclusion for the two bounded-audit features. **352 passed, 6 skipped
+(network-marked), 0 failed** (up from 312).
+
+**Review artifacts:** `artifacts/stats_enrichment_v2/` (git-ignored, new
+`.gitignore` rule added) — league QA summary plus JSON+Markdown evidence
+previews for the same deterministic three-team selection as v1 (Maccabi
+Tel Aviv 24-2 / Beer Sheva 10-16 / Maccabi Raanana 6-20), covering the ten
+season metrics' league context/stability/recent-shift plus five
+high-value segment cuts (clutch eFG%/TOV%, Q4 net rating, behind-6+ eFG%,
+1H net rating) with their win/loss evidence.
+
+**Files changed:** `stats/possession.py` (+`fga_after_first_oreb` field
+only — no behavior change to existing fields), `stats/profile.py`
+(aggregate the new OREB fields, recompute their season rates),
+`stats/scoring_sources.py` (`SecondChanceProfile` extension), `.gitignore`
+(+1 rule), 6 new `stats/*.py` modules, 4 new test files,
+`scripts/enrichment_v2_validate_and_preview.py`.
+
+**Not committed.** Final `git status`/diff in the handoff report.
+
+---
+
 ## 2026-08-15 — Run 7: Enrichment v1 final hardening before commit (`stats-layer`, not committed)
 
 **Objective:** Resolve one correctness blocker (and-1 possession continuation)

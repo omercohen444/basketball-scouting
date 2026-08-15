@@ -142,6 +142,7 @@ class Possession:
     followed_opponent_turnover: bool = False
     had_offensive_rebound: bool = False
     points_after_first_oreb: int = 0
+    fga_after_first_oreb: int = 0
     fast_break_points: int = 0
     assisted_fgm: int = 0
     unassisted_fgm: int = 0
@@ -211,6 +212,7 @@ class _Open:
         self.had_oreb = False
         self.oreb_seen = False
         self.points_after_first_oreb = 0
+        self.fga_after_first_oreb = 0
         self.fast_break_points = 0
         self.assisted_fgm = 0
         self.unassisted_fgm = 0
@@ -273,6 +275,7 @@ def build_possessions(actions: list[dict[str, Any]], *, regulation_periods: int 
             followed_opponent_turnover=open_poss.followed_turnover,
             had_offensive_rebound=open_poss.had_oreb,
             points_after_first_oreb=open_poss.points_after_first_oreb,
+            fga_after_first_oreb=open_poss.fga_after_first_oreb,
             fast_break_points=open_poss.fast_break_points,
             assisted_fgm=open_poss.assisted_fgm, unassisted_fgm=open_poss.unassisted_fgm,
             fg2m_assisted=open_poss.fg2m_assisted, fg2m_unassisted=open_poss.fg2m_unassisted,
@@ -334,6 +337,8 @@ def build_possessions(actions: list[dict[str, Any]], *, regulation_periods: int 
             is_three = int(params.get("points") or 0) == 3
             made = params.get("made") == "made"
             open_poss.fga += 1
+            if open_poss.oreb_seen:
+                open_poss.fga_after_first_oreb += 1
             if is_three:
                 open_poss.fg3a += 1
             if made:

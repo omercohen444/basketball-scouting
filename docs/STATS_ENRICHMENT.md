@@ -206,3 +206,49 @@ segment is just a possession-list filter), but it is not built now.
   possession level — always 0 in segment-derived components. Has zero
   effect on any of the ten formulas (none use `pf`); flagged so it is never
   mistaken for a real foul count if reused elsewhere later.
+
+## v2 addendum (2026-08-15) — league context, stability, evidence object
+
+Adds `stats/{league_context,stability,evidence,possession_context,
+turnover_taxonomy}.py`. No v1 formula changed; one additive possession
+field (`fga_after_first_oreb`).
+
+**League context** (`league_context.py`): competition ranking (ties share
+the best rank), direction (`higher_is_better`/`lower_is_better`/`neutral`)
+supplied by the caller — never inferred from the metric name.
+
+**Aggregate value vs. per-game stability — read this before trusting
+`EvidenceObject.value`.** `value` is the season/segment aggregate using
+v1's already-accepted convention: the **unweighted arithmetic mean of
+per-game values** — identical to `stability.mean` in this implementation,
+because both come from the same per-game series. That equality is a
+property of the current convention, not guaranteed architecture: a
+**weighted** aggregate (sum-of-numerator / sum-of-denominator — the
+convention `profile.py`'s `_season_shot_mix` already uses for shot-mix
+shares) is a legitimately different number from the unweighted mean when
+per-game attempt volume is uneven, and nothing here assumes or enforces
+the two staying equal. `EvidenceObject.to_dict()["provenance"]["value_definition"]`
+states the convention explicitly (`"unweighted_mean_of_per_game_values"`)
+so a future consumer never has to guess. See
+`tests/test_stats_evidence.py`'s weighted-vs-unweighted test for a concrete
+numeric case where the two diverge (0.45 vs. 0.402).
+
+**Signal flags are screening heuristics only** (`evidence.py`,
+`HEURISTIC_DISCLAIMER`, carried as a field on every `SignalFlags`
+instance) — not a significance test, not a report-prominence decision, not
+a scout-importance judgment. `league_extreme` is explicitly two-tailed
+(`percentile <= 10 OR >= 90`) and direction-agnostic — extreme is never
+equated with good or bad, including for `neutral` metrics like Pace, which
+flag identically at both tails (tested).
+
+**After-own-timeout — a real bug found and fixed during hardening.** The
+first implementation searched only the calling team's own pre-filtered
+possession list for "the next possession", so it could never see an
+intervening opponent possession — it would wrongly match a *later*
+same-team possession as if it directly followed the timeout. Fixed:
+`build_after_own_timeout_profile` now takes the full, both-teams-merged
+possession list, finds the single nearest possession of either team, and
+only then checks whether its offense matches the calling team. Regression-
+tested with the exact adversarial case (opponent possession intervenes)
+plus mid-possession, mid-free-throw-trip, consecutive-timeout, quarter-end,
+and no-team-attribution cases.
