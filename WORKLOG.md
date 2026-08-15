@@ -5,6 +5,88 @@ session — not a place for terminal output.
 
 ---
 
+## 2026-08-16 — Run 11: CP2.4 hardening — seed-211 Gate 5 + lane-depth boundary fix (`stats-layer`)
+
+**Objective:** Management follow-up to Run 10 — recover the accepted seed-211
+ground truth (committed on master, `64b6cb8`) read-only, measure the real
+Gate 5 baseline, diagnose every mismatch, and apply only general/principled
+corrections (no event-specific tuning). Target: ≥95% coarse-zone reliability,
+19/20 or 20/20 seed-211.
+
+**GT recovery.** `git show 64b6cb8:artifacts/cp2/cp2_seed211_accepted_ground_truth.csv`
+— never merged, never copied into a tracked file; `scripts/cp2/run_seed211_gate5.py`
+re-fetches it the same way every run. SHA256
+`ec19d209e0964ac59c5d9fc6de8cfcef4cd9dcd79537cd6168ae6a2ee62c2fc5`. All 20 labels
+are from game 136.
+
+**Baseline Gate 5: 19/20 (95.0%).** One mismatch (action 1360059, a lay-up
+human-labeled `paint`/`lane_2pt`, classified `midrange_2pt`). Root-cause dug
+into the *data*, not the event: across all 8 CP2.4 games, Segev shot
+coordinates sit on a strict provider-side grid (`y_m` pitch 0.28m, `x_m`
+pitch 0.15m) — not freehand. The FIBA free-throw line (5.80m) falls between
+grid rows 5.60 and 5.88, only 0.08m from 5.88 — so a genuine paint attempt at
+the line can snap to the row just beyond it from quantization alone.
+Classified as category C (coordinate noise / boundary ambiguity), not a
+wrong geometry rule.
+
+**Accepted fix:** `LANE_DEPTH_BOUNDARY_TOLERANCE_M = 0.14` (half the measured
+y-grid pitch — the standard nearest-grid-line allowance, derived from
+dataset-wide grid measurement, not from this one event) added to
+`_is_within_lane`'s depth test in `geometry.py`. Verified: fixes the one
+seed-211 mismatch, creates zero seed-211 regressions, and across the full
+8-game/1,104-shot set changes **only** the `lane_2pt`/`midrange_2pt` split
+(483→492 / 154→145, exactly 9 shots) — every distance-sanity median and the
+92.16% official-family agreement figure are bit-for-bit unchanged. Considered
+and **rejected** (no diagnosed evidence): the same treatment for the lane
+x-boundary and corner thresholds; a distance-eligibility band change (2.0–4.0m
+2PT distribution reviewed, no natural gap found); a systematic coordinate
+offset (pooled dunk-centroid offset is small, ~7-14cm, but per-game centroids
+disagree in sign and magnitude across only 3–7 dunks/game — noise, not
+calibration, and the brief explicitly says not to fragile-calibrate per game).
+
+**Final Gate 5: 20/20 (100%).** Target reached (Level A). Explicitly flagged
+as provisional per brief §11 — seed-211 both diagnosed and confirmed the fix,
+so it is a tuned diagnostic set, not unbiased held-out validation. **Fresh,
+genuinely unseen human-labeled sample is still required for final KEEP** —
+none exists in this worktree (seed-211/game-136 is the only human shot-zone
+label set found anywhere in the repo); this is reported to management, not
+fabricated.
+
+**Verdict update:** SHOT_ZONE → **PROVISIONAL_MOVE_TO_PBP_DETERMINISTIC**
+(was PARTIAL in Run 10). DISTANCE → unchanged, still PARTIAL (no distance
+rule changed). FastBreak: not reopened, no change.
+
+**Tests:** 3 new (`test_pbp_geometry.py`, none referencing a seed-211 action
+ID — encode the general grid-tolerance rule and its boundaries). Full suite:
+**418 passed, 0 failed** (was 415; +3, 0 regressions).
+
+**Files changed:** `src/basketball_scout/pbp/geometry.py`
+(`LANE_DEPTH_BOUNDARY_TOLERANCE_M` + `_is_within_lane` update),
+`tests/test_pbp_geometry.py` (+3 tests), `scripts/cp2/run_seed211_gate5.py`
+(new — reproducible original-vs-hardened Gate 5 evaluator, GT read-only from
+master), `artifacts/cp2/coords/seed211_gate5.json` (new),
+`artifacts/cp2/coords/coordinate_validation.json` (regenerated —
+`lane_2pt`/`midrange_2pt` counts only), `artifacts/cp2/coords/
+coordinate_validation_report.md` (restructured into ORIGINAL CP2.4 / CP2.4
+HARDENING parts, original result preserved, not overwritten).
+
+**Not started / explicitly deferred:** Gate 6 (video spot-check) — unrelated
+to this pass, still blocked (game 136 sync `"quality": "failed"`, no other
+game calibrated). Fine RA-vs-paint boundary, `secondary_transition` — still
+out of MVP scope.
+
+**Unresolved issue for management:** same as Run 10, now sharper — a fresh,
+unseen human shot-zone label sample (or an explicit waiver) is the one thing
+standing between PROVISIONAL_MOVE_TO_PBP_DETERMINISTIC and final lock.
+
+**Next recommended technical action:** if/when a fresh label sample is
+supplied, re-run `scripts/cp2/run_seed211_gate5.py` against it unchanged (no
+further tuning) as the final validation; if it holds near 95%+, promote per
+Run 10's "next recommended technical action" (wire `geometry.py` into the
+stats enrichment layer).
+
+---
+
 ## 2026-08-16 — Run 10: CP2.4 deterministic PBP validation (coords + fastBreak) (`stats-layer`)
 
 **Objective:** Validate, without video, whether (A) Segev `coordX`/`coordY` shot

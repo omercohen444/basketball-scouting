@@ -64,6 +64,16 @@ ARC_RADIUS_M = 6.75
 ARC_AMBIGUITY_BAND_M = 0.30  # +/- around the arc for the diagnostic-only check
 LANE_HALF_WIDTH_M = 2.45  # 4.9 m lane width / 2
 LANE_DEPTH_M = 5.8
+# CP2.4 hardening (2026-08-16): Segev shot coordinates are not freehand —
+# empirically, across all 8 validation games, y_m values fall on a strict
+# 0.28 m grid (x_m on a 0.15 m grid). The FIBA free-throw line (5.80 m) sits
+# between grid rows 5.60 and 5.88, closer to 5.88 — so a real paint attempt
+# charted at the free-throw line can snap to the row just beyond it purely
+# from grid quantization, not from the shot actually being a mid-range
+# attempt. Tolerance = half the measured y-grid pitch (0.28 / 2), the
+# standard "nearest grid line" allowance — derived from the provider's own
+# data granularity, not tuned to any single event.
+LANE_DEPTH_BOUNDARY_TOLERANCE_M = 0.14
 # Empirically validated (this session, 83 real 3PT-vs-arc "disagreements",
 # every single one within these bounds): a made/attempted 3PT shot is
 # treated as a CORNER three when it is taken close to the sideline and
@@ -135,7 +145,7 @@ def is_rim_attempt(shot_type: str | None) -> bool:
 def _is_within_lane(coord: NormalizedCoordinate) -> bool:
     return (
         abs(coord.x_m - BASKET_X_M) <= LANE_HALF_WIDTH_M
-        and coord.y_m <= LANE_DEPTH_M
+        and coord.y_m <= LANE_DEPTH_M + LANE_DEPTH_BOUNDARY_TOLERANCE_M
     )
 
 

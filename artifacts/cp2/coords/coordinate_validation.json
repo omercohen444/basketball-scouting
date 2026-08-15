@@ -78,8 +78,8 @@
   },
   "coarse_zone_distribution": {
     "atb_3": 403,
-    "midrange_2pt": 154,
-    "lane_2pt": 483,
+    "midrange_2pt": 145,
+    "lane_2pt": 492,
     "corner_3": 64
   },
   "rim_attempt_count": 455,

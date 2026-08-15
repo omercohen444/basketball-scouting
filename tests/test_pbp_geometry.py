@@ -9,6 +9,8 @@ from basketball_scout.pbp.geometry import (
     ARC_RADIUS_M,
     BASKET_X_M,
     BASKET_Y_M,
+    LANE_DEPTH_M,
+    LANE_DEPTH_BOUNDARY_TOLERANCE_M,
     NormalizedCoordinate,
     basket_distance_m,
     build_shot_geometry,
@@ -67,6 +69,35 @@ def test_zone_none_for_invalid_official_points():
     c = NormalizedCoordinate(x_m=7.5, y_m=2.0)
     assert classify_coarse_zone(c, official_points=1) is None
     assert classify_coarse_zone(c, official_points=0) is None
+
+
+# ---- Lane-depth boundary tolerance (CP2.4 hardening, 2026-08-16) ---------
+#
+# Segev shot coordinates are recorded on a discrete provider-side grid
+# rather than freehand; the FIBA free-throw line sits between two grid
+# rows rather than exactly on one. A shot genuinely taken at the
+# free-throw line can therefore be charted a small, principled distance
+# beyond the nominal 5.8m lane depth. LANE_DEPTH_BOUNDARY_TOLERANCE_M
+# absorbs that grid-quantization slop; it does not extend the lane by an
+# arbitrary amount, and it must not swallow a real mid-range shot clearly
+# beyond the free-throw line.
+
+def test_lane_depth_within_tolerance_still_counts_as_lane():
+    c = NormalizedCoordinate(x_m=BASKET_X_M, y_m=LANE_DEPTH_M + LANE_DEPTH_BOUNDARY_TOLERANCE_M)
+    assert classify_coarse_zone(c, official_points=2) == "lane_2pt"
+
+
+def test_lane_depth_clearly_beyond_tolerance_is_midrange():
+    c = NormalizedCoordinate(x_m=BASKET_X_M, y_m=LANE_DEPTH_M + LANE_DEPTH_BOUNDARY_TOLERANCE_M + 0.5)
+    assert classify_coarse_zone(c, official_points=2) == "midrange_2pt"
+
+
+def test_lane_depth_tolerance_does_not_affect_lane_x_boundary():
+    """The tolerance is specific to lane depth (y); it must not loosen the
+    lane half-width (x) boundary, which has no evidenced grid-alignment
+    issue and was not touched."""
+    c = NormalizedCoordinate(x_m=BASKET_X_M + 2.45 + LANE_DEPTH_BOUNDARY_TOLERANCE_M, y_m=2.0)
+    assert classify_coarse_zone(c, official_points=2) == "midrange_2pt"
 
 
 # ---- Official 2PT/3PT authority + ambiguity band ---------------------
