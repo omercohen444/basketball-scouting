@@ -57,6 +57,11 @@ scripts/spikes/output/
 artifacts/cp*/*
 !artifacts/cp*/*.md
 
+# Stats enrichment previews (Markdown + JSON) are reproducible review
+# output from scripts/enrichment_validate_and_preview.py, not source —
+# regenerate on demand rather than tracking (2026-08-15 management decision).
+artifacts/stats_enrichment/
+
 # ---- Editor / OS ----
 .vscode/
 .idea/

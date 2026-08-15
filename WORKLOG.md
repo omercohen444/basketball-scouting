@@ -5,6 +5,206 @@ session — not a place for terminal output.
 
 ---
 
+## 2026-08-15 — Run 7: Enrichment v1 final hardening before commit (`stats-layer`, not committed)
+
+**Objective:** Resolve one correctness blocker (and-1 possession continuation)
+plus three bounded management decisions (AST/TO definition, unresolved
+assists, preview artifact tracking) before the enrichment layer is approved
+to commit. No scope expansion.
+
+**1. AND-1 BLOCKER — corrected, not a false alarm.** Management was right to
+reject the earlier ~0/250-sample claim. Exhaustive audit of all 182 cached
+games, corrected query semantics (opponent commits the foul, `fouledOn`
+matches the shooter, `kind=="shooting"`, `freeThrows>0`, adjacency measured
+by skipping only the true non-boundary "attached" action types —
+`assist`/`block`/`deflection`/**`foul-drawn`**): **729 confirmed and-1
+sequences across 180/182 games, 6.5% of all 11,268 made shots.** The
+original miss was a real bug in the audit query, not a property of the
+data: it never skipped `foul-drawn`, which Segev *always* inserts between
+the shot and the deciding foul, so "next real action" never reached the
+foul. Root-caused and fixed: `possession.py` now pre-scans each game
+(`_find_and1_shot_ids`) and leaves a qualifying made shot's possession open
+until its free-throw sequence resolves, instead of always closing on the
+make. Assist linkage updated to also resolve against a still-open (and-1)
+possession, not only closed ones.
+
+**Second bug found and fixed during the same hardening pass**: the and-1
+fix initially broke game 74 (3 FGA silently vanished game-wide) — a stray
+"offensive rebound logged right after a made shot" provider oddity
+(already known, previously harmless) collided with an and-1 possession
+still open pending its FT: the existing fallback path called `open_new()`
+directly, silently overwriting (losing) the in-progress and-1 possession's
+FGA/FGM/points instead of closing it first. Fixed structurally, not just at
+that one call site: `open_new()` itself now force-closes any still-open
+possession before opening a new one, so this class of bug cannot recur at
+a different call site later. Re-verified: game 74 (and all 182) reconcile
+exactly again.
+
+**2. AST/TO DEFINITION — changed per management decision.** `Possession`
+gained `raw_assist_count` — every provider assist action for a possession,
+resolved or not — and `segment_metrics.py`'s AST/TO numerator now sums
+that (was `assisted_fgm`, the shot-linkage-only count). Verified: **all
+ten** core metrics (not nine) now reconcile *exactly* between the
+possession model and the season-level `engine.py` on a full game (game
+136: home/away AST 26/17 match `boxscore.py` exactly). Shot-level
+assisted/unassisted attribution (`AssistedProfile`) is unchanged in meaning
+but explicitly separated from AST/TO in its docstring.
+
+**3. UNRESOLVED ASSISTS — bounded check performed, resolver NOT built.**
+One deterministic question asked and answered: can `assist -> foul ->
+associated made shot` be resolved safely? Checked all 732 season-wide
+occurrences of this pattern for an unambiguous preceding made shot,
+same team: **0 resolvable** (709 have no preceding made shot within the
+adjacency window at all; the remaining 23 have a team mismatch). Per
+instruction, stopped there — no resolver, no guessing. `AssistedProfile`
+gained explicit provenance fields instead:
+`total_provider_assists`/`resolved_shot_attributed_assists`/
+`unresolved_assist_count`/`unresolved_assist_rate`, threaded through
+`profile.py`'s season aggregation (rate recomputed from summed counts,
+matching the existing shot-mix convention) — so a downstream agent can
+never mistake `assisted_fgm_pct` for 100%-coverage ground truth.
+
+**4. PREVIEW ARTIFACTS — narrow `.gitignore` rule added.**
+`artifacts/stats_enrichment/` only (not a blanket `artifacts/` rule) —
+verified `artifacts/cp1/`'s tracked `.md` files are unaffected.
+
+**5. PREVIEW SELECTION — verified, not corrupted, not changed.** Re-ran
+selection after all fixes: highest = Maccabi Tel Aviv (24-2, 0.923), median
+= Beer Sheva (10-16, 0.385, the 8th of 14 teams by wins descending — a real
+tie with Maccabi Ramat Gan at 10 wins broken deterministically by
+`team_id`), lowest = Maccabi Raanana (6-20, 0.231) — identical teams/records
+to the prior handoff; Markdown and JSON agree (generated from the same
+objects in the same run).
+
+**6. W/L SAMPLE SAFETY — demonstrated, not redesigned.** Every ranked
+differentiator row already carries `sample_wins`/`sample_losses` next to
+`effect_size` (both in the Markdown table's `n (W/L)` column and the full
+`MetricSignal` JSON — `sample_sufficient`/`effect_note` included), and
+`is_agent_rankable()` already gates the ranked list at
+n_wins>=3/n_losses>=3/finite-nonzero-variance before anything is shown.
+Confirmed by direct inspection of a real regenerated preview; no design
+change made.
+
+**7. Full revalidation:** offline suite **311 passed, 6 skipped, 0
+failed** (up from 301: +9 and-1 regression tests, +2 segment-metrics
+reconciliation tests, +2 AssistedProfile provenance tests). Full 182-game
+enrichment sweep: **0 anomalies** (after both bug fixes — the and-1
+implementation alone introduced the game-74 regression, caught precisely
+because the sweep is run after every change, not assumed clean).
+
+**Files changed this run:** `stats/possession.py` (and-1 continuation +
+`raw_assist_count` + the `open_new()` structural safety fix),
+`stats/segment_metrics.py` (AST numerator + docstring),
+`stats/scoring_sources.py` (`AssistedProfile` provenance fields),
+`stats/profile.py` (aggregate the new fields, recompute
+`unresolved_assist_rate`), `.gitignore` (+1 narrow rule), 3 test files
+extended (`test_stats_possession.py` +9, `test_stats_scoring_sources.py`
++2) plus 1 new (`test_stats_segment_metrics.py`, 2 tests). Regenerated
+(not newly created) preview artifacts under `artifacts/stats_enrichment/`
+— now git-ignored.
+
+**Not committed.** Final `git status`/diff in the handoff report.
+
+---
+
+## 2026-08-15 — Run 6: Full PBP enrichment layer v1 (`stats-layer`, not committed)
+
+**Objective:** Build the full deterministic PBP analytics enrichment layer
+on top of the accepted 182-game foundation (Run 5): possession-level state,
+game-flow/clutch/score-state/recent/home-away segmentation, scoring-source
+statistics, assisted/unassisted profile, shot mix, runs/droughts,
+score-dynamics/comebacks, and a generalized W/L effect-size comparison over
+all of it — structured evidence for a future Data Analysis Agent, no
+narrative interpretation anywhere. Full detail (definitions, architecture)
+in the new `docs/STATS_ENRICHMENT.md`. **Not committed** — returned for
+management review per instruction.
+
+**Built:** `stats/possession.py` (canonical FIBA possession-state builder —
+the foundation everything else derives from; never uses `userTime`),
+`stats/scoring_timeline.py` (chronological scoring-play list),
+`stats/segments.py` (quarter/half/clutch/score-state/close-score/late-close
+classification), `stats/segment_metrics.py` (possession subset -> the SAME
+`formulas.py` functions the season engine already uses — no new metric
+arithmetic anywhere), `stats/scoring_sources.py` (points off turnovers,
+second chance, provider fast-break, assisted/unassisted, shot/scoring mix),
+`stats/runs_droughts.py` (scoring runs, custom scoring/FG-drought metric),
+`stats/dynamics.py` (ties/lead-changes/largest-lead-deficit/comebacks),
+`stats/enrichment.py` (per-game orchestration -> `GameEnrichment`),
+`stats/profile.py` (cross-game windows, JSON-serializable team profiles,
+segmented W/L differentiator ranking). `stats/winloss.py` extended
+(non-breaking) with `build_metric_signal`/`compute_signal_from_pairs`/
+`is_agent_rankable` so segmented metrics reuse the exact same accepted
+effect-size machinery as the season-level ten metrics.
+
+**Validation on real data — critical, found and fixed 2 real bugs before
+trusting the model:**
+- Possession totals initially mismatched the already-validated
+  `boxscore.py` component totals by small amounts (ORB off by 1, TOV off
+  by several). Root causes: (1) a fallback branch for an unattributed
+  offensive-rebound context forgot to increment the ORB counter; (2) a
+  turnover with no shot ever attempted in that possession (e.g. a
+  5-second violation, or any turnover immediately following the prior
+  possession's made basket) fell through unopened and was silently
+  dropped. Both fixed; re-verified: 9 of the 10 core metrics now
+  reconcile **exactly** between the possession model and `engine.py` on a
+  full game (game 136) — the 10th, `ast_to_ratio`, differs by a small,
+  understood, documented amount (see below).
+- Real-data investigation surfaced a genuine Segev provider nuance: some
+  `assist` actions link (`parentActionId`) to a `foul` action instead of a
+  made shot — apparently representing and-1-adjacent plays. Not guessed
+  at; surfaced explicitly as `unresolved_assist_count` (5/43 assists in
+  game 136, ~10% typical across the season) rather than silently
+  mis-attributed as "unassisted".
+- Confirmed a real "team offensive rebound logged right after a made shot"
+  provider oddity exists (not a bug); handled conservatively (see docs).
+
+**Full 182-game sweep result: 0 anomalies.** Re-built `GameEnrichment` for
+every one of the 182 already-accepted games (from the existing raw cache +
+already-validated `TeamGameStats`, no new network calls) and checked: shot
+count / scoring-mix reconciliation, quarter+half+OT additive reconciliation
+against game totals, exactly one win/loss and one home/away row per game,
+clutch⊆late_close possession-count consistency, assisted+unassisted==FGM,
+second-chance points never exceeding total points, largest run never
+exceeding final score. All 14 teams present with clean per-team data.
+
+**Three real-team previews generated** (highest / median / lowest
+win%, deterministic selection): Maccabi Tel Aviv (24-2), Beer Sheva
+(10-16), Maccabi Raanana (6-20) — Markdown + machine-readable JSON under
+`artifacts/stats_enrichment/` (git-ignored, not auto-committed). Spot-check
+of the Beer Sheva preview: effect-size ranking visibly differs from what
+raw-difference ranking would produce (e.g. `orb_pct` effect 0.985 ranked
+above `ast_to_ratio`'s larger raw difference but weaker effect) — same
+finding pattern as the season-level signal engine, now confirmed at the
+segmented level too.
+
+**Tests:** 70 new tests across 6 new test files (possession continuity/
+boundaries incl. and-1-negligible documentation and a real-data regression
+against games 178/209/224; segment classification incl. every clutch
+threshold boundary and the clutch⊆late_close⊆close_score nesting; runs/
+8+-run counting/period-non-boundary; droughts incl. the exact 3:00
+boundary, FT-vs-FG-drought distinction, and no-bridge-across-quarter
+behavior verified via the internal gap list; dynamics incl. tie-through-
+lead-change and correct-denominator comeback/blown-lead rates; scoring
+sources; profile window selection by actual date not Segev id). **301
+passed, 6 skipped (network-marked), 0 failed** — up from 239.
+
+**Files changed:** 9 new `src/basketball_scout/stats/*.py` modules, 1
+extended (`winloss.py`, additive only — existing behavior/tests
+unaffected), 6 new test files, `scripts/enrichment_validate_and_preview.py`
+(new), `docs/STATS_ENRICHMENT.md` (new). No video-track files touched.
+
+**Features requested but simplified/deferred, with reasons:** and-1
+possession-continuation lookahead (negligible real incidence, documented
+simplification, not a missing feature); exact `unresolved_assist_count`
+attribution (would require guessing without further Segev-semantics
+investigation — surfaced as an explicit count instead); shot-zone geometry
+— explicitly out of scope per the brief (video track's territory).
+
+**Not committed.** `git status`/`git diff --stat` in the handoff report;
+nothing staged.
+
+---
+
 ## 2026-08-15 — Run 5: Statistics track, targeted 182-game dataset recovery (`stats-layer`)
 
 **Objective:** Management supplied 4 specific Segev ids (148, 178, 209, 224)

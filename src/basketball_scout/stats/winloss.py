@@ -181,6 +181,103 @@ def _pooled_std(win_vals: list[float], loss_vals: list[float]) -> tuple[float | 
     return math.sqrt(pooled_var), None
 
 
+def build_metric_signal(
+    metric: str,
+    category: str,
+    win_vals: list[float],
+    loss_vals: list[float],
+    *,
+    lower_is_better: bool = False,
+    min_sufficient_sample: int = MIN_SUFFICIENT_SAMPLE,
+) -> MetricSignal:
+    """Build one :class:`MetricSignal` from raw win/loss value lists.
+
+    This is the single shared implementation behind both
+    :func:`compute_signals` (the ten season-level core metrics) and any
+    segmented/enriched metric (§18 of the 2026-08-15 enrichment brief —
+    "extend the W/L comparison machinery so it can operate on segmented/
+    enriched observations"). Every enrichment-layer W/L comparison
+    (quarter eFG%, clutch TOV%, points off turnovers, ...) calls this same
+    function so the effect-size/sample-handling contract never drifts
+    between the original ten metrics and the new segmented ones.
+    """
+    win_avg = _average(win_vals)
+    loss_avg = _average(loss_vals)
+    diff = (win_avg - loss_avg) if (win_avg is not None and loss_avg is not None) else None
+
+    favorable: bool | None = None
+    if diff is not None:
+        favorable = (diff < 0) if lower_is_better else (diff > 0)
+
+    pooled_std: float | None = None
+    effect_size: float | None = None
+    effect_note: str | None = None
+    if diff is None:
+        effect_note = "insufficient_sample_for_variance" if not win_vals or not loss_vals else None
+    else:
+        pooled_std, effect_note = _pooled_std(win_vals, loss_vals)
+        if pooled_std is not None and pooled_std > 0:
+            effect_size = diff / pooled_std
+
+    return MetricSignal(
+        metric=metric,
+        category=category,
+        win_average=win_avg,
+        loss_average=loss_avg,
+        difference=diff,
+        sample_wins=len(win_vals),
+        sample_losses=len(loss_vals),
+        sample_sufficient=(
+            len(win_vals) >= min_sufficient_sample and len(loss_vals) >= min_sufficient_sample
+        ),
+        favorable_in_wins=favorable,
+        pooled_std=pooled_std,
+        effect_size=effect_size,
+        effect_note=effect_note,
+    )
+
+
+def compute_signal_from_pairs(
+    metric: str,
+    category: str,
+    pairs: list[tuple[float | None, bool]],
+    *,
+    lower_is_better: bool = False,
+    min_sufficient_sample: int = MIN_SUFFICIENT_SAMPLE,
+) -> MetricSignal:
+    """Generic entry point for a segmented/enriched W/L signal.
+
+    ``pairs`` is ``[(value_or_None, was_a_win), ...]`` — one entry per game
+    (or per game-segment observation). ``None`` values (the segment simply
+    had no sample in that game, e.g. no clutch possessions) are dropped
+    before averaging, never treated as 0.
+    """
+    win_vals = [v for v, win in pairs if win and v is not None]
+    loss_vals = [v for v, win in pairs if not win and v is not None]
+    return build_metric_signal(
+        metric, category, win_vals, loss_vals,
+        lower_is_better=lower_is_better, min_sufficient_sample=min_sufficient_sample,
+    )
+
+
+# Threshold for an *agent-facing ranked* signal (enrichment brief §18) —
+# stricter than and separate from MIN_SUFFICIENT_SAMPLE / sample_sufficient
+# (which is a reporting-only "trust this number" flag). A signal failing
+# this check is still computed and returned by compute_signals/rank_signals
+# — it is simply excluded from the top-ranked agent view, with its own
+# effect_note explaining why if applicable.
+AGENT_RANKABLE_MIN_WINS = 3
+AGENT_RANKABLE_MIN_LOSSES = 3
+
+
+def is_agent_rankable(signal: MetricSignal) -> bool:
+    return (
+        signal.sample_wins >= AGENT_RANKABLE_MIN_WINS
+        and signal.sample_losses >= AGENT_RANKABLE_MIN_LOSSES
+        and signal.effect_size is not None
+    )
+
+
 def compute_signals(
     games: list[TeamGameStats],
     *,
@@ -212,41 +309,10 @@ def compute_signals(
     for name, getter in _METRIC_GETTERS.items():
         win_vals = [v for g in wins if (v := getter(g.metrics)) is not None]
         loss_vals = [v for g in losses if (v := getter(g.metrics)) is not None]
-        win_avg = _average(win_vals)
-        loss_avg = _average(loss_vals)
-        diff = (win_avg - loss_avg) if (win_avg is not None and loss_avg is not None) else None
-
-        favorable: bool | None = None
-        if diff is not None:
-            favorable = (diff < 0) if name in _LOWER_IS_BETTER else (diff > 0)
-
-        pooled_std: float | None = None
-        effect_size: float | None = None
-        effect_note: str | None = None
-        if diff is None:
-            effect_note = "insufficient_sample_for_variance" if not win_vals or not loss_vals else None
-        else:
-            pooled_std, effect_note = _pooled_std(win_vals, loss_vals)
-            if pooled_std is not None and pooled_std > 0:
-                effect_size = diff / pooled_std
-
         signals.append(
-            MetricSignal(
-                metric=name,
-                category=_CATEGORY[name],
-                win_average=win_avg,
-                loss_average=loss_avg,
-                difference=diff,
-                sample_wins=len(win_vals),
-                sample_losses=len(loss_vals),
-                sample_sufficient=(
-                    len(win_vals) >= min_sufficient_sample
-                    and len(loss_vals) >= min_sufficient_sample
-                ),
-                favorable_in_wins=favorable,
-                pooled_std=pooled_std,
-                effect_size=effect_size,
-                effect_note=effect_note,
+            build_metric_signal(
+                name, _CATEGORY[name], win_vals, loss_vals,
+                lower_is_better=name in _LOWER_IS_BETTER, min_sufficient_sample=min_sufficient_sample,
             )
         )
 
