@@ -1,0 +1,281 @@
+{
+  "sample": {
+    "games": [
+      {
+        "game_id": "136",
+        "home_team": "MACCABI TEL AVIV",
+        "shots_with_coords": 140
+      },
+      {
+        "game_id": "50",
+        "home_team": "BEER SHEVA",
+        "shots_with_coords": 137
+      },
+      {
+        "game_id": "55",
+        "home_team": "MACCABI TEL AVIV",
+        "shots_with_coords": 140
+      },
+      {
+        "game_id": "60",
+        "home_team": "BNEI HERZLIYA",
+        "shots_with_coords": 146
+      },
+      {
+        "game_id": "73",
+        "home_team": "MACCABI TEL AVIV",
+        "shots_with_coords": 136
+      },
+      {
+        "game_id": "100",
+        "home_team": "HAPOEL TEL AVIV",
+        "shots_with_coords": 120
+      },
+      {
+        "game_id": "150",
+        "home_team": "HAPOEL TEL AVIV",
+        "shots_with_coords": 148
+      },
+      {
+        "game_id": "200",
+        "home_team": "ELIZUR NETANYA",
+        "shots_with_coords": 137
+      }
+    ],
+    "n_games": 8,
+    "n_distinct_home_teams": 5,
+    "total_shots_with_coords": 1104
+  },
+  "distance_by_shot_type": {
+    "3pt_jumper": {
+      "n": 467,
+      "median_m": 9.305,
+      "mean_m": 8.761,
+      "pct_le_1_5m": 0.0,
+      "pct_ge_6_0m": 96.4
+    },
+    "lay-up": {
+      "n": 415,
+      "median_m": 1.773,
+      "mean_m": 1.88,
+      "pct_le_1_5m": 29.4,
+      "pct_ge_6_0m": 0.0
+    },
+    "dunk": {
+      "n": 40,
+      "median_m": 0.485,
+      "mean_m": 0.579,
+      "pct_le_1_5m": 95.0,
+      "pct_ge_6_0m": 0.0
+    },
+    "2pt_jumper": {
+      "n": 182,
+      "median_m": 5.142,
+      "mean_m": 5.183,
+      "pct_le_1_5m": 0.5,
+      "pct_ge_6_0m": 40.7
+    }
+  },
+  "coarse_zone_distribution": {
+    "atb_3": 403,
+    "midrange_2pt": 154,
+    "lane_2pt": 483,
+    "corner_3": 64
+  },
+  "rim_attempt_count": 455,
+  "distance_eligibility_distribution": {
+    "over_10ft": 637,
+    "under_10ft": 409,
+    "uncertain": 58
+  },
+  "official_vs_geometric_family_agreement": {
+    "ambiguity_band_m": 0.3,
+    "arc_radius_m": 6.75,
+    "agree": 975,
+    "disagree": 83,
+    "ambiguous_excluded": 46,
+    "agreement_pct_outside_band": 92.16,
+    "disagreement_corner_like": 51,
+    "disagreement_non_corner": 32,
+    "disagreement_official_points_distribution": {
+      "2": 30,
+      "3": 53
+    },
+    "disagreement_examples_corner_like": [
+      {
+        "game_id": "136",
+        "action_id": 1360066,
+        "official_points": 3,
+        "distance_m": 5.887,
+        "x_m": 2.1,
+        "y_m": 3.92,
+        "sideline_dist_m": 2.1,
+        "corner_like": true
+      },
+      {
+        "game_id": "136",
+        "action_id": 1360098,
+        "official_points": 3,
+        "distance_m": 6.124,
+        "x_m": 1.5,
+        "y_m": 2.8,
+        "sideline_dist_m": 1.5,
+        "corner_like": true
+      },
+      {
+        "game_id": "136",
+        "action_id": 1360134,
+        "official_points": 3,
+        "distance_m": 6.074,
+        "x_m": 1.5,
+        "y_m": 2.52,
+        "sideline_dist_m": 1.5,
+        "corner_like": true
+      },
+      {
+        "game_id": "136",
+        "action_id": 1360229,
+        "official_points": 3,
+        "distance_m": 6.001,
+        "x_m": 13.5,
+        "y_m": 1.68,
+        "sideline_dist_m": 1.5,
+        "corner_like": true
+      },
+      {
+        "game_id": "136",
+        "action_id": 1360241,
+        "official_points": 3,
+        "distance_m": 5.59,
+        "x_m": 13.05,
+        "y_m": 2.24,
+        "sideline_dist_m": 1.95,
+        "corner_like": true
+      },
+      {
+        "game_id": "136",
+        "action_id": 1360244,
+        "official_points": 3,
+        "distance_m": 6.303,
+        "x_m": 13.35,
+        "y_m": 3.92,
+        "sideline_dist_m": 1.65,
+        "corner_like": true
+      },
+      {
+        "game_id": "136",
+        "action_id": 1360289,
+        "official_points": 3,
+        "distance_m": 5.551,
+        "x_m": 13.05,
+        "y_m": 1.68,
+        "sideline_dist_m": 1.95,
+        "corner_like": true
+      },
+      {
+        "game_id": "136",
+        "action_id": 1360318,
+        "official_points": 3,
+        "distance_m": 5.687,
+        "x_m": 12.9,
+        "y_m": 3.36,
+        "sideline_dist_m": 2.1,
+        "corner_like": true
+      }
+    ],
+    "disagreement_examples_non_corner": [
+      {
+        "game_id": "136",
+        "action_id": 1360045,
+        "official_points": 2,
+        "distance_m": 7.965,
+        "x_m": 3.9,
+        "y_m": 8.68,
+        "sideline_dist_m": 3.9,
+        "corner_like": false
+      },
+      {
+        "game_id": "136",
+        "action_id": 1360084,
+        "official_points": 2,
+        "distance_m": 8.034,
+        "x_m": 11.25,
+        "y_m": 8.68,
+        "sideline_dist_m": 3.75,
+        "corner_like": false
+      },
+      {
+        "game_id": "50",
+        "action_id": 500420,
+        "official_points": 2,
+        "distance_m": 7.517,
+        "x_m": 4.35,
+        "y_m": 8.4,
+        "sideline_dist_m": 4.35,
+        "corner_like": false
+      },
+      {
+        "game_id": "55",
+        "action_id": 550049,
+        "official_points": 2,
+        "distance_m": 7.678,
+        "x_m": 7.95,
+        "y_m": 9.24,
+        "sideline_dist_m": 7.05,
+        "corner_like": false
+      },
+      {
+        "game_id": "55",
+        "action_id": 550135,
+        "official_points": 2,
+        "distance_m": 7.666,
+        "x_m": 7.35,
+        "y_m": 9.24,
+        "sideline_dist_m": 7.35,
+        "corner_like": false
+      },
+      {
+        "game_id": "55",
+        "action_id": 550335,
+        "official_points": 2,
+        "distance_m": 7.105,
+        "x_m": 7.5,
+        "y_m": 8.68,
+        "sideline_dist_m": 7.5,
+        "corner_like": false
+      },
+      {
+        "game_id": "55",
+        "action_id": 550351,
+        "official_points": 2,
+        "distance_m": 7.863,
+        "x_m": 4.8,
+        "y_m": 8.96,
+        "sideline_dist_m": 4.8,
+        "corner_like": false
+      },
+      {
+        "game_id": "55",
+        "action_id": 550674,
+        "official_points": 2,
+        "distance_m": 7.2,
+        "x_m": 10.5,
+        "y_m": 8.12,
+        "sideline_dist_m": 4.5,
+        "corner_like": false
+      }
+    ]
+  },
+  "orientation_consistency": {
+    "layup_median_by_side_m": {
+      "home": 1.688,
+      "away": 1.803
+    },
+    "layup_median_by_quarter_m": {
+      "1": 1.803,
+      "2": 1.773,
+      "3": 1.892,
+      "4": 1.703
+    }
+  }
+}

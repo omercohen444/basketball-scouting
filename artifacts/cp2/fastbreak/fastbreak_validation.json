@@ -1,0 +1,112 @@
+{
+  "sample": {
+    "games": [
+      "136",
+      "50",
+      "55",
+      "60",
+      "73",
+      "100",
+      "150",
+      "200",
+      "178",
+      "209"
+    ],
+    "n_games": 10,
+    "total_attempts": 1594
+  },
+  "per_game": [
+    {
+      "game_id": "136",
+      "attempts": 168,
+      "positives": 14,
+      "rate_pct": 8.33
+    },
+    {
+      "game_id": "50",
+      "attempts": 157,
+      "positives": 7,
+      "rate_pct": 4.46
+    },
+    {
+      "game_id": "55",
+      "attempts": 162,
+      "positives": 10,
+      "rate_pct": 6.17
+    },
+    {
+      "game_id": "60",
+      "attempts": 170,
+      "positives": 20,
+      "rate_pct": 11.76
+    },
+    {
+      "game_id": "73",
+      "attempts": 149,
+      "positives": 15,
+      "rate_pct": 10.07
+    },
+    {
+      "game_id": "100",
+      "attempts": 142,
+      "positives": 7,
+      "rate_pct": 4.93
+    },
+    {
+      "game_id": "150",
+      "attempts": 180,
+      "positives": 15,
+      "rate_pct": 8.33
+    },
+    {
+      "game_id": "200",
+      "attempts": 157,
+      "positives": 17,
+      "rate_pct": 10.83
+    },
+    {
+      "game_id": "178",
+      "attempts": 175,
+      "positives": 19,
+      "rate_pct": 10.86
+    },
+    {
+      "game_id": "209",
+      "attempts": 134,
+      "positives": 8,
+      "rate_pct": 5.97
+    }
+  ],
+  "pooled": {
+    "positives": 132,
+    "attempts": 1594,
+    "prevalence_pct": 8.28
+  },
+  "provider_null_field_count": 0,
+  "positive_first_attempt_pct": 95.45,
+  "positive_elapsed_seconds": {
+    "n": 126,
+    "median": 5.0,
+    "mean": 5.29,
+    "max": 12.0,
+    "pct_le_8s": 94.4,
+    "pct_le_10s_after_opp_make": null
+  },
+  "positive_change_type_distribution": {
+    "defensive_rebound": 59,
+    "none/not_first_attempt": 6,
+    "opponent_turnover": 58,
+    "opponent_score": 9
+  },
+  "false_negative_risk": {
+    "definition": "provider fastBreak=false (or missing), is_first_attempt_of_possession=True, elapsed<=4.0s",
+    "count": 64,
+    "denominator_first_attempt_negatives": 1123,
+    "pct": 5.7,
+    "change_type_distribution": {
+      "defensive_rebound": 23,
+      "opponent_turnover": 25,
+      "opponent_score": 16
+    }
+  }
+}

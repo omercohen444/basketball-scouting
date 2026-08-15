@@ -56,6 +56,18 @@ scripts/spikes/output/
 # artifacts/cp*/ (e.g. large raw usage_metadata dumps) stays ignored.
 artifacts/cp*/*
 !artifacts/cp*/*.md
+# CP2.4 nests its evidence one level deeper (artifacts/cp2/<track>/...) per
+# brief §19; a directory match above would otherwise prune it before the
+# *.md rule can apply. Un-ignore just these two subdirectories, then re-apply
+# the same "small markdown/json summaries only, no raw dumps" rule inside them.
+!artifacts/cp2/coords/
+!artifacts/cp2/fastbreak/
+artifacts/cp2/coords/*
+artifacts/cp2/fastbreak/*
+!artifacts/cp2/coords/*.md
+!artifacts/cp2/coords/*.json
+!artifacts/cp2/fastbreak/*.md
+!artifacts/cp2/fastbreak/*.json
 
 # Stats enrichment previews (Markdown + JSON) are reproducible review
 # output from scripts/enrichment_validate_and_preview.py, not source —

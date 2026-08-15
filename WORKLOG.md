@@ -5,6 +5,95 @@ session — not a place for terminal output.
 
 ---
 
+## 2026-08-16 — Run 10: CP2.4 deterministic PBP validation (coords + fastBreak) (`stats-layer`)
+
+**Objective:** Validate, without video, whether (A) Segev `coordX`/`coordY` shot
+coordinates can support a coarse deterministic shot zone + distance, and (B) the
+provider `fastBreak` flag can support an MVP `fast_break`/`non_fast_break` binary.
+Implement only if the evidence justifies it; do not force promotion.
+
+**CP2.4A — coordinates.** New `pbp/geometry.py` (independent of the video
+pipeline's `pbp/canonical.py`, no video dependency). Hypothesis
+`x_m=coordX/100, y_m=coordY/100`, basket at `(7.5, 1.575)` on a 15m-wide court —
+tested, not assumed. Validated on 8 games / 1,104 shots: all distance-sanity
+gates pass (dunks median 0.485m/95.0%≤1.5m; layups 1.773m; 2PT jumpers 5.142m;
+3PT jumpers 9.305m/96.4%≥6.0m); official 2PT/3PT family agreement 92.16%
+outside a ±0.30m arc-ambiguity band (target ≥85%); orientation confirmed
+consistent across home/away and all 4 quarters (layup-distance medians within
+~0.2m of each other) — no flip logic needed. **Correction to an earlier
+same-session ad-hoc read:** of the 83 official/geometric disagreements, only
+51 (61%) are corner-3-shaped; the other 32 (39%) are official-2PT "long twos"
+geometrically 6.4–8.6m out, unexplained by corner geometry — reported as an
+open finding, not silently attributed to corners. **Two of six promotion
+gates (brief §10) could not be executed**: no "seed-211" human shot-zone
+label dataset exists anywhere in the repo (`data/validation/
+video_events_ground_truth.csv` is header-only), and game 136's video sync is
+already marked `"quality": "failed"` (`operator_lag_std_s=13.39`) in
+`data/manifest/matchday.json`, with no other game calibrated — building new
+sync was explicitly out of scope. Verdict: **SHOT_ZONE / DISTANCE: PARTIAL**
+— all 4 executable gates pass; gates 5–6 (human/video ground truth) are a
+genuine resource gap for management to resolve, not a model failure.
+
+**CP2.4B — fastBreak.** New `stats/fastbreak.py`, a lightweight per-shot
+state-machine walk over raw actions (parallels `scoring_timeline.py`'s
+pattern), complementary to `possession.py`'s aggregate `fast_break_points`
+(not a duplicate — no per-attempt diagnostic existed). MVP rule:
+`fast_break := provider.fastBreak == True`; `non_fast_break` is only "provider
+didn't flag it" — never `half_court`/`defense_set`, per the brief's binding
+semantic. Validated on 10 games / 1,594 attempts: pooled prevalence 8.28%
+(reported as diagnostic only per brief §15, not gated); 95.5% of positives
+are first-attempt-of-possession; 94.4% resolve ≤8s after a possession-change
+boundary (median 5.0s); 88.6% triggered by defensive rebound or live
+turnover — strong independent timing/semantic corroboration. Converse check:
+5.7% (64/1,123) of first-attempt provider-negatives have elapsed ≤4s — real,
+measured false-negative-risk evidence supporting the brief's warning that a
+negative must never be read as "defense set." Verdict: **POSSESSION_TYPE:
+PASS — AUTHORITATIVE_MVP_SIGNAL** for the positive claim; negative remains
+supporting-only by design.
+
+**Gitignore fix (small, in-scope).** `artifacts/cp*/*` + `!artifacts/cp*/*.md`
+pruned CP1-style one-level-deep paths; CP2.4's required artifact paths
+(`artifacts/cp2/coords/...`, `artifacts/cp2/fastbreak/...`) are one level
+deeper, so the negation never got a chance to apply and both small (<10KB)
+required JSON deliverables were silently ignored. Fixed by un-ignoring the
+two subdirectories explicitly, then re-applying the same
+markdown/json-summaries-only rule one level in — preserves the original
+large-raw-dump protection, just extended to CP2.4's nesting.
+
+**Tests:** 43 new deterministic tests (28 geometry, 15 fastbreak) covering
+normalization, distance, coarse zones, the official-points hard constraint,
+the ambiguity band, eligibility banding, missing/bad input, provider
+true/false/missing, rebound/turnover/opponent-score boundaries, post-OREB
+non-candidacy, quarter start/end, free-throw final-of-trip handling, and
+output determinism. Full offline suite: **415 passed, 0 failed** (was 372;
++43 new, 0 broken).
+
+**Files changed:** `src/basketball_scout/pbp/geometry.py` (new),
+`src/basketball_scout/stats/fastbreak.py` (new),
+`tests/test_pbp_geometry.py` (new), `tests/test_stats_fastbreak.py` (new),
+`scripts/cp2/run_cp24_validation.py` (new, reproducible validation runner),
+`artifacts/cp2/coords/coordinate_validation_report.md` + `.json` (new),
+`artifacts/cp2/fastbreak/fastbreak_validation_report.md` + `.json` (new),
+`.gitignore` (narrow fix above).
+
+**Not started / explicitly deferred:** fine RA-vs-paint zone boundary,
+`secondary_transition`, seed-211/video-spot-check gates (blocked, see
+above), any product/enrichment work beyond CP2.4's validation scope.
+
+**Unresolved issue for management:** promotion of SHOT_ZONE/DISTANCE past
+gates 5–6 needs either a seed-211-equivalent human label set to be supplied,
+or an explicit waiver decision — this worktree cannot manufacture either.
+
+**Next recommended technical action:** if gates 5–6 are waived or a label
+set is supplied, wire `geometry.py` into the stats enrichment layer
+(shot-zone/distance fields on `TeamGameComponents` or an evidence object,
+following the `use_canonical_aggregate`/provenance pattern from Run 9) and
+do the same for `fastbreak.py`'s `fast_break` binary. Until then, no further
+action on this track — do not implement zone/distance into production
+ahead of a gate decision.
+
+---
+
 ## 2026-08-15 — Run 9: Stats Enrichment v2 — final semantic integrity check (`stats-layer`, not committed)
 
 **Objective:** Two final checks before commit — the canonical-aggregate-
