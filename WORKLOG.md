@@ -5,6 +5,88 @@ session — not a place for terminal output.
 
 ---
 
+## 2026-08-16 — Run 12: Deterministic Scouting Feature Pack (`stats-layer`)
+
+**Objective:** Management decision — anything reliably derivable from
+Segev/PBP/Python should not be duplicated as a video metric. Consolidate
+already-validated deterministic capabilities (geometry, fastbreak,
+possession, scoring-source profiles) behind one coherent, tested,
+product-facing contract for downstream agents/report/video-join. Explicitly
+NOT new metric research — reuse over recomputation.
+
+**Audit first** (brief §2): confirmed worktree/branch/HEAD
+(`3a622f7634af9fa7007640ecc886f1b599885d8c`, clean, 5 commits ahead of
+`master`), then read `models.py`, `possession.py`, `possession_context.py`,
+`scoring_sources.py`, `boxscore.py`, `engine.py`, `enrichment.py`,
+`evidence.py`, `profile.py`, `turnover_taxonomy.py`, `pbp/canonical.py`,
+`geometry.py`, `fastbreak.py` before writing anything, to avoid duplicating
+functionality that already exists.
+
+**New module: `stats/scouting_features.py`.** Two object families (matching
+the repo's existing raw/aggregate split):
+
+- Event-level: `DeterministicShotFact` (one per FGA — identity, official
+  scoring, `and_one`, `official_assist`, coarse zone/rim/distance/
+  eligibility from `geometry.py`, `fast_break` from `fastbreak.py`) and
+  `DeterministicPossessionFact` (repackages `possession.Possession` — no
+  possession-boundary logic duplicated).
+- Aggregation-level: `TeamScoutingSummary`, which *references* (never
+  rebuilds) the caller's existing `FastBreakProfile`/`AssistedProfile`/
+  `ShotScoringMix`/`SecondChanceProfile`/`PointsOffTurnoversProfile` from
+  `enrichment.GameEnrichment`, plus two new-but-trivial aggregations this
+  pack genuinely needed and nothing else already computed:
+  `ShotZoneDistribution` and `TransitionShotFacts` (FGA-count/rate view of
+  the fast-break flag, complementing — not duplicating —
+  `FastBreakProfile`'s points-only view).
+- New `MetricProvenance`/`ValidationState` taxonomy (`provider_fact` /
+  `validated_deterministic` / `provisional_deterministic` / `partial` /
+  `deferred`) — no equivalent existed in the repo; every shot fact carries
+  per-field provenance so shot_zone (provisional) is never confused with
+  fast_break (validated) or distance (partial).
+
+**One small shared-utility change:** `possession._find_and1_shot_ids`
+promoted to public `find_and1_shot_ids` (pure rename, confirmed via the full
+existing possession suite passing unchanged) so this pack reuses the exact
+182-game-validated and-1 query instead of reimplementing it.
+
+**Deliberately narrow, per brief:** no general foul→FT-sequence causal
+linkage beyond and-1 (raw provider foul fields documented as available but
+not wrapped — avoiding a new fragile heuristic); no generic last-passer
+identity (video track's own audit: 38/62 made / 0/78 missed-blocked FGA
+linked — explicitly deferred, not attempted); no video metrics of any kind.
+
+**Tests:** 26 new (`test_scouting_features.py`) — identity/join keys,
+official-points-authoritative, made/missed/blocked exclusivity, missing-
+coordinate honesty, and-1 reuse, official-assist, fast-break-never-becomes-
+half_court (structural field-absence check), provenance state-per-field,
+possession scored/turnover/duration/OT-quarter-number compatibility, zone
+distribution and transition aggregation arithmetic (incl. no divide-by-
+zero), team-summary reuse-not-recompute. Full suite: **444 passed, 0
+failed** (was 418; +26, 0 regressions).
+
+**Artifacts:** `artifacts/scouting_feature_pack/README.md` (field-by-field
+source/provenance/limitations/exclusions writeup) +
+`example_output.json` (bounded — 3 example shot facts, 3 example possession
+facts, both teams' full summaries for game 136, reproducible via
+`scripts/scouting_feature_pack/build_report.py`). Real-data sanity: 140
+shot facts / 152 possession facts for game 136; home 70 FGA/55.0% eFG%, away
+70 FGA/47.1% eFG%; home fast-break FGA rate 7.1% (consistent with CP2.4B's
+validated prevalence range).
+
+**Zero provider/network calls** — cached game 136 PBP only.
+
+**Not started / explicitly out of scope:** Stats Enrichment v3, new metric
+research, agents, website, PDF, video metric implementation, player/lineup
+analytics — none touched.
+
+**Next recommended technical action:** none required from this pack alone;
+it is ready for a future orchestration layer (FastAPI/report/agent) to
+consume once that stage begins. If a genuinely necessary trivial field
+becomes apparent while wiring a consumer, report it rather than silently
+expanding this pack.
+
+---
+
 ## 2026-08-16 — Run 11: CP2.4 hardening — seed-211 Gate 5 + lane-depth boundary fix (`stats-layer`)
 
 **Objective:** Management follow-up to Run 10 — recover the accepted seed-211

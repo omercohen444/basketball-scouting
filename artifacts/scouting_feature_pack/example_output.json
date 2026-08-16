@@ -1,0 +1,560 @@
+{
+  "game_id": "segev:136",
+  "team_id_map": {
+    "home": "segev:2",
+    "away": "segev:4"
+  },
+  "counts": {
+    "total_shot_facts": 140,
+    "total_possession_facts": 152
+  },
+  "example_shot_facts": [
+    {
+      "game_id": "segev:136",
+      "action_id": 1360025,
+      "event_id": "segev:136:1360025",
+      "team_id": "segev:2",
+      "opponent_id": "segev:4",
+      "player_id": 1014,
+      "quarter": 1,
+      "game_clock": "09:24",
+      "game_clock_s": 564.0,
+      "is_field_goal_attempt": true,
+      "made": false,
+      "missed": true,
+      "blocked": false,
+      "official_points": 2,
+      "shot_type": "lay-up",
+      "and_one": false,
+      "official_assist": false,
+      "coarse_shot_zone": "midrange_2pt",
+      "rim_attempt": true,
+      "shot_distance_m": 4.922471432116189,
+      "distance_uncertainty_m": 1.0,
+      "distance_eligibility": "over_10ft",
+      "fast_break": false,
+      "provenance": {
+        "scoring": {
+          "source": "segev_provider",
+          "validation_state": "provider_fact",
+          "derivation_version": "stats-v1",
+          "sample_n": null,
+          "denominator": null,
+          "coverage": null,
+          "limitations": []
+        },
+        "shot_zone": {
+          "source": "pbp_geometry",
+          "validation_state": "provisional_deterministic",
+          "derivation_version": "cp2.4-hardening",
+          "sample_n": 1104,
+          "denominator": null,
+          "coverage": null,
+          "limitations": [
+            "seed-211 coarse-zone agreement 20/20 after grid-tolerance hardening, but seed-211 both diagnosed and confirmed that fix \u2014 a tuned diagnostic set, not unbiased held-out validation; fresh blind human-labeled validation is still required for final KEEP.",
+            "RA-vs-Paint fine boundary intentionally deferred post-MVP."
+          ]
+        },
+        "distance": {
+          "source": "pbp_geometry",
+          "validation_state": "partial",
+          "derivation_version": "cp2.4",
+          "sample_n": 1104,
+          "denominator": null,
+          "coverage": null,
+          "limitations": [
+            "\u00b11m distance uncertainty; centimeter precision is never claimed.",
+            "Distance-eligibility 'uncertain' band (2.5-3.5m for 2PT) is by design, not a gap."
+          ]
+        },
+        "fast_break": {
+          "source": "segev_provider_flag",
+          "validation_state": "validated_deterministic",
+          "derivation_version": "cp2.4",
+          "sample_n": 1594,
+          "denominator": null,
+          "coverage": null,
+          "limitations": [
+            "fast_break=False (or missing) means only 'provider did not classify this as a fast break' \u2014 never half_court, defense_set, or secondary_transition (deferred)."
+          ]
+        },
+        "assist": {
+          "source": "segev_provider",
+          "validation_state": "provider_fact",
+          "derivation_version": "stats-v1",
+          "sample_n": null,
+          "denominator": null,
+          "coverage": null,
+          "limitations": []
+        }
+      }
+    },
+    {
+      "game_id": "segev:136",
+      "action_id": 1360034,
+      "event_id": "segev:136:1360034",
+      "team_id": "segev:2",
+      "opponent_id": "segev:4",
+      "player_id": 1019,
+      "quarter": 1,
+      "game_clock": "09:04",
+      "game_clock_s": 544.0,
+      "is_field_goal_attempt": true,
+      "made": false,
+      "missed": true,
+      "blocked": false,
+      "official_points": 3,
+      "shot_type": "jump-shot",
+      "and_one": false,
+      "official_assist": false,
+      "coarse_shot_zone": "atb_3",
+      "rim_attempt": false,
+      "shot_distance_m": 9.654176557324814,
+      "distance_uncertainty_m": 1.0,
+      "distance_eligibility": "over_10ft",
+      "fast_break": false,
+      "provenance": {
+        "scoring": {
+          "source": "segev_provider",
+          "validation_state": "provider_fact",
+          "derivation_version": "stats-v1",
+          "sample_n": null,
+          "denominator": null,
+          "coverage": null,
+          "limitations": []
+        },
+        "shot_zone": {
+          "source": "pbp_geometry",
+          "validation_state": "provisional_deterministic",
+          "derivation_version": "cp2.4-hardening",
+          "sample_n": 1104,
+          "denominator": null,
+          "coverage": null,
+          "limitations": [
+            "seed-211 coarse-zone agreement 20/20 after grid-tolerance hardening, but seed-211 both diagnosed and confirmed that fix \u2014 a tuned diagnostic set, not unbiased held-out validation; fresh blind human-labeled validation is still required for final KEEP.",
+            "RA-vs-Paint fine boundary intentionally deferred post-MVP."
+          ]
+        },
+        "distance": {
+          "source": "pbp_geometry",
+          "validation_state": "partial",
+          "derivation_version": "cp2.4",
+          "sample_n": 1104,
+          "denominator": null,
+          "coverage": null,
+          "limitations": [
+            "\u00b11m distance uncertainty; centimeter precision is never claimed.",
+            "Distance-eligibility 'uncertain' band (2.5-3.5m for 2PT) is by design, not a gap."
+          ]
+        },
+        "fast_break": {
+          "source": "segev_provider_flag",
+          "validation_state": "validated_deterministic",
+          "derivation_version": "cp2.4",
+          "sample_n": 1594,
+          "denominator": null,
+          "coverage": null,
+          "limitations": [
+            "fast_break=False (or missing) means only 'provider did not classify this as a fast break' \u2014 never half_court, defense_set, or secondary_transition (deferred)."
+          ]
+        },
+        "assist": {
+          "source": "segev_provider",
+          "validation_state": "provider_fact",
+          "derivation_version": "stats-v1",
+          "sample_n": null,
+          "denominator": null,
+          "coverage": null,
+          "limitations": []
+        }
+      }
+    },
+    {
+      "game_id": "segev:136",
+      "action_id": 1360040,
+      "event_id": "segev:136:1360040",
+      "team_id": "segev:2",
+      "opponent_id": "segev:4",
+      "player_id": 1014,
+      "quarter": 1,
+      "game_clock": "08:39",
+      "game_clock_s": 519.0,
+      "is_field_goal_attempt": true,
+      "made": false,
+      "missed": true,
+      "blocked": false,
+      "official_points": 2,
+      "shot_type": "lay-up",
+      "and_one": false,
+      "official_assist": false,
+      "coarse_shot_zone": "lane_2pt",
+      "rim_attempt": true,
+      "shot_distance_m": 1.5101738310538955,
+      "distance_uncertainty_m": 1.0,
+      "distance_eligibility": "under_10ft",
+      "fast_break": false,
+      "provenance": {
+        "scoring": {
+          "source": "segev_provider",
+          "validation_state": "provider_fact",
+          "derivation_version": "stats-v1",
+          "sample_n": null,
+          "denominator": null,
+          "coverage": null,
+          "limitations": []
+        },
+        "shot_zone": {
+          "source": "pbp_geometry",
+          "validation_state": "provisional_deterministic",
+          "derivation_version": "cp2.4-hardening",
+          "sample_n": 1104,
+          "denominator": null,
+          "coverage": null,
+          "limitations": [
+            "seed-211 coarse-zone agreement 20/20 after grid-tolerance hardening, but seed-211 both diagnosed and confirmed that fix \u2014 a tuned diagnostic set, not unbiased held-out validation; fresh blind human-labeled validation is still required for final KEEP.",
+            "RA-vs-Paint fine boundary intentionally deferred post-MVP."
+          ]
+        },
+        "distance": {
+          "source": "pbp_geometry",
+          "validation_state": "partial",
+          "derivation_version": "cp2.4",
+          "sample_n": 1104,
+          "denominator": null,
+          "coverage": null,
+          "limitations": [
+            "\u00b11m distance uncertainty; centimeter precision is never claimed.",
+            "Distance-eligibility 'uncertain' band (2.5-3.5m for 2PT) is by design, not a gap."
+          ]
+        },
+        "fast_break": {
+          "source": "segev_provider_flag",
+          "validation_state": "validated_deterministic",
+          "derivation_version": "cp2.4",
+          "sample_n": 1594,
+          "denominator": null,
+          "coverage": null,
+          "limitations": [
+            "fast_break=False (or missing) means only 'provider did not classify this as a fast break' \u2014 never half_court, defense_set, or secondary_transition (deferred)."
+          ]
+        },
+        "assist": {
+          "source": "segev_provider",
+          "validation_state": "provider_fact",
+          "derivation_version": "stats-v1",
+          "sample_n": null,
+          "denominator": null,
+          "coverage": null,
+          "limitations": []
+        }
+      }
+    }
+  ],
+  "example_possession_facts": [
+    {
+      "game_id": "segev:136",
+      "possession_id": "segev:136:0",
+      "possession_index": 0,
+      "quarter": 1,
+      "offense_team_id": "segev:2",
+      "defense_team_id": "segev:4",
+      "start_clock_s": 593.0,
+      "end_clock_s": 593.0,
+      "duration_s": 0.0,
+      "ended_by": "defensive_rebound",
+      "possession_points": 1,
+      "possession_scored": true,
+      "fga": 0,
+      "fgm": 0,
+      "turnover": false,
+      "followed_opponent_turnover": false,
+      "had_offensive_rebound": false,
+      "fast_break_points": 0,
+      "provenance": {
+        "source": "pbp_possession_engine",
+        "validation_state": "validated_deterministic",
+        "derivation_version": "stats-v1",
+        "sample_n": null,
+        "denominator": null,
+        "coverage": null,
+        "limitations": []
+      }
+    },
+    {
+      "game_id": "segev:136",
+      "possession_id": "segev:136:2",
+      "possession_index": 2,
+      "quarter": 1,
+      "offense_team_id": "segev:2",
+      "defense_team_id": "segev:4",
+      "start_clock_s": 581.0,
+      "end_clock_s": 562.0,
+      "duration_s": 19.0,
+      "ended_by": "defensive_rebound",
+      "possession_points": 0,
+      "possession_scored": false,
+      "fga": 1,
+      "fgm": 0,
+      "turnover": false,
+      "followed_opponent_turnover": false,
+      "had_offensive_rebound": false,
+      "fast_break_points": 0,
+      "provenance": {
+        "source": "pbp_possession_engine",
+        "validation_state": "validated_deterministic",
+        "derivation_version": "stats-v1",
+        "sample_n": null,
+        "denominator": null,
+        "coverage": null,
+        "limitations": []
+      }
+    },
+    {
+      "game_id": "segev:136",
+      "possession_id": "segev:136:4",
+      "possession_index": 4,
+      "quarter": 1,
+      "offense_team_id": "segev:2",
+      "defense_team_id": "segev:4",
+      "start_clock_s": 544.0,
+      "end_clock_s": 543.0,
+      "duration_s": 1.0,
+      "ended_by": "defensive_rebound",
+      "possession_points": 0,
+      "possession_scored": false,
+      "fga": 1,
+      "fgm": 0,
+      "turnover": false,
+      "followed_opponent_turnover": false,
+      "had_offensive_rebound": false,
+      "fast_break_points": 0,
+      "provenance": {
+        "source": "pbp_possession_engine",
+        "validation_state": "validated_deterministic",
+        "derivation_version": "stats-v1",
+        "sample_n": null,
+        "denominator": null,
+        "coverage": null,
+        "limitations": []
+      }
+    }
+  ],
+  "home_team_scouting_summary": {
+    "team_id": "segev:2",
+    "opponent_id": "segev:4",
+    "game_id": "segev:136",
+    "games_n": 1,
+    "fga": 70,
+    "fg3a": 27,
+    "fg3a_rate": 0.38571428571428573,
+    "efg_pct": 0.55,
+    "shot_zone": {
+      "lane_2pt": 35,
+      "midrange_2pt": 8,
+      "corner_3": 3,
+      "atb_3": 24,
+      "unclassified": 0,
+      "rim_attempts": 34,
+      "fga_total": 70,
+      "lane_2pt_share": 0.5,
+      "midrange_2pt_share": 0.11428571428571428,
+      "corner_3_share": 0.04285714285714286,
+      "atb_3_share": 0.34285714285714286,
+      "rim_attempt_share": 0.4857142857142857,
+      "provenance": {
+        "source": "pbp_geometry_aggregate",
+        "validation_state": "provisional_deterministic",
+        "derivation_version": "cp2.4-hardening",
+        "sample_n": null,
+        "denominator": null,
+        "coverage": null,
+        "limitations": [
+          "Inherits coarse_shot_zone's provisional state \u2014 see PROVENANCE_SHOT_ZONE."
+        ]
+      }
+    },
+    "transition_from_shots": {
+      "fast_break_fga": 5,
+      "fast_break_fgm": 4,
+      "fast_break_points": 8,
+      "fast_break_fga_rate": 0.07142857142857142,
+      "fast_break_fg_pct": 0.8,
+      "provenance": {
+        "source": "segev_provider_flag_aggregate",
+        "validation_state": "validated_deterministic",
+        "derivation_version": "cp2.4",
+        "sample_n": null,
+        "denominator": null,
+        "coverage": null,
+        "limitations": [
+          "Inherits fast_break's provider-flag limitation \u2014 see PROVENANCE_FAST_BREAK."
+        ]
+      }
+    },
+    "possessions_n": 76,
+    "turnovers_n": 7,
+    "scoring_possessions_n": 46,
+    "provider_fast_break": {
+      "provider_fast_break_points": 8,
+      "provider_fast_break_points_per_game": 8.0,
+      "provider_fast_break_share_of_points": 0.08421052631578947,
+      "source": "segev_provider_flag"
+    },
+    "assisted": {
+      "assisted_fgm": 23,
+      "unassisted_fgm": 11,
+      "assisted_fgm_pct": 0.6764705882352942,
+      "unassisted_fgm_pct": 0.3235294117647059,
+      "assisted_2pm": 18,
+      "unassisted_2pm": 7,
+      "assisted_2pm_pct": 0.72,
+      "unassisted_2pm_pct": 0.28,
+      "assisted_3pm": 5,
+      "unassisted_3pm": 4,
+      "assisted_3pm_pct": 0.5555555555555556,
+      "unassisted_3pm_pct": 0.4444444444444444,
+      "total_provider_assists": 28,
+      "resolved_shot_attributed_assists": 23,
+      "unresolved_assist_count": 5,
+      "unresolved_assist_rate": 0.17857142857142858
+    },
+    "shot_mix": {
+      "fg2a_share": 0.6142857142857143,
+      "fg3a_share": 0.38571428571428573,
+      "scoring_share_2pt": 0.5263157894736842,
+      "scoring_share_3pt": 0.28421052631578947,
+      "scoring_share_ft": 0.18947368421052632,
+      "scoring_share_reconciles": true
+    },
+    "second_chance": {
+      "offensive_rebound_possessions": 13,
+      "second_chance_points": 14,
+      "second_chance_points_per_game": 14.0,
+      "second_chance_points_share_of_points": 0.14736842105263157,
+      "points_per_second_chance_possession": 1.0769230769230769,
+      "second_chance_scoring_conversion": 0.5384615384615384,
+      "zero_point_rate_after_oreb": 0.46153846153846156,
+      "scoring_oreb_possessions": 7,
+      "fga_after_oreb": 7,
+      "fga_after_oreb_per_oreb_possession": 0.5384615384615384,
+      "multi_oreb_possessions": 1,
+      "additional_orebs": 1
+    },
+    "points_off_turnovers": {
+      "points_off_turnovers": 20,
+      "points_off_turnovers_per_game": 20.0,
+      "points_off_turnovers_share_of_points": 0.21052631578947367,
+      "opponent_turnovers": 13,
+      "points_per_opponent_turnover": 1.5384615384615385
+    }
+  },
+  "away_team_scouting_summary": {
+    "team_id": "segev:4",
+    "opponent_id": "segev:2",
+    "game_id": "segev:136",
+    "games_n": 1,
+    "fga": 70,
+    "fg3a": 32,
+    "fg3a_rate": 0.45714285714285713,
+    "efg_pct": 0.4714285714285714,
+    "shot_zone": {
+      "lane_2pt": 26,
+      "midrange_2pt": 12,
+      "corner_3": 11,
+      "atb_3": 21,
+      "unclassified": 0,
+      "rim_attempts": 27,
+      "fga_total": 70,
+      "lane_2pt_share": 0.37142857142857144,
+      "midrange_2pt_share": 0.17142857142857143,
+      "corner_3_share": 0.15714285714285714,
+      "atb_3_share": 0.3,
+      "rim_attempt_share": 0.38571428571428573,
+      "provenance": {
+        "source": "pbp_geometry_aggregate",
+        "validation_state": "provisional_deterministic",
+        "derivation_version": "cp2.4-hardening",
+        "sample_n": null,
+        "denominator": null,
+        "coverage": null,
+        "limitations": [
+          "Inherits coarse_shot_zone's provisional state \u2014 see PROVENANCE_SHOT_ZONE."
+        ]
+      }
+    },
+    "transition_from_shots": {
+      "fast_break_fga": 9,
+      "fast_break_fgm": 6,
+      "fast_break_points": 14,
+      "fast_break_fga_rate": 0.12857142857142856,
+      "fast_break_fg_pct": 0.6666666666666666,
+      "provenance": {
+        "source": "segev_provider_flag_aggregate",
+        "validation_state": "validated_deterministic",
+        "derivation_version": "cp2.4",
+        "sample_n": null,
+        "denominator": null,
+        "coverage": null,
+        "limitations": [
+          "Inherits fast_break's provider-flag limitation \u2014 see PROVENANCE_FAST_BREAK."
+        ]
+      }
+    },
+    "possessions_n": 76,
+    "turnovers_n": 13,
+    "scoring_possessions_n": 39,
+    "provider_fast_break": {
+      "provider_fast_break_points": 14,
+      "provider_fast_break_points_per_game": 14.0,
+      "provider_fast_break_share_of_points": 0.16666666666666666,
+      "source": "segev_provider_flag"
+    },
+    "assisted": {
+      "assisted_fgm": 15,
+      "unassisted_fgm": 13,
+      "assisted_fgm_pct": 0.5357142857142857,
+      "unassisted_fgm_pct": 0.4642857142857143,
+      "assisted_2pm": 8,
+      "unassisted_2pm": 10,
+      "assisted_2pm_pct": 0.4444444444444444,
+      "unassisted_2pm_pct": 0.5555555555555556,
+      "assisted_3pm": 7,
+      "unassisted_3pm": 3,
+      "assisted_3pm_pct": 0.7,
+      "unassisted_3pm_pct": 0.3,
+      "total_provider_assists": 20,
+      "resolved_shot_attributed_assists": 15,
+      "unresolved_assist_count": 5,
+      "unresolved_assist_rate": 0.25
+    },
+    "shot_mix": {
+      "fg2a_share": 0.5428571428571428,
+      "fg3a_share": 0.45714285714285713,
+      "scoring_share_2pt": 0.42857142857142855,
+      "scoring_share_3pt": 0.35714285714285715,
+      "scoring_share_ft": 0.21428571428571427,
+      "scoring_share_reconciles": true
+    },
+    "second_chance": {
+      "offensive_rebound_possessions": 15,
+      "second_chance_points": 13,
+      "second_chance_points_per_game": 13.0,
+      "second_chance_points_share_of_points": 0.15476190476190477,
+      "points_per_second_chance_possession": 0.8666666666666667,
+      "second_chance_scoring_conversion": 0.4,
+      "zero_point_rate_after_oreb": 0.6,
+      "scoring_oreb_possessions": 6,
+      "fga_after_oreb": 11,
+      "fga_after_oreb_per_oreb_possession": 0.7333333333333333,
+      "multi_oreb_possessions": 2,
+      "additional_orebs": 3
+    },
+    "points_off_turnovers": {
+      "points_off_turnovers": 13,
+      "points_off_turnovers_per_game": 13.0,
+      "points_off_turnovers_share_of_points": 0.15476190476190477,
+      "opponent_turnovers": 7,
+      "points_per_opponent_turnover": 1.8571428571428572
+    }
+  }
+}

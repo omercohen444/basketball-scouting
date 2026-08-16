@@ -36,11 +36,11 @@ Segev *always* inserts between the shot and the deciding foul action,
 so the "next real action" check never reached the foul. An exhaustive
 audit of all 182 games with the corrected skip-list found **729 and-1
 sequences across 180 of 182 games** (6.5% of all 11,268 made shots) — a
-real, frequent pattern, not an edge case. See :func:`_find_and1_shot_ids`
+real, frequent pattern, not an edge case. See :func:`find_and1_shot_ids`
 for the exact detection query and WORKLOG.md 2026-08-15 (management
 hardening run) for the full audit evidence.
 
-Mechanically: :func:`_find_and1_shot_ids` pre-scans the action list once to
+Mechanically: :func:`find_and1_shot_ids` pre-scans the action list once to
 identify every made-shot action id that qualifies; the main loop then
 leaves that possession open (instead of closing on the make) so the
 resulting free throw(s) attach to the *same* possession, closing normally
@@ -87,13 +87,18 @@ def quarter_length_seconds(quarter: int, regulation_periods: int) -> float:
 _AND1_SKIP_TYPES = {"assist", "block", "deflection", "foul-drawn"}
 
 
-def _find_and1_shot_ids(ordered_actions: list[dict[str, Any]]) -> set[int]:
+def find_and1_shot_ids(ordered_actions: list[dict[str, Any]]) -> set[int]:
     """Pre-scan pass: made-shot action ids immediately followed (after
     skipping only ``_AND1_SKIP_TYPES``) by a qualifying and-1 foul —
     opponent team, ``kind == "shooting"``, ``fouledOn`` equal to the
     shooter, ``freeThrows > 0``. This is the exact query validated against
     all 182 real games (729/11268 made shots, 180/182 games) — see module
     docstring.
+
+    Public (promoted from a module-private helper 2026-08-16, deterministic
+    scouting feature pack): reused as-is by
+    ``scouting_features.build_shot_facts`` for the per-shot ``and_one``
+    fact, rather than re-implementing the same validated adjacency query.
     """
     and1_ids: set[int] = set()
     for i, action in enumerate(ordered_actions):
@@ -238,7 +243,7 @@ def build_possessions(actions: list[dict[str, Any]], *, regulation_periods: int 
         (a for a in actions if isinstance(a.get("quarter"), int) and isinstance(a.get("id"), int)),
         key=lambda a: (a["quarter"], a["id"]),
     )
-    and1_shot_ids = _find_and1_shot_ids(ordered)
+    and1_shot_ids = find_and1_shot_ids(ordered)
 
     possessions: list[Possession] = []
     global_warnings: list[str] = []
