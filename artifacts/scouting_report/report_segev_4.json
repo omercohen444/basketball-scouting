@@ -1,0 +1,940 @@
+{
+  "report_id": "report_hapoel_jerusalem_segev_four",
+  "team_id": "segev:4",
+  "team_name": "Hapoel Jerusalem",
+  "scope_note": "Deterministic play-by-play analytics for the current season, covering all games.",
+  "generated_from": {
+    "pack_id": "segev:4|2025-26|agents-v1",
+    "season": "2025-26",
+    "record": "18-8",
+    "games_n": 26,
+    "date_range": "2025-10-12T16:00:00 to 2026-05-27T20:50:00",
+    "definition_version": "agents-v1",
+    "pack_states": [],
+    "source": "segev"
+  },
+  "executive_summary": "Hapoel Jerusalem plays a highly deliberate, slow-paced style of basketball focused on drawing fouls and maximizing possessions through elite offensive rebounding and secure ball-handling. While their offense remains relatively steady, their overall success is heavily dictated by their defensive efficiency, which experiences massive swings between wins and losses. They are highly dangerous when trailing, showing exceptional shooting efficiency when facing a deficit, and they can break games open with explosive scoring runs. However, they struggle significantly in close, late-game scenarios, where their shooting efficiency drops off precipitously. To defeat them, we must exploit their defensive volatility, limit their second-chance opportunities, and execute cleanly to force them into tight, late-game execution where they are most vulnerable.",
+  "sections": {
+    "offensive_identity": [
+      {
+        "text": "The opponent plays with a highly deliberate, slow tempo and shows a strong tendency to draw fouls relative to their field goal attempts.",
+        "claim_strength": "indicated",
+        "implication_refs": [
+          "implication_style"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.pace",
+            "metric": "Pace",
+            "scope": "season",
+            "value": "75.2",
+            "league_rank": "12 of 14",
+            "league_percentile": 15.4,
+            "league_average": "77.1",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "neutral",
+            "win_loss": {
+              "in_wins": "76.0",
+              "in_losses": "73.6",
+              "effect_size": 0.48,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            },
+            "limitations": [
+              "neutral_direction"
+            ]
+          },
+          {
+            "evidence_id": "EV.season.ft_rate",
+            "metric": "Free Throw Rate",
+            "scope": "season",
+            "value": "0.34",
+            "league_rank": "2 of 14",
+            "league_percentile": 92.3,
+            "league_average": "0.30",
+            "sample_games": 26,
+            "reliability": "moderate",
+            "validation_state": "validated_deterministic",
+            "direction": "neutral",
+            "win_loss": {
+              "in_wins": "0.36",
+              "in_losses": "0.32",
+              "effect_size": 0.34,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            },
+            "limitations": [
+              "neutral_direction"
+            ]
+          }
+        ]
+      },
+      {
+        "text": "They focus heavily on maximizing their offensive possessions by dominating the offensive glass and maintaining excellent ball security with a low rate of turnovers.",
+        "claim_strength": "indicated",
+        "implication_refs": [
+          "implication_possession"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.orb_pct",
+            "metric": "Offensive Rebound %",
+            "scope": "season",
+            "value": "33.8%",
+            "league_rank": "2 of 14",
+            "league_percentile": 92.3,
+            "league_average": "30.3%",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "in_wins": "33.9%",
+              "in_losses": "32.7%",
+              "effect_size": 0.14,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            }
+          },
+          {
+            "evidence_id": "EV.season.tov_pct",
+            "metric": "Turnover Rate",
+            "scope": "season",
+            "value": "13.4%",
+            "league_rank": "3 of 14",
+            "league_percentile": 84.6,
+            "league_average": "15.8%",
+            "sample_games": 26,
+            "reliability": "moderate",
+            "validation_state": "validated_deterministic",
+            "direction": "lower_is_better",
+            "win_loss": {
+              "in_wins": "12.6%",
+              "in_losses": "15.7%",
+              "effect_size": -0.65,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            }
+          }
+        ]
+      }
+    ],
+    "strengths": [
+      {
+        "text": "They possess an explosive capability to produce massive, league-leading scoring runs that can quickly shift the momentum of a game.",
+        "claim_strength": "established",
+        "implication_refs": [
+          "implication_runs"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.largest_scoring_run_for",
+            "metric": "Largest Scoring Run (per game)",
+            "scope": "season",
+            "value": "10.5",
+            "league_rank": "1 of 14",
+            "league_percentile": 100.0,
+            "league_average": "9.5",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "in_wins": "10.7",
+              "in_losses": "10.1",
+              "effect_size": 0.22,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            }
+          }
+        ]
+      },
+      {
+        "text": "They exhibit exceptional shooting efficiency when facing a moderate deficit, making them highly dangerous even when they are trailing.",
+        "claim_strength": "established",
+        "implication_refs": [
+          "implication_trailing"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.behind_6_plus.efg_pct",
+            "metric": "Effective FG% When Trailing 6+",
+            "scope": "behind_6_plus",
+            "value": "69.7%",
+            "league_rank": "2 of 14",
+            "league_percentile": 92.3,
+            "league_average": "60.0%",
+            "sample_games": 13,
+            "reliability": "moderate",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "sample_possessions": 335,
+            "win_loss": {
+              "in_wins": "87.5%",
+              "in_losses": "54.4%",
+              "effect_size": 1.5,
+              "favorable_in_wins": true,
+              "sample": "6W / 7L"
+            },
+            "limitations": [
+              "unweighted_segment_mean"
+            ]
+          }
+        ]
+      }
+    ],
+    "vulnerabilities": [
+      {
+        "text": "Their defensive efficiency is highly volatile and serves as the primary differentiator in game outcomes, showing a massive drop-off in losses compared to wins.",
+        "claim_strength": "indicated",
+        "implication_refs": [
+          "implication_efficiency"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.net_rating",
+            "metric": "Net Rating",
+            "scope": "season",
+            "value": "9.4",
+            "league_rank": "3 of 14",
+            "league_percentile": 84.6,
+            "league_average": "0.1",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "in_wins": "18.0",
+              "in_losses": "-10.7",
+              "effect_size": 2.64,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            }
+          },
+          {
+            "evidence_id": "EV.season.defensive_rating",
+            "metric": "Defensive Rating",
+            "scope": "season",
+            "value": "108.9",
+            "league_rank": "4 of 14",
+            "league_percentile": 76.9,
+            "league_average": "110.3",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "lower_is_better",
+            "win_loss": {
+              "in_wins": "103.8",
+              "in_losses": "121.5",
+              "effect_size": -1.21,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            }
+          },
+          {
+            "evidence_id": "EV.season.offensive_rating",
+            "metric": "Offensive Rating",
+            "scope": "season",
+            "value": "118.4",
+            "league_rank": "3 of 14",
+            "league_percentile": 84.6,
+            "league_average": "110.4",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "in_wins": "121.8",
+              "in_losses": "110.8",
+              "effect_size": 0.97,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            }
+          }
+        ]
+      },
+      {
+        "text": "They experience a significant drop in shooting efficiency during clutch situations, which heavily impacts their ability to win close games.",
+        "claim_strength": "established",
+        "implication_refs": [
+          "implication_clutch"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.clutch.efg_pct",
+            "metric": "Clutch Effective FG%",
+            "scope": "clutch",
+            "value": "40.7%",
+            "league_rank": "10 of 14",
+            "league_percentile": 30.8,
+            "league_average": "50.2%",
+            "sample_games": 14,
+            "reliability": "moderate",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "sample_possessions": 125,
+            "win_loss": {
+              "in_wins": "50.7%",
+              "in_losses": "30.6%",
+              "effect_size": 0.94,
+              "favorable_in_wins": true,
+              "sample": "7W / 7L"
+            },
+            "limitations": [
+              "unweighted_segment_mean"
+            ]
+          }
+        ]
+      }
+    ],
+    "transition_notes": [
+      {
+        "text": "Their slow, deliberate pace indicates they prefer to control the tempo rather than push the ball in transition, though they remain highly secure with the ball.",
+        "claim_strength": "indicated",
+        "implication_refs": [
+          "implication_style",
+          "implication_possession"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.pace",
+            "metric": "Pace",
+            "scope": "season",
+            "value": "75.2",
+            "league_rank": "12 of 14",
+            "league_percentile": 15.4,
+            "league_average": "77.1",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "neutral",
+            "win_loss": {
+              "in_wins": "76.0",
+              "in_losses": "73.6",
+              "effect_size": 0.48,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            },
+            "limitations": [
+              "neutral_direction"
+            ]
+          },
+          {
+            "evidence_id": "EV.season.ft_rate",
+            "metric": "Free Throw Rate",
+            "scope": "season",
+            "value": "0.34",
+            "league_rank": "2 of 14",
+            "league_percentile": 92.3,
+            "league_average": "0.30",
+            "sample_games": 26,
+            "reliability": "moderate",
+            "validation_state": "validated_deterministic",
+            "direction": "neutral",
+            "win_loss": {
+              "in_wins": "0.36",
+              "in_losses": "0.32",
+              "effect_size": 0.34,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            },
+            "limitations": [
+              "neutral_direction"
+            ]
+          },
+          {
+            "evidence_id": "EV.season.orb_pct",
+            "metric": "Offensive Rebound %",
+            "scope": "season",
+            "value": "33.8%",
+            "league_rank": "2 of 14",
+            "league_percentile": 92.3,
+            "league_average": "30.3%",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "in_wins": "33.9%",
+              "in_losses": "32.7%",
+              "effect_size": 0.14,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            }
+          },
+          {
+            "evidence_id": "EV.season.tov_pct",
+            "metric": "Turnover Rate",
+            "scope": "season",
+            "value": "13.4%",
+            "league_rank": "3 of 14",
+            "league_percentile": 84.6,
+            "league_average": "15.8%",
+            "sample_games": 26,
+            "reliability": "moderate",
+            "validation_state": "validated_deterministic",
+            "direction": "lower_is_better",
+            "win_loss": {
+              "in_wins": "12.6%",
+              "in_losses": "15.7%",
+              "effect_size": -0.65,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            }
+          }
+        ]
+      }
+    ],
+    "turnover_notes": [
+      {
+        "text": "They maintain excellent ball security, recording a low rate of turnovers which helps them maximize their offensive possessions.",
+        "claim_strength": "indicated",
+        "implication_refs": [
+          "implication_possession"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.orb_pct",
+            "metric": "Offensive Rebound %",
+            "scope": "season",
+            "value": "33.8%",
+            "league_rank": "2 of 14",
+            "league_percentile": 92.3,
+            "league_average": "30.3%",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "in_wins": "33.9%",
+              "in_losses": "32.7%",
+              "effect_size": 0.14,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            }
+          },
+          {
+            "evidence_id": "EV.season.tov_pct",
+            "metric": "Turnover Rate",
+            "scope": "season",
+            "value": "13.4%",
+            "league_rank": "3 of 14",
+            "league_percentile": 84.6,
+            "league_average": "15.8%",
+            "sample_games": 26,
+            "reliability": "moderate",
+            "validation_state": "validated_deterministic",
+            "direction": "lower_is_better",
+            "win_loss": {
+              "in_wins": "12.6%",
+              "in_losses": "15.7%",
+              "effect_size": -0.65,
+              "favorable_in_wins": true,
+              "sample": "18W / 8L"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "recommendation_id": "rec_exploit_defense",
+      "priority": 1,
+      "directive": "Attack their defensive volatility by running a highly dynamic, multi-option offense to force breakdowns.",
+      "rationale": "Their defensive efficiency is highly volatile and is the primary factor in their losses. By executing a complex, high-movement offense, we can exploit their defensive inconsistency and trigger the defensive drop-offs that correlate with their defeats.",
+      "confidence": "high",
+      "implication_refs": [
+        "implication_efficiency"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "EV.season.net_rating",
+          "metric": "Net Rating",
+          "scope": "season",
+          "value": "9.4",
+          "league_rank": "3 of 14",
+          "league_percentile": 84.6,
+          "league_average": "0.1",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "win_loss": {
+            "in_wins": "18.0",
+            "in_losses": "-10.7",
+            "effect_size": 2.64,
+            "favorable_in_wins": true,
+            "sample": "18W / 8L"
+          }
+        },
+        {
+          "evidence_id": "EV.season.defensive_rating",
+          "metric": "Defensive Rating",
+          "scope": "season",
+          "value": "108.9",
+          "league_rank": "4 of 14",
+          "league_percentile": 76.9,
+          "league_average": "110.3",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "lower_is_better",
+          "win_loss": {
+            "in_wins": "103.8",
+            "in_losses": "121.5",
+            "effect_size": -1.21,
+            "favorable_in_wins": true,
+            "sample": "18W / 8L"
+          }
+        },
+        {
+          "evidence_id": "EV.season.offensive_rating",
+          "metric": "Offensive Rating",
+          "scope": "season",
+          "value": "118.4",
+          "league_rank": "3 of 14",
+          "league_percentile": 84.6,
+          "league_average": "110.4",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "win_loss": {
+            "in_wins": "121.8",
+            "in_losses": "110.8",
+            "effect_size": 0.97,
+            "favorable_in_wins": true,
+            "sample": "18W / 8L"
+          }
+        }
+      ]
+    },
+    {
+      "recommendation_id": "rec_rebound_discipline",
+      "priority": 2,
+      "directive": "Prioritize defensive rebounding and box out aggressively to limit second-chance opportunities.",
+      "rationale": "They excel at maximizing possessions by dominating the offensive glass. We must commit all players to defensive rebounding to neutralize their second-chance opportunities and force them into a single-shot half-court game.",
+      "confidence": "moderate",
+      "implication_refs": [
+        "implication_possession"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "EV.season.orb_pct",
+          "metric": "Offensive Rebound %",
+          "scope": "season",
+          "value": "33.8%",
+          "league_rank": "2 of 14",
+          "league_percentile": 92.3,
+          "league_average": "30.3%",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "win_loss": {
+            "in_wins": "33.9%",
+            "in_losses": "32.7%",
+            "effect_size": 0.14,
+            "favorable_in_wins": true,
+            "sample": "18W / 8L"
+          }
+        },
+        {
+          "evidence_id": "EV.season.tov_pct",
+          "metric": "Turnover Rate",
+          "scope": "season",
+          "value": "13.4%",
+          "league_rank": "3 of 14",
+          "league_percentile": 84.6,
+          "league_average": "15.8%",
+          "sample_games": 26,
+          "reliability": "moderate",
+          "validation_state": "validated_deterministic",
+          "direction": "lower_is_better",
+          "win_loss": {
+            "in_wins": "12.6%",
+            "in_losses": "15.7%",
+            "effect_size": -0.65,
+            "favorable_in_wins": true,
+            "sample": "18W / 8L"
+          }
+        }
+      ]
+    },
+    {
+      "recommendation_id": "rec_force_clutch",
+      "priority": 3,
+      "directive": "Execute a disciplined, high-execution half-court defense in the final minutes to force them into clutch-time struggles.",
+      "rationale": "They experience a massive drop in shooting efficiency during clutch situations. If we keep the game close and execute our half-court defensive coverage cleanly in the final minutes, we can exploit their established late-game shooting struggles.",
+      "confidence": "high",
+      "implication_refs": [
+        "implication_clutch"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "EV.clutch.efg_pct",
+          "metric": "Clutch Effective FG%",
+          "scope": "clutch",
+          "value": "40.7%",
+          "league_rank": "10 of 14",
+          "league_percentile": 30.8,
+          "league_average": "50.2%",
+          "sample_games": 14,
+          "reliability": "moderate",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "sample_possessions": 125,
+          "win_loss": {
+            "in_wins": "50.7%",
+            "in_losses": "30.6%",
+            "effect_size": 0.94,
+            "favorable_in_wins": true,
+            "sample": "7W / 7L"
+          },
+          "limitations": [
+            "unweighted_segment_mean"
+          ]
+        }
+      ]
+    },
+    {
+      "recommendation_id": "rec_prevent_runs",
+      "priority": 4,
+      "directive": "Maintain high defensive intensity and avoid complacency even when holding a moderate lead.",
+      "rationale": "They are highly dangerous when trailing, boasting exceptional shooting efficiency when facing a moderate deficit, and are capable of producing massive scoring runs. We must maintain our defensive focus and avoid letting up when we are ahead.",
+      "confidence": "high",
+      "implication_refs": [
+        "implication_trailing",
+        "implication_runs"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "EV.behind_6_plus.efg_pct",
+          "metric": "Effective FG% When Trailing 6+",
+          "scope": "behind_6_plus",
+          "value": "69.7%",
+          "league_rank": "2 of 14",
+          "league_percentile": 92.3,
+          "league_average": "60.0%",
+          "sample_games": 13,
+          "reliability": "moderate",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "sample_possessions": 335,
+          "win_loss": {
+            "in_wins": "87.5%",
+            "in_losses": "54.4%",
+            "effect_size": 1.5,
+            "favorable_in_wins": true,
+            "sample": "6W / 7L"
+          },
+          "limitations": [
+            "unweighted_segment_mean"
+          ]
+        },
+        {
+          "evidence_id": "EV.season.largest_scoring_run_for",
+          "metric": "Largest Scoring Run (per game)",
+          "scope": "season",
+          "value": "10.5",
+          "league_rank": "1 of 14",
+          "league_percentile": 100.0,
+          "league_average": "9.5",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "win_loss": {
+            "in_wins": "10.7",
+            "in_losses": "10.1",
+            "effect_size": 0.22,
+            "favorable_in_wins": true,
+            "sample": "18W / 8L"
+          }
+        }
+      ]
+    }
+  ],
+  "key_evidence": [
+    {
+      "evidence_id": "EV.season.pace",
+      "metric": "Pace",
+      "scope": "season",
+      "value": "75.2",
+      "league_rank": "12 of 14",
+      "league_percentile": 15.4,
+      "league_average": "77.1",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "neutral",
+      "win_loss": {
+        "in_wins": "76.0",
+        "in_losses": "73.6",
+        "effect_size": 0.48,
+        "favorable_in_wins": true,
+        "sample": "18W / 8L"
+      },
+      "limitations": [
+        "neutral_direction"
+      ]
+    },
+    {
+      "evidence_id": "EV.season.ft_rate",
+      "metric": "Free Throw Rate",
+      "scope": "season",
+      "value": "0.34",
+      "league_rank": "2 of 14",
+      "league_percentile": 92.3,
+      "league_average": "0.30",
+      "sample_games": 26,
+      "reliability": "moderate",
+      "validation_state": "validated_deterministic",
+      "direction": "neutral",
+      "win_loss": {
+        "in_wins": "0.36",
+        "in_losses": "0.32",
+        "effect_size": 0.34,
+        "favorable_in_wins": true,
+        "sample": "18W / 8L"
+      },
+      "limitations": [
+        "neutral_direction"
+      ]
+    },
+    {
+      "evidence_id": "EV.season.orb_pct",
+      "metric": "Offensive Rebound %",
+      "scope": "season",
+      "value": "33.8%",
+      "league_rank": "2 of 14",
+      "league_percentile": 92.3,
+      "league_average": "30.3%",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "win_loss": {
+        "in_wins": "33.9%",
+        "in_losses": "32.7%",
+        "effect_size": 0.14,
+        "favorable_in_wins": true,
+        "sample": "18W / 8L"
+      }
+    },
+    {
+      "evidence_id": "EV.season.tov_pct",
+      "metric": "Turnover Rate",
+      "scope": "season",
+      "value": "13.4%",
+      "league_rank": "3 of 14",
+      "league_percentile": 84.6,
+      "league_average": "15.8%",
+      "sample_games": 26,
+      "reliability": "moderate",
+      "validation_state": "validated_deterministic",
+      "direction": "lower_is_better",
+      "win_loss": {
+        "in_wins": "12.6%",
+        "in_losses": "15.7%",
+        "effect_size": -0.65,
+        "favorable_in_wins": true,
+        "sample": "18W / 8L"
+      }
+    },
+    {
+      "evidence_id": "EV.season.largest_scoring_run_for",
+      "metric": "Largest Scoring Run (per game)",
+      "scope": "season",
+      "value": "10.5",
+      "league_rank": "1 of 14",
+      "league_percentile": 100.0,
+      "league_average": "9.5",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "win_loss": {
+        "in_wins": "10.7",
+        "in_losses": "10.1",
+        "effect_size": 0.22,
+        "favorable_in_wins": true,
+        "sample": "18W / 8L"
+      }
+    },
+    {
+      "evidence_id": "EV.behind_6_plus.efg_pct",
+      "metric": "Effective FG% When Trailing 6+",
+      "scope": "behind_6_plus",
+      "value": "69.7%",
+      "league_rank": "2 of 14",
+      "league_percentile": 92.3,
+      "league_average": "60.0%",
+      "sample_games": 13,
+      "reliability": "moderate",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "sample_possessions": 335,
+      "win_loss": {
+        "in_wins": "87.5%",
+        "in_losses": "54.4%",
+        "effect_size": 1.5,
+        "favorable_in_wins": true,
+        "sample": "6W / 7L"
+      },
+      "limitations": [
+        "unweighted_segment_mean"
+      ]
+    },
+    {
+      "evidence_id": "EV.season.net_rating",
+      "metric": "Net Rating",
+      "scope": "season",
+      "value": "9.4",
+      "league_rank": "3 of 14",
+      "league_percentile": 84.6,
+      "league_average": "0.1",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "win_loss": {
+        "in_wins": "18.0",
+        "in_losses": "-10.7",
+        "effect_size": 2.64,
+        "favorable_in_wins": true,
+        "sample": "18W / 8L"
+      }
+    },
+    {
+      "evidence_id": "EV.season.defensive_rating",
+      "metric": "Defensive Rating",
+      "scope": "season",
+      "value": "108.9",
+      "league_rank": "4 of 14",
+      "league_percentile": 76.9,
+      "league_average": "110.3",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "lower_is_better",
+      "win_loss": {
+        "in_wins": "103.8",
+        "in_losses": "121.5",
+        "effect_size": -1.21,
+        "favorable_in_wins": true,
+        "sample": "18W / 8L"
+      }
+    },
+    {
+      "evidence_id": "EV.season.offensive_rating",
+      "metric": "Offensive Rating",
+      "scope": "season",
+      "value": "118.4",
+      "league_rank": "3 of 14",
+      "league_percentile": 84.6,
+      "league_average": "110.4",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "win_loss": {
+        "in_wins": "121.8",
+        "in_losses": "110.8",
+        "effect_size": 0.97,
+        "favorable_in_wins": true,
+        "sample": "18W / 8L"
+      }
+    },
+    {
+      "evidence_id": "EV.clutch.efg_pct",
+      "metric": "Clutch Effective FG%",
+      "scope": "clutch",
+      "value": "40.7%",
+      "league_rank": "10 of 14",
+      "league_percentile": 30.8,
+      "league_average": "50.2%",
+      "sample_games": 14,
+      "reliability": "moderate",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "sample_possessions": 125,
+      "win_loss": {
+        "in_wins": "50.7%",
+        "in_losses": "30.6%",
+        "effect_size": 0.94,
+        "favorable_in_wins": true,
+        "sample": "7W / 7L"
+      },
+      "limitations": [
+        "unweighted_segment_mean"
+      ]
+    }
+  ],
+  "caveats": [
+    "This analysis is subject to several limitations: we lack data on rim and shot-zone shares, shot distance, and half-court or set-offense possession types.",
+    "Additionally, we cannot identify the last passer or pass origin, and this report is strictly team-level with no player-level or lineup analytics.",
+    "No video-derived metrics such as shot contest or on-ball pressure are available, and we cannot describe specific defensive schemes, coverages, or coaching intent.",
+    "The provider fast-break flag is one-directional: a False (or missing) value means only 'the provider did not classify this as a fast break'. It never means half-court, set offense, or secondary transition.",
+    "This metric has no inherently good or bad direction. A high or low league percentile describes style, not quality, and must not be phrased as a strength or weakness.",
+    "Segment values are the unweighted mean of per-game segment values, so a game with very few segment possessions counts as much as a game with many."
+  ],
+  "unavailable_evidence": [
+    {
+      "id": "NA.shot_zone_share",
+      "label": "Rim / shot-zone share (season)",
+      "reason": "Coarse shot-zone geometry is validated only at game scope and is still provisional_deterministic pending fresh blind human labelling. Season-scope aggregation was deliberately not built for this MVP checkpoint."
+    },
+    {
+      "id": "NA.shot_distance",
+      "label": "Shot distance",
+      "reason": "Distance carries +/-1m uncertainty (validation_state 'partial') and is not aggregated at season scope."
+    },
+    {
+      "id": "NA.possession_type_half_court",
+      "label": "Half-court / set-offense possession type",
+      "reason": "No half-court classification exists. The provider fast-break flag is one-directional: its absence never implies half-court or set offense."
+    },
+    {
+      "id": "NA.last_passer",
+      "label": "Last-passer identity / pass origin",
+      "reason": "Audit found a linked passer for only 38/62 made and 0/78 missed field-goal attempts. Not implemented."
+    },
+    {
+      "id": "NA.player_level",
+      "label": "Player-level and lineup analytics",
+      "reason": "This MVP is team-level only by locked product decision. No per-player claim is supportable."
+    },
+    {
+      "id": "NA.video",
+      "label": "Video-derived metrics (shot contest, creation, on-ball pressure)",
+      "reason": "The video layer failed reliability validation and was removed from the MVP. No video evidence exists."
+    },
+    {
+      "id": "NA.scheme",
+      "label": "Defensive scheme / coverage / play-calling",
+      "reason": "Play-by-play carries no scheme, coverage, or personnel information. Any claim about switching, drop coverage, zone, or coaching intent is unsupportable."
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "rejects": [],
+    "warnings": [
+      {
+        "rule": "R8",
+        "severity": "warning",
+        "message": "confidence 'high' exceeds weakest supporting evidence reliability 'moderate'",
+        "where": "rec_force_clutch"
+      },
+      {
+        "rule": "R8",
+        "severity": "warning",
+        "message": "confidence 'high' exceeds weakest supporting evidence reliability 'moderate'",
+        "where": "rec_prevent_runs"
+      }
+    ]
+  }
+}

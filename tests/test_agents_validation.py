@@ -345,6 +345,35 @@ def test_confidence_above_evidence_reliability_warns():
     assert any(f.rule == "R8" and "confidence" in f.message for f in result.warnings)
 
 
+def test_same_implication_framed_as_both_strength_and_vulnerability_warns():
+    """Observed on the first live run: one implication was argued as a strength
+    ("offensive efficiency is highly stable") and a vulnerability from the same
+    bundle, and the "stable" reading contradicted its own cited effect size."""
+    pack = make_pack()
+    triage = make_triage(pack, n=8)
+    tactical = make_tactical(triage)
+    report = make_report(tactical)
+    shared = tactical.implications[0].implication_id
+    report.strengths = [ReportClaim(text="Stable and elite.", implication_refs=[shared])]
+    report.vulnerabilities = [ReportClaim(text="Volatile and exposed.", implication_refs=[shared])]
+
+    result = validate_report(pack, triage, tactical, report)
+    assert any(f.rule == "W-dual-framing" for f in result.warnings)
+    assert result.ok, "dual framing is sometimes legitimate, so it must not block"
+
+
+def test_distinct_implications_per_section_do_not_warn():
+    pack = make_pack()
+    triage = make_triage(pack, n=8)
+    tactical = make_tactical(triage)
+    report = make_report(tactical)
+    report.strengths = [ReportClaim(text="Strong here.", implication_refs=["T1"])]
+    report.vulnerabilities = [ReportClaim(text="Weak there.", implication_refs=["T2"])]
+
+    result = validate_report(pack, triage, tactical, report)
+    assert not any(f.rule == "W-dual-framing" for f in result.warnings)
+
+
 def test_numeral_in_executive_summary_warns():
     pack = make_pack()
     triage = make_triage(pack, n=8)

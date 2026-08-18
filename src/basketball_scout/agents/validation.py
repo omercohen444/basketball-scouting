@@ -295,6 +295,20 @@ def validate_report(
                 _finding("W-sample", "warning",
                          f"rests on evidence with insufficient W/L sample: {sorted(set(weak_samples))}", where))
 
+    # An implication argued as both a strength and a vulnerability is sometimes
+    # legitimate (one bundle can hold an offensive positive and a defensive
+    # negative), so this is a warning, not a rejection. It is worth surfacing
+    # because it is also the shape a mischaracterisation takes: the first live
+    # run produced "offensive efficiency is highly stable" from a bundle whose
+    # own cited effect size was ~1.0. Pure set logic — no prose heuristics.
+    strength_refs = {r for c in report.strengths for r in c.implication_refs}
+    vulnerability_refs = {r for c in report.vulnerabilities for r in c.implication_refs}
+    if dual := strength_refs & vulnerability_refs:
+        findings.append(
+            _finding("W-dual-framing", "warning",
+                     f"implication(s) {sorted(dual)} argued as both a strength and a "
+                     f"vulnerability; check the framing matches the cited effect sizes", "report"))
+
     findings.extend(_prose_findings(report.executive_summary, pack, "executive_summary", allow_scheme=False))
 
     if re.search(r"\d", report.executive_summary):

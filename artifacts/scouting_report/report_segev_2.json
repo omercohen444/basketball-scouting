@@ -1,0 +1,751 @@
+{
+  "report_id": "REP.maccabi_tel_aviv.2025_26",
+  "team_id": "segev:2",
+  "team_name": "Maccabi Tel Aviv",
+  "scope_note": "Deterministic play-by-play analytics for the 2025-26 season.",
+  "generated_from": {
+    "pack_id": "segev:2|2025-26|agents-v1",
+    "season": "2025-26",
+    "record": "24-2",
+    "games_n": 26,
+    "date_range": "2025-10-12T18:40:00 to 2026-05-28T21:00:00",
+    "definition_version": "agents-v1",
+    "pack_states": [
+      "no_win_loss_evidence"
+    ],
+    "source": "segev"
+  },
+  "executive_summary": "Maccabi Tel Aviv represents the most dominant overall force in the league, powered by an elite offense that combines high-volume perimeter shooting with exceptional ball security. They excel at protecting the ball and generating high-quality looks, while also showing a strong tendency to extend possessions on the glass. To compete, our game plan must focus on disrupting their perimeter comfort and securing defensive rebounds.",
+  "sections": {
+    "offensive_identity": [
+      {
+        "text": "The opponent establishes a highly perimeter-oriented offensive style, heavily prioritizing attempts from beyond the arc over two-point field goals.",
+        "claim_strength": "established",
+        "implication_refs": [
+          "IMP.perimeter_identity"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.fg3a_rate",
+            "metric": "3PA Rate",
+            "scope": "season",
+            "value": "46.3%",
+            "league_rank": "1 of 14",
+            "league_percentile": 100.0,
+            "league_average": "40.3%",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "neutral",
+            "win_loss": {
+              "available": false,
+              "reason": "masked_no_wl_evidence"
+            },
+            "limitations": [
+              "neutral_direction"
+            ]
+          },
+          {
+            "evidence_id": "EV.season.scoring_share_3pt",
+            "metric": "Share of Points from 3PT",
+            "scope": "season",
+            "value": "40.1%",
+            "league_rank": "1 of 14",
+            "league_percentile": 100.0,
+            "league_average": "32.5%",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "neutral",
+            "win_loss": {
+              "available": false,
+              "reason": "masked_no_wl_evidence"
+            },
+            "limitations": [
+              "neutral_direction"
+            ]
+          },
+          {
+            "evidence_id": "EV.season.scoring_share_2pt",
+            "metric": "Share of Points from 2PT",
+            "scope": "season",
+            "value": "42.7%",
+            "league_rank": "14 of 14",
+            "league_percentile": 0.0,
+            "league_average": "50.7%",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "neutral",
+            "win_loss": {
+              "available": false,
+              "reason": "masked_no_wl_evidence"
+            },
+            "limitations": [
+              "neutral_direction"
+            ]
+          }
+        ]
+      }
+    ],
+    "strengths": [
+      {
+        "text": "They possess an exceptionally efficient offense driven by elite effective field goal shooting.",
+        "claim_strength": "established",
+        "implication_refs": [
+          "IMP.offensive_efficiency"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.offensive_rating",
+            "metric": "Offensive Rating",
+            "scope": "season",
+            "value": "130.1",
+            "league_rank": "1 of 14",
+            "league_percentile": 100.0,
+            "league_average": "110.4",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "available": false,
+              "reason": "masked_no_wl_evidence"
+            }
+          },
+          {
+            "evidence_id": "EV.season.efg_pct",
+            "metric": "Effective FG%",
+            "scope": "season",
+            "value": "58.4%",
+            "league_rank": "1 of 14",
+            "league_percentile": 100.0,
+            "league_average": "53.1%",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "available": false,
+              "reason": "masked_no_wl_evidence"
+            }
+          }
+        ]
+      },
+      {
+        "text": "They maintain exceptional control of possessions by minimizing turnovers and maintaining highly efficient ball movement.",
+        "claim_strength": "established",
+        "implication_refs": [
+          "IMP.possession_control"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.tov_pct",
+            "metric": "Turnover Rate",
+            "scope": "season",
+            "value": "12.4%",
+            "league_rank": "1 of 14",
+            "league_percentile": 100.0,
+            "league_average": "15.8%",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "lower_is_better",
+            "win_loss": {
+              "available": false,
+              "reason": "masked_no_wl_evidence"
+            }
+          },
+          {
+            "evidence_id": "EV.season.ast_to_ratio",
+            "metric": "Assist/Turnover Ratio",
+            "scope": "season",
+            "value": "2.05",
+            "league_rank": "1 of 14",
+            "league_percentile": 100.0,
+            "league_average": "1.40",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "available": false,
+              "reason": "masked_no_wl_evidence"
+            }
+          }
+        ]
+      },
+      {
+        "text": "They are highly effective at extending possessions through offensive rebounding and converting those extra opportunities into points.",
+        "claim_strength": "indicated",
+        "implication_refs": [
+          "IMP.offensive_rebounding"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.orb_pct",
+            "metric": "Offensive Rebound %",
+            "scope": "season",
+            "value": "36.1%",
+            "league_rank": "1 of 14",
+            "league_percentile": 100.0,
+            "league_average": "30.3%",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "available": false,
+              "reason": "masked_no_wl_evidence"
+            }
+          },
+          {
+            "evidence_id": "EV.season.points_per_second_chance_possession",
+            "metric": "Points per Second-Chance Possession",
+            "scope": "season",
+            "value": "1.09",
+            "league_rank": "2 of 14",
+            "league_percentile": 92.3,
+            "league_average": "0.92",
+            "sample_games": 26,
+            "reliability": "moderate",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "available": false,
+              "reason": "masked_no_wl_evidence"
+            }
+          }
+        ]
+      },
+      {
+        "text": "They are the most dominant team in the league overall, driven by their league-leading net rating.",
+        "claim_strength": "established",
+        "implication_refs": [
+          "IMP.overall_dominance"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.net_rating",
+            "metric": "Net Rating",
+            "scope": "season",
+            "value": "23.1",
+            "league_rank": "1 of 14",
+            "league_percentile": 100.0,
+            "league_average": "0.1",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "available": false,
+              "reason": "masked_no_wl_evidence"
+            }
+          }
+        ]
+      }
+    ],
+    "vulnerabilities": [],
+    "transition_notes": [],
+    "turnover_notes": [
+      {
+        "text": "They maintain exceptional control of possessions by minimizing turnovers and maintaining highly efficient ball movement.",
+        "claim_strength": "established",
+        "implication_refs": [
+          "IMP.possession_control"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.tov_pct",
+            "metric": "Turnover Rate",
+            "scope": "season",
+            "value": "12.4%",
+            "league_rank": "1 of 14",
+            "league_percentile": 100.0,
+            "league_average": "15.8%",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "lower_is_better",
+            "win_loss": {
+              "available": false,
+              "reason": "masked_no_wl_evidence"
+            }
+          },
+          {
+            "evidence_id": "EV.season.ast_to_ratio",
+            "metric": "Assist/Turnover Ratio",
+            "scope": "season",
+            "value": "2.05",
+            "league_rank": "1 of 14",
+            "league_percentile": 100.0,
+            "league_average": "1.40",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "available": false,
+              "reason": "masked_no_wl_evidence"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "recommendation_id": "REC.perimeter_defense",
+      "priority": 1,
+      "directive": "Implement a hard-hedging or switching defensive scheme on the perimeter to run them off the three-point line.",
+      "rationale": "The opponent heavily prioritizes three-point attempts over two-point field goals. Forcing them inside their preferred perimeter zone will disrupt their primary offensive identity.",
+      "confidence": "high",
+      "implication_refs": [
+        "IMP.perimeter_identity",
+        "IMP.offensive_efficiency"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "EV.season.fg3a_rate",
+          "metric": "3PA Rate",
+          "scope": "season",
+          "value": "46.3%",
+          "league_rank": "1 of 14",
+          "league_percentile": 100.0,
+          "league_average": "40.3%",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "neutral",
+          "win_loss": {
+            "available": false,
+            "reason": "masked_no_wl_evidence"
+          },
+          "limitations": [
+            "neutral_direction"
+          ]
+        },
+        {
+          "evidence_id": "EV.season.scoring_share_3pt",
+          "metric": "Share of Points from 3PT",
+          "scope": "season",
+          "value": "40.1%",
+          "league_rank": "1 of 14",
+          "league_percentile": 100.0,
+          "league_average": "32.5%",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "neutral",
+          "win_loss": {
+            "available": false,
+            "reason": "masked_no_wl_evidence"
+          },
+          "limitations": [
+            "neutral_direction"
+          ]
+        },
+        {
+          "evidence_id": "EV.season.scoring_share_2pt",
+          "metric": "Share of Points from 2PT",
+          "scope": "season",
+          "value": "42.7%",
+          "league_rank": "14 of 14",
+          "league_percentile": 0.0,
+          "league_average": "50.7%",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "neutral",
+          "win_loss": {
+            "available": false,
+            "reason": "masked_no_wl_evidence"
+          },
+          "limitations": [
+            "neutral_direction"
+          ]
+        },
+        {
+          "evidence_id": "EV.season.offensive_rating",
+          "metric": "Offensive Rating",
+          "scope": "season",
+          "value": "130.1",
+          "league_rank": "1 of 14",
+          "league_percentile": 100.0,
+          "league_average": "110.4",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "win_loss": {
+            "available": false,
+            "reason": "masked_no_wl_evidence"
+          }
+        },
+        {
+          "evidence_id": "EV.season.efg_pct",
+          "metric": "Effective FG%",
+          "scope": "season",
+          "value": "58.4%",
+          "league_rank": "1 of 14",
+          "league_percentile": 100.0,
+          "league_average": "53.1%",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "win_loss": {
+            "available": false,
+            "reason": "masked_no_wl_evidence"
+          }
+        }
+      ]
+    },
+    {
+      "recommendation_id": "REC.ball_pressure",
+      "priority": 2,
+      "directive": "Deploy a high-pressure defensive game plan to disrupt their passing lanes and force turnovers.",
+      "rationale": "They excel at ball security and ball movement, leading the league in assist-to-turnover ratio. We must pressure their ball handlers to disrupt this control.",
+      "confidence": "high",
+      "implication_refs": [
+        "IMP.possession_control"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "EV.season.tov_pct",
+          "metric": "Turnover Rate",
+          "scope": "season",
+          "value": "12.4%",
+          "league_rank": "1 of 14",
+          "league_percentile": 100.0,
+          "league_average": "15.8%",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "lower_is_better",
+          "win_loss": {
+            "available": false,
+            "reason": "masked_no_wl_evidence"
+          }
+        },
+        {
+          "evidence_id": "EV.season.ast_to_ratio",
+          "metric": "Assist/Turnover Ratio",
+          "scope": "season",
+          "value": "2.05",
+          "league_rank": "1 of 14",
+          "league_percentile": 100.0,
+          "league_average": "1.40",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "win_loss": {
+            "available": false,
+            "reason": "masked_no_wl_evidence"
+          }
+        }
+      ]
+    },
+    {
+      "recommendation_id": "REC.defensive_rebounding",
+      "priority": 3,
+      "directive": "Commit all players to defensive rebounding block-outs to limit second-chance opportunities.",
+      "rationale": "They show a strong tendency to extend possessions through offensive rebounding and scoring on second chances. We must secure the defensive glass to prevent these extra possessions.",
+      "confidence": "moderate",
+      "implication_refs": [
+        "IMP.offensive_rebounding"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "EV.season.orb_pct",
+          "metric": "Offensive Rebound %",
+          "scope": "season",
+          "value": "36.1%",
+          "league_rank": "1 of 14",
+          "league_percentile": 100.0,
+          "league_average": "30.3%",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "win_loss": {
+            "available": false,
+            "reason": "masked_no_wl_evidence"
+          }
+        },
+        {
+          "evidence_id": "EV.season.points_per_second_chance_possession",
+          "metric": "Points per Second-Chance Possession",
+          "scope": "season",
+          "value": "1.09",
+          "league_rank": "2 of 14",
+          "league_percentile": 92.3,
+          "league_average": "0.92",
+          "sample_games": 26,
+          "reliability": "moderate",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "win_loss": {
+            "available": false,
+            "reason": "masked_no_wl_evidence"
+          }
+        }
+      ]
+    }
+  ],
+  "key_evidence": [
+    {
+      "evidence_id": "EV.season.fg3a_rate",
+      "metric": "3PA Rate",
+      "scope": "season",
+      "value": "46.3%",
+      "league_rank": "1 of 14",
+      "league_percentile": 100.0,
+      "league_average": "40.3%",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "neutral",
+      "win_loss": {
+        "available": false,
+        "reason": "masked_no_wl_evidence"
+      },
+      "limitations": [
+        "neutral_direction"
+      ]
+    },
+    {
+      "evidence_id": "EV.season.scoring_share_3pt",
+      "metric": "Share of Points from 3PT",
+      "scope": "season",
+      "value": "40.1%",
+      "league_rank": "1 of 14",
+      "league_percentile": 100.0,
+      "league_average": "32.5%",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "neutral",
+      "win_loss": {
+        "available": false,
+        "reason": "masked_no_wl_evidence"
+      },
+      "limitations": [
+        "neutral_direction"
+      ]
+    },
+    {
+      "evidence_id": "EV.season.scoring_share_2pt",
+      "metric": "Share of Points from 2PT",
+      "scope": "season",
+      "value": "42.7%",
+      "league_rank": "14 of 14",
+      "league_percentile": 0.0,
+      "league_average": "50.7%",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "neutral",
+      "win_loss": {
+        "available": false,
+        "reason": "masked_no_wl_evidence"
+      },
+      "limitations": [
+        "neutral_direction"
+      ]
+    },
+    {
+      "evidence_id": "EV.season.offensive_rating",
+      "metric": "Offensive Rating",
+      "scope": "season",
+      "value": "130.1",
+      "league_rank": "1 of 14",
+      "league_percentile": 100.0,
+      "league_average": "110.4",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "win_loss": {
+        "available": false,
+        "reason": "masked_no_wl_evidence"
+      }
+    },
+    {
+      "evidence_id": "EV.season.efg_pct",
+      "metric": "Effective FG%",
+      "scope": "season",
+      "value": "58.4%",
+      "league_rank": "1 of 14",
+      "league_percentile": 100.0,
+      "league_average": "53.1%",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "win_loss": {
+        "available": false,
+        "reason": "masked_no_wl_evidence"
+      }
+    },
+    {
+      "evidence_id": "EV.season.tov_pct",
+      "metric": "Turnover Rate",
+      "scope": "season",
+      "value": "12.4%",
+      "league_rank": "1 of 14",
+      "league_percentile": 100.0,
+      "league_average": "15.8%",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "lower_is_better",
+      "win_loss": {
+        "available": false,
+        "reason": "masked_no_wl_evidence"
+      }
+    },
+    {
+      "evidence_id": "EV.season.ast_to_ratio",
+      "metric": "Assist/Turnover Ratio",
+      "scope": "season",
+      "value": "2.05",
+      "league_rank": "1 of 14",
+      "league_percentile": 100.0,
+      "league_average": "1.40",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "win_loss": {
+        "available": false,
+        "reason": "masked_no_wl_evidence"
+      }
+    },
+    {
+      "evidence_id": "EV.season.orb_pct",
+      "metric": "Offensive Rebound %",
+      "scope": "season",
+      "value": "36.1%",
+      "league_rank": "1 of 14",
+      "league_percentile": 100.0,
+      "league_average": "30.3%",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "win_loss": {
+        "available": false,
+        "reason": "masked_no_wl_evidence"
+      }
+    },
+    {
+      "evidence_id": "EV.season.points_per_second_chance_possession",
+      "metric": "Points per Second-Chance Possession",
+      "scope": "season",
+      "value": "1.09",
+      "league_rank": "2 of 14",
+      "league_percentile": 92.3,
+      "league_average": "0.92",
+      "sample_games": 26,
+      "reliability": "moderate",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "win_loss": {
+        "available": false,
+        "reason": "masked_no_wl_evidence"
+      }
+    },
+    {
+      "evidence_id": "EV.season.net_rating",
+      "metric": "Net Rating",
+      "scope": "season",
+      "value": "23.1",
+      "league_rank": "1 of 14",
+      "league_percentile": 100.0,
+      "league_average": "0.1",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "win_loss": {
+        "available": false,
+        "reason": "masked_no_wl_evidence"
+      }
+    }
+  ],
+  "caveats": [
+    "We lack data on season-scope rim and shot-zone shares.",
+    "Shot distance metrics are unavailable due to high uncertainty at the season scope.",
+    "We cannot classify half-court or set-offense possession types.",
+    "We cannot identify primary playmakers or pass origins due to missing last-passer data.",
+    "This report is strictly team-level; no player-level or lineup analytics are available.",
+    "No video-derived metrics, such as shot contests or on-ball pressure, are available.",
+    "We cannot analyze the opponent's defensive schemes, coverages, or coaching intent.",
+    "The provider fast-break flag is one-directional: a False (or missing) value means only 'the provider did not classify this as a fast break'. It never means half-court, set offense, or secondary transition.",
+    "This metric has no inherently good or bad direction. A high or low league percentile describes style, not quality, and must not be phrased as a strength or weakness.",
+    "Segment values are the unweighted mean of per-game segment values, so a game with very few segment possessions counts as much as a game with many."
+  ],
+  "unavailable_evidence": [
+    {
+      "id": "NA.shot_zone_share",
+      "label": "Rim / shot-zone share (season)",
+      "reason": "Coarse shot-zone geometry is validated only at game scope and is still provisional_deterministic pending fresh blind human labelling. Season-scope aggregation was deliberately not built for this MVP checkpoint."
+    },
+    {
+      "id": "NA.shot_distance",
+      "label": "Shot distance",
+      "reason": "Distance carries +/-1m uncertainty (validation_state 'partial') and is not aggregated at season scope."
+    },
+    {
+      "id": "NA.possession_type_half_court",
+      "label": "Half-court / set-offense possession type",
+      "reason": "No half-court classification exists. The provider fast-break flag is one-directional: its absence never implies half-court or set offense."
+    },
+    {
+      "id": "NA.last_passer",
+      "label": "Last-passer identity / pass origin",
+      "reason": "Audit found a linked passer for only 38/62 made and 0/78 missed field-goal attempts. Not implemented."
+    },
+    {
+      "id": "NA.player_level",
+      "label": "Player-level and lineup analytics",
+      "reason": "This MVP is team-level only by locked product decision. No per-player claim is supportable."
+    },
+    {
+      "id": "NA.video",
+      "label": "Video-derived metrics (shot contest, creation, on-ball pressure)",
+      "reason": "The video layer failed reliability validation and was removed from the MVP. No video evidence exists."
+    },
+    {
+      "id": "NA.scheme",
+      "label": "Defensive scheme / coverage / play-calling",
+      "reason": "Play-by-play carries no scheme, coverage, or personnel information. Any claim about switching, drop coverage, zone, or coaching intent is unsupportable."
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "rejects": [],
+    "warnings": [
+      {
+        "rule": "W-sample",
+        "severity": "warning",
+        "message": "rests on evidence with insufficient W/L sample: ['EV.season.efg_pct', 'EV.season.fg3a_rate', 'EV.season.offensive_rating', 'EV.season.scoring_share_2pt', 'EV.season.scoring_share_3pt']",
+        "where": "REC.perimeter_defense"
+      },
+      {
+        "rule": "W-sample",
+        "severity": "warning",
+        "message": "rests on evidence with insufficient W/L sample: ['EV.season.ast_to_ratio', 'EV.season.tov_pct']",
+        "where": "REC.ball_pressure"
+      },
+      {
+        "rule": "W-sample",
+        "severity": "warning",
+        "message": "rests on evidence with insufficient W/L sample: ['EV.season.orb_pct', 'EV.season.points_per_second_chance_possession']",
+        "where": "REC.defensive_rebounding"
+      }
+    ]
+  }
+}
