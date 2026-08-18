@@ -5,6 +5,112 @@ session — not a place for terminal output.
 
 ---
 
+## 2026-08-19 — Run 13: Agent layer, no-video MVP (`no-video-mvp`)
+
+**Objective:** Management re-scoped the MVP to **no video** (the video layer was
+built and fresh-game validated, but failed reliability gates). Build the agent
+layer on the now-trusted deterministic stats foundation:
+`PBP → EvidencePack → 3 agents → scouting report`. Scope was explicitly reduced
+from an earlier 22–30h design to fit ~8–12 active hours.
+
+**Repository management.** `stats-layer @ 1aa2af5` is preserved untouched as the
+clean deterministic stats checkpoint. All work happened on new branch
+`no-video-mvp` in a new worktree `C:\AI_DEV10\basketball_analytics_mvp`, created
+from `1aa2af5`. `master`/scouting and `fresh-video-eval` were not modified.
+Note `data/` and `.env` are git-ignored and therefore do **not** travel between
+worktrees — both were copied in manually (297 cached PBP games, 182 processed
+team-game records).
+
+**Architecture: 3 agents, TRIAGE → INTERPRET → COMPOSE.** The dropped Video
+Analysis Agent is replaced by a genuinely distinct role, keeping
+`PROJECT_SPEC.md`'s locked "exactly three CrewAI agents" satisfied.
+
+- **Evidence Triage** — Python hands it a deterministically pre-ranked pool of 20;
+  it may only drop, reorder within that set, and annotate. It cannot introduce an
+  id Python did not select, so it structurally cannot miss a top signal. Agent 1
+  is *triage*, not analysis, precisely because selection is already deterministic
+  and trusted (`compute_signal_flags`, `is_agent_rankable`, `rank_actionable_signals`).
+- **Tactical Scout** — statistical signal → basketball tendency, *proposing* a
+  claim strength. `resolve_claim_strength()` recomputes it from provenance and may
+  **downgrade, never upgrade**.
+- **Head Scout** — cites `implication_id`s, never evidence ids, so "introduces no
+  new evidence" is true by construction rather than a policed rule.
+
+**Two structural choices that removed whole validation rules.** The Head Scout
+cannot cite evidence directly, and no agent writes numbers at all (`render.py`
+attaches every figure from the pack at render time). So "no new evidence" and
+"quoted numbers match source" need no checks — preferred structural impossibility
+over detection. `ScoutingReport` deliberately has no `key_evidence` field.
+
+**Two real defects found and fixed:**
+
+1. **`effect_size` leaked past the rankability gate.** Verified on `segev:2`
+   (24-2): 13 of 15 evidence objects carried a numeric effect (`net_rating`
+   = 2.4358) while `win_loss_signal` was `None`, because 2 losses fails
+   `AGENT_RANKABLE_MIN_LOSSES = 3`. Now masked with an explicit `effect_status`;
+   `build_pack.py --all` fails loudly on any leak.
+2. **`reliability_tier` mislabelled net rating "low" for every team.** CV is
+   `std/|mean|` and net rating sits near zero, so CV explodes without bound.
+   Metrics that cross zero opt out via `MetricSpec.cv_applicable`.
+
+**Degenerate case handled, not discovered late.** Maccabi Tel Aviv (24-2) has
+**zero** agent-rankable W/L signals — and W/L is the report's main section. The
+pack raises `no_win_loss_evidence`, masks all W/L blocks, prompts inject an
+explicit prohibition, and validation R6 rejects outcome framing. It is the only
+team of 14 in this state, and it is used as a regression gate rather than a demo.
+
+**Scope cuts applied (approved).** No citation-token/number-templating system; 8
+MVP-critical validation rules only; no recorded-response framework (deterministic
+stub agents instead); **no `season_scouting.py` at all** — `GameEnrichment`'s
+per-game profile objects already expose scoring mix, second chance, fast break
+and assisted share, so every one of the 25 evidence items goes through the
+existing `build_evidence`. The only casualty is season rim/shot-zone share, which
+is `provisional_deterministic` and would have needed a second full 182-game PBP
+walk; it is declared in `unavailable_evidence`.
+
+**Results.** Packs build offline for **all 14 teams** (25 items, 20 candidates,
+zero leaks, ~6s for the whole league — no caching needed). Full three-stage chain
+runs clean via the stub backend for `segev:4` / `segev:11` / `segev:2`: **0 hard
+rejects, 0 provider calls**. Tests: **539 passed** (444 existing + 95 new), no
+credentials, no network, no regressions.
+
+**BLOCKER — live model run could not be executed.** The Gemini API key returns
+`429 RESOURCE_EXHAUSTED — "Your prepayment credits are depleted"`. That is a
+billing state, not a rate limit and not transient; retrying cannot help. Verified
+against both `google-genai` directly and the CrewAI/LiteLLM path. **Needs a
+credit top-up (or a different provider key) — this is a management/account
+action, not an engineering one.**
+
+Confirmed despite the blocker: **TLS works through CrewAI/LiteLLM/httpx**, not
+just `google-genai` — the request reached Google and returned an
+application-level API error rather than a certificate failure, so
+`truststore.inject_into_ssl()`'s global `ssl` patch does cover httpx. The plan
+had flagged this as must-verify-not-assume.
+
+**Environment.** `crewai 1.15.16` installed into conda `basketball_scouting_env`
+(this worktree has no `.venv`; the conda env is what runs the suite). It pulled
+~130 packages and **downgraded `pydantic` 2.13.4 → 2.12.5**; a `pip freeze`
+snapshot was taken first and the full 444-test suite re-verified immediately
+after install. Pinned in `requirements.txt` as a stage-scoped addition.
+CrewAI telemetry is disabled in `crew.py` — it phones home on every kickoff by
+default and its exporter warnings buried real provider errors.
+
+**Files:** 8 new modules under `src/basketball_scout/agents/`, 2 CLI scripts
+under `scripts/scouting_report/`, 6 new test files, `artifacts/scouting_report/`
+(README + pack + 3 stub reports, all tracked), `requirements.txt`.
+
+**Not started / out of scope:** FastAPI, UI, PDF, Supabase, player-level
+analytics, any video revival.
+
+**Next recommended technical action:** top up Gemini credit (or supply another
+provider key), then run
+`python scripts\scouting_report\generate_report.py --team-id segev:4` — no code
+change should be needed. If the live prose then violates validation, tighten the
+prompts; **do not loosen the validators**. Only after a clean live demo should
+FastAPI/UI/PDF begin.
+
+---
+
 ## 2026-08-16 — Run 12: Deterministic Scouting Feature Pack (`stats-layer`)
 
 **Objective:** Management decision — anything reliably derivable from
