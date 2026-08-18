@@ -29,14 +29,15 @@ from the pack at render time. This is enforced structurally, not by inspection.
 | File | What it is |
 |---|---|
 | `pack_segev_4.json` | A complete `EvidencePack` — the deterministic agent input contract. Useful on its own: the later FastAPI/UI stage can consume this with no agent involved. |
-| `report_segev_4_stub.{json,md}` | Primary demo — HAPOEL JERUSALEM (18-8), full win/loss evidence available. |
-| `report_segev_11_stub.{json,md}` | Regression — BEER SHEVA (10-16). |
-| `report_segev_2_stub.{json,md}` | **Degenerate-case gate** — MACCABI TEL AVIV (24-2). Demonstrates the `no_win_loss_evidence` path. |
+| `report_segev_4.{json,md}` | **Primary live demo** — HAPOEL JERUSALEM (18-8), full win/loss evidence. |
+| `report_segev_11.{json,md}` | Live regression — BEER SHEVA (10-16). |
+| `report_segev_2.{json,md}` | **Degenerate-case gate, live** — MACCABI TEL AVIV (24-2), the `no_win_loss_evidence` path. |
+| `report_*_stub.{json,md}` | The same three teams via the deterministic stub backend (`--stub`, zero provider calls). Kept as the offline reference: flat placeholder prose, real numbers. |
 
-All were produced by the **deterministic stub backend** (`--stub`), which makes
-zero provider calls. The prose is deliberately flat placeholder text; **every
-number, rank, sample size and reliability tier in them is real**. See §6 for why
-no live-model artifact is present.
+The `report_*` files without a `_stub` suffix are **live CrewAI output**
+(`gemini-3.5-flash`, 3 provider calls each, no repair retries, zero hard
+rejections). In every file — live or stub — the prose comes from the agent and
+**every number, rank, sample size and reliability tier comes from the pack**.
 
 ## 3. Why Maccabi Tel Aviv is the edge case, not the showcase
 
@@ -93,33 +94,44 @@ identity, player-level, video, scheme). Declaring gaps explicitly suppresses
 gap-filling from world knowledge far better than silence, and gives a claim a
 legitimate way to *acknowledge* a limit without citing it as support.
 
-## 6. Live-model run: blocked, not skipped
+## 6. Live-model run
 
-The three agents are fully wired (`agents/crew.py`, CrewAI 1.15.16, sequential,
-no delegation, no memory, no tools, `output_pydantic` per task). The live run
-**could not be executed**: the Gemini API key returns
+Executed against `gemini-3.5-flash` via CrewAI 1.15.16 (sequential, no
+delegation, no memory, no tools, `output_pydantic` per task).
 
-```
-429 RESOURCE_EXHAUSTED — "Your prepayment credits are depleted"
-```
+| Team | Calls | Retries | Rejects | Warnings |
+|---|---|---|---|---|
+| `segev:4` HAPOEL JERUSALEM | 3 | 0 | 0 | 2 |
+| `segev:11` BEER SHEVA | 3 | 0 | 0 | 1 |
+| `segev:2` MACCABI TEL AVIV | 3 | 0 | 0 | 3 |
 
-This is a billing state, not a rate limit and not transient. Two things were
-verified despite it:
+The `segev:2` degradation holds end to end: no W/L columns render, no outcome
+framing appears in the prose, and every claim is league-relative.
 
-- **TLS works through the CrewAI/LiteLLM/httpx path**, not just `google-genai`.
-  The request reached Google and returned an application-level API error rather
-  than a certificate failure, confirming `net.enable_system_trust_store()`'s
-  global `ssl` patch covers httpx. The plan explicitly said not to assume this.
-- **The failure surfaces as one actionable line**, not an SDK traceback
-  (`generate_report.py` exits 3 with a top-up hint and a `--stub` suggestion).
+Also confirmed: **TLS works through the CrewAI/LiteLLM/httpx path**, not just
+`google-genai`, so `net.enable_system_trust_store()`'s global `ssl` patch does
+cover httpx. The plan said not to assume this.
 
-Everything except the model's prose is proven: contracts, validation, claim
-resolution, rendering, and the full three-stage chain with its repair-retry.
+### One defect the live run exposed
+
+The first `segev:4` run cited the same implication as both a strength and a
+vulnerability, and the strength reading — *"offensive efficiency is highly
+stable"* — contradicted its own cited effect size (ORtg W 121.8 / L 110.8,
+d≈0.97). That is the residual risk of the no-numbers design: an agent cannot
+state a **wrong** number, but it can still mischaracterise a number's
+**magnitude** in prose.
+
+Added `W-dual-framing`: a pure set intersection over each section's
+`implication_refs`. Deliberately **not** an adjective-versus-effect-size check,
+which would be exactly the fragile linguistic validation this checkpoint ruled
+out. It is a warning rather than a rejection because one implication bundle can
+legitimately carry an offensive positive and a defensive negative.
 
 ## 7. Known limitations
 
-- **No live-model artifact** — blocked on provider credit (§6). Prose quality is
-  therefore unproven; the pipeline around it is not.
+- **Qualitative mischaracterisation is still possible.** Numbers are safe by
+  construction; adjectives are not. `W-dual-framing` catches the shape it took
+  here, but a confident misreading inside a single section would not trip it.
 - **No rim / shot-zone share.** Deliberately cut: it is
   `provisional_deterministic` (weakest tier) and would have required a second
   full 182-game play-by-play walk. Declared in `unavailable_evidence`. 3PT
@@ -134,5 +146,8 @@ resolution, rendering, and the full three-stage chain with its repair-retry.
   game)" — a denylist that blocks valid reports is worse than a missing one,
   since the numbers are attached deterministically and cannot be wrong.
 - **`W-thin` fires on the stub reports** (6 distinct evidence items). That is the
-  stub's flat structure, not a pack deficiency — a real model spreading claims
-  across more implications would cite more.
+  stub's flat structure, not a pack deficiency — the live runs cite more and do
+  not trip it.
+- **Live prose varies between runs** (temperature 0.3 on the two interpretive
+  stages). Two `segev:4` runs produced different section groupings; both passed
+  validation. Reports are reproducible in structure, not word for word.

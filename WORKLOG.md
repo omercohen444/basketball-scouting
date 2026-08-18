@@ -102,12 +102,43 @@ under `scripts/scouting_report/`, 6 new test files, `artifacts/scouting_report/`
 **Not started / out of scope:** FastAPI, UI, PDF, Supabase, player-level
 analytics, any video revival.
 
-**Next recommended technical action:** top up Gemini credit (or supply another
-provider key), then run
-`python scripts\scouting_report\generate_report.py --team-id segev:4` — no code
-change should be needed. If the live prose then violates validation, tighten the
-prompts; **do not loosen the validators**. Only after a clean live demo should
-FastAPI/UI/PDF begin.
+**BLOCKER RESOLVED, same session.** Credits were topped up and the live run
+executed with **no code change**, exactly as predicted.
+
+**Live results — all three teams, 9 provider calls (3 per report), 0 repair
+retries, 0 hard rejections:**
+
+- `segev:4` HAPOEL JERUSALEM (18-8) — primary demo, 10 signals / 6 implications
+  / 4 recommendations.
+- `segev:11` BEER SHEVA (10-16) — regression, 1 warning (confidence exceeded
+  evidence reliability).
+- `segev:2` MACCABI TEL AVIV (24-2) — degradation gate **confirmed end to end**:
+  no W/L columns render, no outcome framing in the prose, every claim
+  league-relative, `no_win_loss_evidence` banner present.
+
+**One genuine quality defect found in live output, and a new check for it.** The
+first `segev:4` run cited the same implication as both a strength and a
+vulnerability, and the strength reading ("offensive efficiency is highly stable")
+contradicted its own cited effect size (ORtg W 121.8 / L 110.8, d≈0.97). This is
+the residual risk of the no-numbers design: an agent cannot state a *wrong*
+number, but it can still mischaracterise a number's *magnitude* qualitatively.
+Added `W-dual-framing` — pure set intersection over section `implication_refs`,
+deliberately **not** an adjective-versus-effect-size heuristic, which is the
+fragile linguistic validation this checkpoint ruled out. Warning, not rejection,
+because one bundle can legitimately carry an offensive positive and a defensive
+negative. The re-run resolved the framing on its own and hedged to "relatively
+steady"; the confidence check then caught two recommendations claiming high
+confidence on moderate-reliability clutch evidence — the validator working as
+intended on live output.
+
+Final tests: **541 passed** (444 existing + 97 new), no credentials, no network.
+
+**Next recommended technical action:** the agent layer is proven end to end and
+FastAPI/UI/PDF may now begin. `artifacts/scouting_report/report_*.json` is the
+contract the API should serve — `sections`, `recommendations` and `key_evidence`
+are already render-ready, and `unavailable_evidence` should surface in the UI so
+a reader sees what the data cannot show. If live prose ever violates validation,
+tighten the prompts; **do not loosen the validators**.
 
 ---
 
