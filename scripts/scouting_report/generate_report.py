@@ -22,7 +22,7 @@ from basketball_scout.agents.evidence_pack import (  # noqa: E402
     load_league_data,
 )
 from basketball_scout.agents.pipeline import PipelineError, StubBackend, run_pipeline  # noqa: E402
-from basketball_scout.config import load_settings  # noqa: E402
+from basketball_scout.config import ConfigError, load_settings  # noqa: E402
 from basketball_scout.net import enable_system_trust_store  # noqa: E402
 
 
@@ -77,8 +77,18 @@ def main(argv: list[str] | None = None) -> int:
     try:
         result = run_pipeline(pack, backend)
     except PipelineError as exc:
-        print(f"PIPELINE FAILED — {exc}", file=sys.stderr)
+        print(f"PIPELINE FAILED (validation) — {exc}", file=sys.stderr)
         return 1
+    except Exception as exc:  # noqa: BLE001 - provider/config failures get one clear line
+        from basketball_scout.agents.crew import ProviderError
+
+        if isinstance(exc, (ProviderError, ConfigError)):
+            print(f"PROVIDER UNAVAILABLE — {exc}", file=sys.stderr)
+            print("\nThe deterministic evidence pack built fine; only the agent calls are blocked.",
+                  file=sys.stderr)
+            print("Re-run with --stub to exercise the full chain offline.", file=sys.stderr)
+            return 3
+        raise
 
     validation = result.validation
     print(f"backend={result.backend}  attempts={result.stage_attempts}  "

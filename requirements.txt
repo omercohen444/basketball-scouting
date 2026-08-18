@@ -17,5 +17,11 @@ python-dotenv>=1.0
 # dev machine, where certifi's roots are rejected (see src/basketball_scout/net.py).
 truststore>=0.9
 
+# Agent layer (scouting report). Reached only via src/basketball_scout/agents/crew.py
+# -- every other module in that package is provider-agnostic, and the offline stub
+# backend (--stub) needs none of this. Pulls a large transitive tree including
+# litellm, chromadb and onnxruntime.
+crewai>=1.15,<2.0
+
 # dev
 pytest>=8.0

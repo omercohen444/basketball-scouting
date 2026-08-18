@@ -1,0 +1,733 @@
+{
+  "report_id": "RPT.segev:11.stub",
+  "team_id": "segev:11",
+  "team_name": "BEER SHEVA",
+  "scope_note": "Deterministic play-by-play evidence across 26 games (2025-10-12T18:40:00 to 2026-05-27T18:40:00). No video evidence.",
+  "generated_from": {
+    "pack_id": "segev:11|2025-26|agents-v1",
+    "season": "2025-26",
+    "record": "10-16",
+    "games_n": 26,
+    "date_range": "2025-10-12T18:40:00 to 2026-05-27T18:40:00",
+    "definition_version": "agents-v1",
+    "pack_states": [],
+    "source": "segev"
+  },
+  "executive_summary": "This opponent's statistical profile shows several league-relative distinctions that shape how a game plan should be built. The sections below separate what the data establishes from what it merely indicates.",
+  "sections": {
+    "offensive_identity": [
+      {
+        "text": "Their scoring profile has a distinct shape relative to the league.",
+        "claim_strength": "indicated",
+        "implication_refs": [
+          "T1"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.net_rating",
+            "metric": "Net Rating",
+            "scope": "season",
+            "value": "-4.4",
+            "league_rank": "9 of 14",
+            "league_percentile": 38.5,
+            "league_average": "0.1",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "in_wins": "11.6",
+              "in_losses": "-14.4",
+              "effect_size": 2.33,
+              "favorable_in_wins": true,
+              "sample": "10W / 16L"
+            }
+          },
+          {
+            "evidence_id": "EV.clutch.efg_pct",
+            "metric": "Clutch Effective FG%",
+            "scope": "clutch",
+            "value": "39.3%",
+            "league_rank": "11 of 14",
+            "league_percentile": 23.1,
+            "league_average": "50.2%",
+            "sample_games": 15,
+            "reliability": "low",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "sample_possessions": 121,
+            "win_loss": {
+              "in_wins": "61.6%",
+              "in_losses": "19.7%",
+              "effect_size": 1.89,
+              "favorable_in_wins": true,
+              "sample": "7W / 8L"
+            },
+            "limitations": [
+              "unweighted_segment_mean"
+            ]
+          }
+        ]
+      }
+    ],
+    "strengths": [
+      {
+        "text": "They hold a clear league-relative advantage in the cited areas.",
+        "claim_strength": "indicated",
+        "implication_refs": [
+          "T2"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.clutch.efg_pct",
+            "metric": "Clutch Effective FG%",
+            "scope": "clutch",
+            "value": "39.3%",
+            "league_rank": "11 of 14",
+            "league_percentile": 23.1,
+            "league_average": "50.2%",
+            "sample_games": 15,
+            "reliability": "low",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "sample_possessions": 121,
+            "win_loss": {
+              "in_wins": "61.6%",
+              "in_losses": "19.7%",
+              "effect_size": 1.89,
+              "favorable_in_wins": true,
+              "sample": "7W / 8L"
+            },
+            "limitations": [
+              "unweighted_segment_mean"
+            ]
+          },
+          {
+            "evidence_id": "EV.behind_6_plus.efg_pct",
+            "metric": "Effective FG% When Trailing 6+",
+            "scope": "behind_6_plus",
+            "value": "57.1%",
+            "league_rank": "9 of 14",
+            "league_percentile": 38.5,
+            "league_average": "60.0%",
+            "sample_games": 22,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "sample_possessions": 811,
+            "win_loss": {
+              "in_wins": "68.5%",
+              "in_losses": "51.8%",
+              "effect_size": 1.42,
+              "favorable_in_wins": true,
+              "sample": "7W / 15L"
+            },
+            "limitations": [
+              "unweighted_segment_mean"
+            ]
+          }
+        ]
+      }
+    ],
+    "vulnerabilities": [
+      {
+        "text": "They sit below the league norm in the cited areas.",
+        "claim_strength": "indicated",
+        "implication_refs": [
+          "T3"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.behind_6_plus.efg_pct",
+            "metric": "Effective FG% When Trailing 6+",
+            "scope": "behind_6_plus",
+            "value": "57.1%",
+            "league_rank": "9 of 14",
+            "league_percentile": 38.5,
+            "league_average": "60.0%",
+            "sample_games": 22,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "sample_possessions": 811,
+            "win_loss": {
+              "in_wins": "68.5%",
+              "in_losses": "51.8%",
+              "effect_size": 1.42,
+              "favorable_in_wins": true,
+              "sample": "7W / 15L"
+            },
+            "limitations": [
+              "unweighted_segment_mean"
+            ]
+          },
+          {
+            "evidence_id": "EV.1H.net_rating",
+            "metric": "First-Half Net Rating",
+            "scope": "1H",
+            "value": "-7.2",
+            "league_rank": "11 of 14",
+            "league_percentile": 23.1,
+            "league_average": "0.0",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "sample_possessions": 1056,
+            "win_loss": {
+              "in_wins": "9.6",
+              "in_losses": "-17.7",
+              "effect_size": 1.28,
+              "favorable_in_wins": true,
+              "sample": "10W / 16L"
+            },
+            "limitations": [
+              "unweighted_segment_mean"
+            ]
+          }
+        ]
+      }
+    ],
+    "transition_notes": [
+      {
+        "text": "Their transition profile differs from the league midpoint.",
+        "claim_strength": "indicated",
+        "implication_refs": [
+          "T4"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.1H.net_rating",
+            "metric": "First-Half Net Rating",
+            "scope": "1H",
+            "value": "-7.2",
+            "league_rank": "11 of 14",
+            "league_percentile": 23.1,
+            "league_average": "0.0",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "sample_possessions": 1056,
+            "win_loss": {
+              "in_wins": "9.6",
+              "in_losses": "-17.7",
+              "effect_size": 1.28,
+              "favorable_in_wins": true,
+              "sample": "10W / 16L"
+            },
+            "limitations": [
+              "unweighted_segment_mean"
+            ]
+          },
+          {
+            "evidence_id": "EV.season.defensive_rating",
+            "metric": "Defensive Rating",
+            "scope": "season",
+            "value": "113.1",
+            "league_rank": "13 of 14",
+            "league_percentile": 7.7,
+            "league_average": "110.3",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "lower_is_better",
+            "win_loss": {
+              "in_wins": "104.9",
+              "in_losses": "118.2",
+              "effect_size": -1.26,
+              "favorable_in_wins": true,
+              "sample": "10W / 16L"
+            }
+          }
+        ]
+      }
+    ],
+    "turnover_notes": [
+      {
+        "text": "Their turnover profile is a meaningful part of their identity.",
+        "claim_strength": "indicated",
+        "implication_refs": [
+          "T5"
+        ],
+        "evidence": [
+          {
+            "evidence_id": "EV.season.defensive_rating",
+            "metric": "Defensive Rating",
+            "scope": "season",
+            "value": "113.1",
+            "league_rank": "13 of 14",
+            "league_percentile": 7.7,
+            "league_average": "110.3",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "lower_is_better",
+            "win_loss": {
+              "in_wins": "104.9",
+              "in_losses": "118.2",
+              "effect_size": -1.26,
+              "favorable_in_wins": true,
+              "sample": "10W / 16L"
+            }
+          },
+          {
+            "evidence_id": "EV.season.offensive_rating",
+            "metric": "Offensive Rating",
+            "scope": "season",
+            "value": "108.7",
+            "league_rank": "6 of 14",
+            "league_percentile": 61.5,
+            "league_average": "110.4",
+            "sample_games": 26,
+            "reliability": "high",
+            "validation_state": "validated_deterministic",
+            "direction": "higher_is_better",
+            "win_loss": {
+              "in_wins": "116.5",
+              "in_losses": "103.8",
+              "effect_size": 1.19,
+              "favorable_in_wins": true,
+              "sample": "10W / 16L"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "recommendation_id": "R1",
+      "priority": 1,
+      "directive": "Prepare specifically for the tendency described in T1.",
+      "rationale": "The supporting deterministic evidence separates this team from the league norm.",
+      "confidence": "moderate",
+      "implication_refs": [
+        "T1"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "EV.season.net_rating",
+          "metric": "Net Rating",
+          "scope": "season",
+          "value": "-4.4",
+          "league_rank": "9 of 14",
+          "league_percentile": 38.5,
+          "league_average": "0.1",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "win_loss": {
+            "in_wins": "11.6",
+            "in_losses": "-14.4",
+            "effect_size": 2.33,
+            "favorable_in_wins": true,
+            "sample": "10W / 16L"
+          }
+        },
+        {
+          "evidence_id": "EV.clutch.efg_pct",
+          "metric": "Clutch Effective FG%",
+          "scope": "clutch",
+          "value": "39.3%",
+          "league_rank": "11 of 14",
+          "league_percentile": 23.1,
+          "league_average": "50.2%",
+          "sample_games": 15,
+          "reliability": "low",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "sample_possessions": 121,
+          "win_loss": {
+            "in_wins": "61.6%",
+            "in_losses": "19.7%",
+            "effect_size": 1.89,
+            "favorable_in_wins": true,
+            "sample": "7W / 8L"
+          },
+          "limitations": [
+            "unweighted_segment_mean"
+          ]
+        }
+      ]
+    },
+    {
+      "recommendation_id": "R2",
+      "priority": 2,
+      "directive": "Prepare specifically for the tendency described in T2.",
+      "rationale": "The supporting deterministic evidence separates this team from the league norm.",
+      "confidence": "moderate",
+      "implication_refs": [
+        "T2"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "EV.clutch.efg_pct",
+          "metric": "Clutch Effective FG%",
+          "scope": "clutch",
+          "value": "39.3%",
+          "league_rank": "11 of 14",
+          "league_percentile": 23.1,
+          "league_average": "50.2%",
+          "sample_games": 15,
+          "reliability": "low",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "sample_possessions": 121,
+          "win_loss": {
+            "in_wins": "61.6%",
+            "in_losses": "19.7%",
+            "effect_size": 1.89,
+            "favorable_in_wins": true,
+            "sample": "7W / 8L"
+          },
+          "limitations": [
+            "unweighted_segment_mean"
+          ]
+        },
+        {
+          "evidence_id": "EV.behind_6_plus.efg_pct",
+          "metric": "Effective FG% When Trailing 6+",
+          "scope": "behind_6_plus",
+          "value": "57.1%",
+          "league_rank": "9 of 14",
+          "league_percentile": 38.5,
+          "league_average": "60.0%",
+          "sample_games": 22,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "sample_possessions": 811,
+          "win_loss": {
+            "in_wins": "68.5%",
+            "in_losses": "51.8%",
+            "effect_size": 1.42,
+            "favorable_in_wins": true,
+            "sample": "7W / 15L"
+          },
+          "limitations": [
+            "unweighted_segment_mean"
+          ]
+        }
+      ]
+    },
+    {
+      "recommendation_id": "R3",
+      "priority": 3,
+      "directive": "Prepare specifically for the tendency described in T3.",
+      "rationale": "The supporting deterministic evidence separates this team from the league norm.",
+      "confidence": "moderate",
+      "implication_refs": [
+        "T3"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "EV.behind_6_plus.efg_pct",
+          "metric": "Effective FG% When Trailing 6+",
+          "scope": "behind_6_plus",
+          "value": "57.1%",
+          "league_rank": "9 of 14",
+          "league_percentile": 38.5,
+          "league_average": "60.0%",
+          "sample_games": 22,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "sample_possessions": 811,
+          "win_loss": {
+            "in_wins": "68.5%",
+            "in_losses": "51.8%",
+            "effect_size": 1.42,
+            "favorable_in_wins": true,
+            "sample": "7W / 15L"
+          },
+          "limitations": [
+            "unweighted_segment_mean"
+          ]
+        },
+        {
+          "evidence_id": "EV.1H.net_rating",
+          "metric": "First-Half Net Rating",
+          "scope": "1H",
+          "value": "-7.2",
+          "league_rank": "11 of 14",
+          "league_percentile": 23.1,
+          "league_average": "0.0",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "sample_possessions": 1056,
+          "win_loss": {
+            "in_wins": "9.6",
+            "in_losses": "-17.7",
+            "effect_size": 1.28,
+            "favorable_in_wins": true,
+            "sample": "10W / 16L"
+          },
+          "limitations": [
+            "unweighted_segment_mean"
+          ]
+        }
+      ]
+    },
+    {
+      "recommendation_id": "R4",
+      "priority": 4,
+      "directive": "Prepare specifically for the tendency described in T4.",
+      "rationale": "The supporting deterministic evidence separates this team from the league norm.",
+      "confidence": "moderate",
+      "implication_refs": [
+        "T4"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "EV.1H.net_rating",
+          "metric": "First-Half Net Rating",
+          "scope": "1H",
+          "value": "-7.2",
+          "league_rank": "11 of 14",
+          "league_percentile": 23.1,
+          "league_average": "0.0",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "higher_is_better",
+          "sample_possessions": 1056,
+          "win_loss": {
+            "in_wins": "9.6",
+            "in_losses": "-17.7",
+            "effect_size": 1.28,
+            "favorable_in_wins": true,
+            "sample": "10W / 16L"
+          },
+          "limitations": [
+            "unweighted_segment_mean"
+          ]
+        },
+        {
+          "evidence_id": "EV.season.defensive_rating",
+          "metric": "Defensive Rating",
+          "scope": "season",
+          "value": "113.1",
+          "league_rank": "13 of 14",
+          "league_percentile": 7.7,
+          "league_average": "110.3",
+          "sample_games": 26,
+          "reliability": "high",
+          "validation_state": "validated_deterministic",
+          "direction": "lower_is_better",
+          "win_loss": {
+            "in_wins": "104.9",
+            "in_losses": "118.2",
+            "effect_size": -1.26,
+            "favorable_in_wins": true,
+            "sample": "10W / 16L"
+          }
+        }
+      ]
+    }
+  ],
+  "key_evidence": [
+    {
+      "evidence_id": "EV.season.net_rating",
+      "metric": "Net Rating",
+      "scope": "season",
+      "value": "-4.4",
+      "league_rank": "9 of 14",
+      "league_percentile": 38.5,
+      "league_average": "0.1",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "win_loss": {
+        "in_wins": "11.6",
+        "in_losses": "-14.4",
+        "effect_size": 2.33,
+        "favorable_in_wins": true,
+        "sample": "10W / 16L"
+      }
+    },
+    {
+      "evidence_id": "EV.clutch.efg_pct",
+      "metric": "Clutch Effective FG%",
+      "scope": "clutch",
+      "value": "39.3%",
+      "league_rank": "11 of 14",
+      "league_percentile": 23.1,
+      "league_average": "50.2%",
+      "sample_games": 15,
+      "reliability": "low",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "sample_possessions": 121,
+      "win_loss": {
+        "in_wins": "61.6%",
+        "in_losses": "19.7%",
+        "effect_size": 1.89,
+        "favorable_in_wins": true,
+        "sample": "7W / 8L"
+      },
+      "limitations": [
+        "unweighted_segment_mean"
+      ]
+    },
+    {
+      "evidence_id": "EV.behind_6_plus.efg_pct",
+      "metric": "Effective FG% When Trailing 6+",
+      "scope": "behind_6_plus",
+      "value": "57.1%",
+      "league_rank": "9 of 14",
+      "league_percentile": 38.5,
+      "league_average": "60.0%",
+      "sample_games": 22,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "sample_possessions": 811,
+      "win_loss": {
+        "in_wins": "68.5%",
+        "in_losses": "51.8%",
+        "effect_size": 1.42,
+        "favorable_in_wins": true,
+        "sample": "7W / 15L"
+      },
+      "limitations": [
+        "unweighted_segment_mean"
+      ]
+    },
+    {
+      "evidence_id": "EV.1H.net_rating",
+      "metric": "First-Half Net Rating",
+      "scope": "1H",
+      "value": "-7.2",
+      "league_rank": "11 of 14",
+      "league_percentile": 23.1,
+      "league_average": "0.0",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "sample_possessions": 1056,
+      "win_loss": {
+        "in_wins": "9.6",
+        "in_losses": "-17.7",
+        "effect_size": 1.28,
+        "favorable_in_wins": true,
+        "sample": "10W / 16L"
+      },
+      "limitations": [
+        "unweighted_segment_mean"
+      ]
+    },
+    {
+      "evidence_id": "EV.season.defensive_rating",
+      "metric": "Defensive Rating",
+      "scope": "season",
+      "value": "113.1",
+      "league_rank": "13 of 14",
+      "league_percentile": 7.7,
+      "league_average": "110.3",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "lower_is_better",
+      "win_loss": {
+        "in_wins": "104.9",
+        "in_losses": "118.2",
+        "effect_size": -1.26,
+        "favorable_in_wins": true,
+        "sample": "10W / 16L"
+      }
+    },
+    {
+      "evidence_id": "EV.season.offensive_rating",
+      "metric": "Offensive Rating",
+      "scope": "season",
+      "value": "108.7",
+      "league_rank": "6 of 14",
+      "league_percentile": 61.5,
+      "league_average": "110.4",
+      "sample_games": 26,
+      "reliability": "high",
+      "validation_state": "validated_deterministic",
+      "direction": "higher_is_better",
+      "win_loss": {
+        "in_wins": "116.5",
+        "in_losses": "103.8",
+        "effect_size": 1.19,
+        "favorable_in_wins": true,
+        "sample": "10W / 16L"
+      }
+    }
+  ],
+  "caveats": [
+    "Generated by the deterministic stub backend; prose is placeholder, evidence is real.",
+    "The provider fast-break flag is one-directional: a False (or missing) value means only 'the provider did not classify this as a fast break'. It never means half-court, set offense, or secondary transition.",
+    "This metric has no inherently good or bad direction. A high or low league percentile describes style, not quality, and must not be phrased as a strength or weakness.",
+    "Segment values are the unweighted mean of per-game segment values, so a game with very few segment possessions counts as much as a game with many."
+  ],
+  "unavailable_evidence": [
+    {
+      "id": "NA.shot_zone_share",
+      "label": "Rim / shot-zone share (season)",
+      "reason": "Coarse shot-zone geometry is validated only at game scope and is still provisional_deterministic pending fresh blind human labelling. Season-scope aggregation was deliberately not built for this MVP checkpoint."
+    },
+    {
+      "id": "NA.shot_distance",
+      "label": "Shot distance",
+      "reason": "Distance carries +/-1m uncertainty (validation_state 'partial') and is not aggregated at season scope."
+    },
+    {
+      "id": "NA.possession_type_half_court",
+      "label": "Half-court / set-offense possession type",
+      "reason": "No half-court classification exists. The provider fast-break flag is one-directional: its absence never implies half-court or set offense."
+    },
+    {
+      "id": "NA.last_passer",
+      "label": "Last-passer identity / pass origin",
+      "reason": "Audit found a linked passer for only 38/62 made and 0/78 missed field-goal attempts. Not implemented."
+    },
+    {
+      "id": "NA.player_level",
+      "label": "Player-level and lineup analytics",
+      "reason": "This MVP is team-level only by locked product decision. No per-player claim is supportable."
+    },
+    {
+      "id": "NA.video",
+      "label": "Video-derived metrics (shot contest, creation, on-ball pressure)",
+      "reason": "The video layer failed reliability validation and was removed from the MVP. No video evidence exists."
+    },
+    {
+      "id": "NA.scheme",
+      "label": "Defensive scheme / coverage / play-calling",
+      "reason": "Play-by-play carries no scheme, coverage, or personnel information. Any claim about switching, drop coverage, zone, or coaching intent is unsupportable."
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "rejects": [],
+    "warnings": [
+      {
+        "rule": "R8",
+        "severity": "warning",
+        "message": "confidence 'moderate' exceeds weakest supporting evidence reliability 'low'",
+        "where": "R1"
+      },
+      {
+        "rule": "R8",
+        "severity": "warning",
+        "message": "confidence 'moderate' exceeds weakest supporting evidence reliability 'low'",
+        "where": "R2"
+      },
+      {
+        "rule": "W-thin",
+        "severity": "warning",
+        "message": "report rests on only 6 distinct evidence items",
+        "where": "report"
+      }
+    ]
+  }
+}
