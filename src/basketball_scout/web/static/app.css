@@ -23,11 +23,11 @@
   --sunken: #eceff2;
 
   --ink: #0f1519;
-  --ink-2: #59636e;
-  --ink-3: #8b949e;
+  --ink-2: #4b5661;
+  --ink-3: #78838d;
 
-  --line: #e2e6ea;
-  --line-2: #cbd2d9;
+  --line: #d8dde2;
+  --line-2: #b9c2ca;
 
   --navy: #1b4965;
   --navy-dark: #12303f;
@@ -102,8 +102,9 @@ a { color: var(--navy); }
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.14);
   display: grid; place-items: center;
-  font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.9);
 }
+.brand-mark svg { display: block; }
 .brand-text { font-size: 14px; font-weight: 600; white-space: nowrap; }
 
 .nav { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; flex: 1 1 auto; }
@@ -156,6 +157,8 @@ main.shell { padding-block: 20px 8px; }
   margin-bottom: 16px;
 }
 .context-strip span { display: inline-flex; align-items: center; gap: 6px; }
+.context-strip a { color: var(--ink-2); text-decoration-color: var(--line-2); }
+.context-strip a:hover { color: var(--navy); }
 .context-strip span + span::before {
   content: ""; width: 3px; height: 3px; border-radius: 50%;
   background: var(--line-2); margin-right: 12px;
@@ -209,8 +212,14 @@ main.shell { padding-block: 20px 8px; }
 
 /* ---- KPI strip ----------------------------------------------------------- */
 
-.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
-.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 9px 11px; }
+/* One panel with internal dividers rather than four cards: the same
+   information, less card-ness, and it reads as a single instrument. */
+.kpis {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  background: var(--line); border: 1px solid var(--line);
+  border-radius: var(--r); overflow: hidden; margin-bottom: 16px;
+}
+.kpi { background: var(--surface); padding: 10px 13px; }
 .kpi .k { font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
 .kpi .v { font-size: 21px; font-weight: 650; line-height: 1.1; margin-top: 1px; font-variant-numeric: tabular-nums; }
 .kpi .t { font-size: 12px; color: var(--ink-2); display: flex; align-items: center; gap: 6px; margin-top: 2px; }
@@ -353,11 +362,17 @@ table.data tbody tr:hover td.sticky { background: var(--navy-soft); }
 }
 
 .scatter { width: 100%; height: auto; display: block; }
-.scatter .grid { stroke: var(--line); stroke-width: 1; }
+.scatter .grid { stroke: var(--line-2); stroke-width: 1; }
 .scatter .axis-label { font-size: 11px; fill: var(--ink-3); letter-spacing: 0.04em; }
 .scatter .pt { fill: var(--navy); transition: r 120ms ease; }
-.scatter .pt-label { font-size: 11px; font-weight: 500; fill: var(--ink-2); }
-.scatter a:hover .pt { fill: var(--navy-dark); r: 7; }
+.scatter .pt-label {
+  font-size: 11.5px; font-weight: 600; fill: var(--ink-2);
+  /* A halo in the page colour, so two labels that land on top of each
+     other stay readable instead of turning into one smear. */
+  paint-order: stroke; stroke: var(--surface); stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.scatter a:hover .pt { fill: var(--navy-dark); r: 8.5; }
 .scatter a:hover .pt-label { fill: var(--ink); font-weight: 600; }
 
 .bars { display: flex; align-items: flex-end; gap: 10px; height: 110px; }

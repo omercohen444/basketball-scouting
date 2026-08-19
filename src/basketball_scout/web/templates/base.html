@@ -19,7 +19,15 @@
   <header class="topbar">
     <div class="shell topbar-inner">
       <a class="brand" href="/">
-        <span class="brand-mark" aria-hidden="true">IB</span>
+        {#- A key-and-arc glyph rather than "IB", which sat immediately before
+            "IBPL Analytics" and read as a duplicated wordmark. -#}
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none"
+               stroke="currentColor" stroke-width="1.4">
+            <rect x="1" y="4.5" width="5" height="7" rx="0.5"/>
+            <path d="M6 6.2a3.2 3.2 0 0 1 0 3.6"/>
+          </svg>
+        </span>
         <span class="brand-text">IBPL Analytics</span>
       </a>
 
