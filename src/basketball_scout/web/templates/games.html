@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% from "_macros.html" import crest, metric_td %}
+{% block title %}Games — IBPL Analytics{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Israeli Basketball Premier League</p>
+    <h1>Game log</h1>
+  </div>
+  <span class="small dim">{{ rows | length }} of {{ total }} team-games</span>
+</div>
+
+<div class="context-strip">
+  <span>{{ season }}</span>
+  <span>182 games</span>
+  <span>Two rows per game, one for each side</span>
+</div>
+
+<div class="filters">
+  <div class="fgroup">
+    <span class="flabel">Team</span>
+    <a class="fopt{% if not filters.team %} is-active{% endif %}" href="{{ filters.query(team='') }}">All</a>
+    {%- for team_id, name in team_options %}
+    <a class="fopt{% if filters.team == team_id %} is-active{% endif %}"
+       href="{{ filters.query(team=team_id) }}">{{ name }}</a>
+    {%- endfor %}
+  </div>
+  <div class="fgroup">
+    <span class="flabel">Venue</span>
+    <a class="fopt{% if not filters.venue %} is-active{% endif %}" href="{{ filters.query(venue='') }}">Both</a>
+    <a class="fopt{% if filters.venue == 'home' %} is-active{% endif %}" href="{{ filters.query(venue='home') }}">Home</a>
+    <a class="fopt{% if filters.venue == 'away' %} is-active{% endif %}" href="{{ filters.query(venue='away') }}">Away</a>
+  </div>
+  <div class="fgroup">
+    <span class="flabel">Result</span>
+    <a class="fopt{% if not filters.result %} is-active{% endif %}" href="{{ filters.query(result='') }}">All</a>
+    <a class="fopt{% if filters.result == 'wins' %} is-active{% endif %}" href="{{ filters.query(result='wins') }}">Wins</a>
+    <a class="fopt{% if filters.result == 'losses' %} is-active{% endif %}" href="{{ filters.query(result='losses') }}">Losses</a>
+  </div>
+</div>
+
+{% if not rows %}
+<div class="empty-state">
+  <p><strong>No games match this filter.</strong></p>
+  <p class="dim small">Every combination of team, venue and result exists in this season, so
+     this is a narrowing that happened to leave nothing — not a gap in the data.</p>
+  <p><a class="btn" href="/games">Clear filters</a></p>
+</div>
+{% else %}
+<div class="table-wrap">
+  <table class="data">
+    <thead>
+      <tr>
+        <th class="sticky">
+          <a href="{{ filters.query(sort='date') }}">Date{% if filters.sort == 'date' %} ▾{% endif %}</a>
+        </th>
+        <th>Team</th>
+        <th></th>
+        <th>Opponent</th>
+        <th class="n">Result</th>
+        {%- for key, label in columns %}
+        <th class="n{% if filters.sort == key %} is-sorted{% endif %}">
+          <a href="{{ filters.query(sort=key) }}">{{ label }}{% if filters.sort == key %} ▾{% endif %}</a>
+        </th>
+        {%- endfor %}
+        {%- for key, label in dynamics_columns %}
+        <th class="n{% if filters.sort == key %} is-sorted{% endif %}">
+          <a href="{{ filters.query(sort=key) }}">{{ label }}{% if filters.sort == key %} ▾{% endif %}</a>
+        </th>
+        {%- endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {%- for row in rows %}
+      <tr>
+        <td class="sticky small dim">{{ row.date }}</td>
+        <td>
+          <a class="team-cell" href="/teams/{{ row.team_id }}">
+            {{ crest(row.team_id, row.team_name) }}<span>{{ row.team_name }}</span>
+          </a>
+        </td>
+        <td class="dim small">{{ row.venue }}</td>
+        <td>
+          <a class="team-cell" href="/teams/{{ row.opponent_id }}">
+            {{ crest(row.opponent_id, row.opponent_name) }}<span class="small">{{ row.opponent_name }}</span>
+          </a>
+        </td>
+        <td class="n">
+          <span class="result {% if row.win %}is-win{% else %}is-loss{% endif %}">{{ row.result }}</span>
+          <span class="score">{{ row.score }}</span>
+        </td>
+        {%- for key, _label in columns %}{{ metric_td(row.get(key)) }}{% endfor %}
+        {%- for key, _label in dynamics_columns %}
+        <td class="n dim">{{ row.dynamics[key] }}</td>
+        {%- endfor %}
+      </tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p class="small dim" style="margin-top:10px; max-width: 94ch">
+  Two rows per game, one from each side, so every number belongs to the team named in its own
+  row. Nothing here carries a league rank: a single game is not ranked against a season, and a
+  superscript would be the kind of number that looks authoritative and means nothing.
+  The four rightmost columns are read off the running score.
+  <a href="/methodology">How these numbers are built →</a>
+</p>
+{% endif %}
+{% endblock %}

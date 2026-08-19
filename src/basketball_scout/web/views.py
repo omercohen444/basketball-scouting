@@ -21,6 +21,8 @@ from fastapi.templating import Jinja2Templates
 from ..analytics.schema import OUTCOMES, SEGMENTS
 from ..analytics.views import (
     BASELINE_TOOLTIP,
+    GAMES_COLUMNS,
+    GAMES_DYNAMICS,
     METRIC_FAMILIES,
     OUTCOME_LABELS,
     QUARTER_SEGMENTS,
@@ -38,8 +40,10 @@ from ..analytics.views import (
     game_log,
     headline_metrics,
     largest_differences,
+    league_game_rows,
     league_leaders,
     league_rows,
+    normalise_games_filters,
     profile_ranks,
     quarter_bars,
     runs_view,
@@ -80,10 +84,6 @@ STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
-# Registered as globals rather than passed per-render: the crest lookup is
-# needed in the nav, the league table, team headers and the compare selectors,
-# and threading it through every context dict would guarantee it is forgotten
-# somewhere and silently render nothing.
 def _template_raise(message: str):
     """Let a macro refuse to render something it must not draw.
 
@@ -95,6 +95,10 @@ def _template_raise(message: str):
     raise ValueError(message)
 
 
+# Registered as globals rather than passed per-render: the crest lookup is
+# needed in the nav, the league table, team headers and the compare selectors,
+# and threading it through every context dict would guarantee it is forgotten
+# somewhere and silently render nothing.
 templates.env.globals["logo_url"] = logo_url
 templates.env.globals["initials"] = initials
 templates.env.globals["NAV"] = NAV
@@ -318,6 +322,44 @@ def explore(
             # "season" while the Losses filter is on.
             "baseline_label": baseline_label(outcome),
             "baseline_tooltip": BASELINE_TOOLTIP,
+        },
+    )
+
+
+@router.get("/games", response_class=HTMLResponse, summary="League game log")
+def games(
+    request: Request,
+    sort: str = "date",
+    team: str = "",
+    venue: str = "",
+    result: str = "",
+    ctx: AppContext = Depends(get_context),
+) -> HTMLResponse:
+    if not ctx.analytics.available:
+        raise unavailable(
+            "Analytics artifacts are not present in this deployment.",
+            code="analytics_unavailable",
+        )
+
+    teams = ctx.analytics.load_all()
+    filters = normalise_games_filters(teams, sort, team, venue, result)
+    rows = league_game_rows(
+        teams, sort=filters.sort, team=filters.team,
+        venue=filters.venue, result=filters.result,
+    )
+    return templates.TemplateResponse(
+        request,
+        "games.html",
+        {
+            **_base(request, ctx, active="games"),
+            "rows": rows,
+            "total": sum(len(t.games) for t in teams.values()),
+            "filters": filters,
+            "columns": GAMES_COLUMNS,
+            "dynamics_columns": GAMES_DYNAMICS,
+            "team_options": sorted(
+                ((tid, t.team_name) for tid, t in teams.items()), key=lambda kv: kv[1]
+            ),
         },
     )
 

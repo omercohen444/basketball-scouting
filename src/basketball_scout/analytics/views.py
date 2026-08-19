@@ -1372,3 +1372,169 @@ def comeback_view(team: TeamAnalytics) -> ComebackView:
         trailing_games=c.games_trailing_10_plus, comeback_wins=c.comeback_wins,
         leading_games=c.games_leading_10_plus, blown_leads=c.blown_leads,
     )
+
+
+# ---- the league game log ----------------------------------------------------
+#
+# 364 rows, not 182. One per team per game, because an analyst sorting by "best
+# offensive rating" needs both sides rankable, and a single matchup row forces
+# an arbitrary choice of whose numbers to show. The perspective is made
+# explicit instead: every row reads TEAM vs/at OPPONENT with that team's own
+# figures.
+
+
+GAMES_COLUMNS: tuple[tuple[str, str], ...] = (
+    ("offensive_rating", "ORtg"), ("defensive_rating", "DRtg"), ("net_rating", "Net"),
+    ("pace", "Pace"), ("efg_pct", "eFG%"), ("tov_pct", "TOV%"), ("orb_pct", "ORB%"),
+)
+
+# Read off the running score rather than the box: how the game went, not how it
+# ended. No direction on any of them — a game with many lead changes is not a
+# better game, and a big largest-lead is a fact about the scoreboard.
+GAMES_DYNAMICS: tuple[tuple[str, str], ...] = (
+    ("times_tied", "Tied"), ("lead_changes", "Lead chg"),
+    ("largest_lead", "Max lead"), ("largest_deficit", "Max deficit"),
+)
+
+GAMES_SORTS: dict[str, str] = {
+    "date": "Date",
+    **{key: label for key, label in GAMES_COLUMNS},
+    **{key: label for key, label in GAMES_DYNAMICS},
+}
+
+
+@dataclass(frozen=True)
+class LeagueGameRow:
+    """One team's perspective on one game."""
+
+    game_id: str
+    game_date: str
+    team_id: str
+    team_name: str
+    opponent_id: str
+    opponent_name: str
+    is_home: bool
+    win: bool
+    score_for: int
+    score_against: int
+    cells: dict[str, MetricCell]
+    dynamics: dict[str, int]
+
+    @property
+    def date(self) -> str:
+        return self.game_date[:10]
+
+    @property
+    def venue(self) -> str:
+        return "vs" if self.is_home else "at"
+
+    @property
+    def result(self) -> str:
+        return "W" if self.win else "L"
+
+    @property
+    def score(self) -> str:
+        return f"{self.score_for}-{self.score_against}"
+
+    @property
+    def margin(self) -> int:
+        return self.score_for - self.score_against
+
+    def get(self, key: str) -> MetricCell | None:
+        return self.cells.get(key)
+
+
+def league_game_rows(
+    teams: dict[str, TeamAnalytics],
+    *,
+    sort: str = "date",
+    team: str = "",
+    venue: str = "",
+    result: str = "",
+) -> list[LeagueGameRow]:
+    """Every team-game in the league, filtered and sorted.
+
+    No league rank on any figure: a single game is not ranked against a season,
+    and a superscript here would be the kind of number that looks authoritative
+    and means nothing. Every cell therefore has no percentile, so the tint is
+    structurally zero too.
+    """
+    rows: list[LeagueGameRow] = []
+    for team_id, analytics in teams.items():
+        if team and team_id != team:
+            continue
+        for game in analytics.games:
+            if venue == "home" and not game.is_home:
+                continue
+            if venue == "away" and game.is_home:
+                continue
+            if result == "wins" and not game.win:
+                continue
+            if result == "losses" and game.win:
+                continue
+            rows.append(LeagueGameRow(
+                game_id=game.game_id, game_date=game.game_date,
+                team_id=team_id, team_name=analytics.team_name,
+                opponent_id=game.opponent_id, opponent_name=game.opponent_name,
+                is_home=game.is_home, win=game.win,
+                score_for=game.score_for, score_against=game.score_against,
+                cells={
+                    key: MetricCell(
+                        key=key, label=CELL_META[key].label, short=CELL_META[key].short,
+                        value=game.metrics[key],
+                        display=format_value(CELL_META[key], game.metrics[key]),
+                        direction=CELL_META[key].direction,
+                    )
+                    for key, _label in GAMES_COLUMNS
+                    if game.metrics.get(key) is not None
+                },
+                dynamics={
+                    "times_tied": game.times_tied, "lead_changes": game.lead_changes,
+                    "largest_lead": game.largest_lead, "largest_deficit": game.largest_deficit,
+                },
+            ))
+
+    rows.sort(key=lambda r: (r.game_date, r.team_name), reverse=True)
+    if sort != "date" and sort in GAMES_SORTS:
+        meta = CELL_META.get(sort)
+        if meta is not None:
+            rows.sort(
+                key=lambda r: (r.get(sort).value if r.get(sort) else float("-inf")),
+                reverse=meta.direction != "lower_is_better",
+            )
+        else:
+            rows.sort(key=lambda r: r.dynamics.get(sort, 0), reverse=True)
+    return rows
+
+
+@dataclass(frozen=True)
+class GamesFilters:
+    """What the user asked for, normalised. Every value came off a URL a user
+    can edit, so an unknown one falls back rather than raising."""
+
+    sort: str = "date"
+    team: str = ""
+    venue: str = ""
+    result: str = ""
+
+    def query(self, **overrides) -> str:
+        """A link that keeps the rest of the filter state."""
+        state = {"sort": self.sort, "team": self.team, "venue": self.venue, "result": self.result}
+        state.update(overrides)
+        parts = [f"{k}={v}" for k, v in state.items() if v and not (k == "sort" and v == "date")]
+        return "/games" + ("?" + "&".join(parts) if parts else "")
+
+    @property
+    def is_filtered(self) -> bool:
+        return bool(self.team or self.venue or self.result)
+
+
+def normalise_games_filters(
+    teams: dict[str, TeamAnalytics], sort: str, team: str, venue: str, result: str
+) -> GamesFilters:
+    return GamesFilters(
+        sort=sort if sort in GAMES_SORTS else "date",
+        team=team if team in teams else "",
+        venue=venue if venue in ("home", "away") else "",
+        result=result if result in ("wins", "losses") else "",
+    )
