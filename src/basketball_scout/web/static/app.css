@@ -325,7 +325,13 @@ table.data tbody tr:hover td.sticky { background: var(--navy-soft); }
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
   padding: 9px 12px; margin-bottom: 14px;
 }
-.fgroup { display: flex; align-items: center; gap: 4px; }
+/* The segment group carries eleven chips. It scrolls inside itself rather than
+   pushing the page sideways — the same contract the nav and the tables keep. */
+.fgroup {
+  display: flex; align-items: center; gap: 4px;
+  min-width: 0; overflow-x: auto; scrollbar-width: none;
+}
+.fgroup::-webkit-scrollbar { display: none; }
 .fgroup > .flabel {
   font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--ink-3); margin-right: 3px;
@@ -436,6 +442,13 @@ table.data tbody tr:hover td.sticky { background: var(--navy-soft); }
   .team-head { gap: 12px; }
   .headline-metrics { margin-left: 0; width: 100%; gap: 16px; }
   .dumbbell { grid-template-columns: 92px 1fr 62px; }
+  /* One filter dimension per row, each scrolling on its own. Wrapping the chips
+     instead would turn the segment picker into a five-line block.
+     `nowrap` is load-bearing: a wrapping *column* flex container lays its items
+     out in side-by-side columns and takes their combined width, which is what
+     pushed the whole Explorer page sideways. */
+  .filters { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 9px; }
+  .fgroup > .flabel { flex: none; }
   /* Tables keep their own scroll container; desktop density is not reduced. */
 }
 
