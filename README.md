@@ -114,8 +114,15 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 | Route | Auth | Purpose |
 |---|---|---|
-| `GET /` | — | Opponent picker |
-| `GET /teams/{team_id}` | — | Latest report for a team |
+| `GET /` | — | League dashboard: KPIs, ORtg×DRtg scatter, advanced table |
+| `GET /teams/{team_id}` | — | Team analytics — Overview |
+| `GET /teams/{team_id}/{tab}` | — | `splits` · `quarters` · `situations` · `profile` · `games` |
+| `GET /explore` | — | Outcome × one segment, all 14 teams ranked |
+| `GET /games` | — | 364 team-game rows, sortable and filterable |
+| `GET /compare` | — | Two teams aligned, `?a=&b=` |
+| `GET /scouting/{team_id}` | — | The AI scouting report |
+| `GET /methodology` | — | Every metric, filter, threshold and limitation |
+| `GET /reports/{report_id}` | — | Report permalink |
 | `GET /health` | — | Liveness + configuration snapshot |
 | `GET /api/teams` | — | The 14 supported opponents |
 | `GET /api/reports/latest/{team_id}` | — | Latest saved report |

@@ -5,6 +5,91 @@ session — not a place for terminal output.
 
 ---
 
+## 2026-08-20 — Run 20: Final MVP completion — enrichment, four surfaces, methodology
+
+**STATUS: STOPPED AT THE SINGLE HUMAN VISUAL CHECKPOINT. Nothing pushed, nothing
+deployed.**
+
+**Objective:** wire the strongest already-built deterministic capabilities into the
+website, complete Games / Compare / Methodology, propagate the design to Scouting,
+and apply targeted polish — all website-only, with no pack hash movement.
+Plan: `~/.claude/plans/vivid-conjuring-feigenbaum.md` (rewritten for this run),
+with three approved amendments.
+
+**Twelve commits on `35d75b0`.** Tests 984 → **1,147**, all offline.
+
+**Two audit questions resolved first, with measurement.**
+
+*Turnovers, 8,041 vs 5,205.* Different populations, no defect. 8,041 is every raw
+PBP file on disk (297 games); 5,205 is the 182 accepted regular-season games. The
+115 extras are Winner Cup (29), playoffs (31, ids 354–390), preseason (20), school
+(13), Leumit (9), Israeli Cup (6), women's (5) and youth (2). 5,205 reconciles three
+ways — raw actions, `components_for.tov` over 364 rows, and possessions flagged
+`turnover`. The build now pins that total and refuses to write if it moves.
+
+*`allyhoop`.* Included, on evidence rather than the name: all 27 are two-point
+attempts, all 27 classify as `lane_2pt`, median distance 0.45 m — identical to a
+dunk, where a lay-up is 1.77 m — max 2.43 m, and an 85.2% make rate sitting between
+dunk and lay-up. Zero pack impact; the recomputation gate stayed green.
+
+**Artifact v2.** Per-team season identity profile (shot zones, transition both
+directions, turnover taxonomy both directions, scoring sources, runs and droughts,
+comeback counts, per-metric stability) plus the four defensive factors on every one
+of the 462 segment cells — those were already being computed in `build_segment_cell`
+and discarded. Counts and sums only; every rate derives in the view layer. Whole
+league builds in 6.4 s. A v1 artifact is now refused rather than half-loaded.
+
+**Surfaces.** Team gains a sixth tab, **Profile**, so Overview stays the fast read.
+Explorer gains a **Defence** family — genuinely per-segment, unlike transition or
+scoring sources, which are season-scope and would have left the filter inert.
+**Games** (364 rows, sortable, filterable, no per-game ranks), **Compare**
+(shareable, style metrics never get a winner, split table withheld when either team
+is below the floor), and **Methodology** (14 sections, an anchor per metric).
+
+**Two real defects found and fixed.**
+
+1. *Opponent TOV% was computed two different ways.* The League table and team page
+   derived the defensive four from game rows with a possession denominator while the
+   team's own turnover rate came from the cell with a plays denominator — **2.2 to
+   3.4 points apart on every team, in adjacent columns**. Both halves now come from
+   the cell, through the same functions.
+2. *The legacy label fix was never wired in.* `DISPLAY_LABEL_OVERRIDES` and
+   `display_label` existed with a passing test and were used by nothing; the scouting
+   page rendered "Trailing 6+" in three places and the PDF in two. Now applied at all
+   four render points and tested against the rendered page and the generator source.
+   Verified across all fourteen scouting pages.
+
+**The methodology anti-drift guard was fake on the first attempt** and was rebuilt.
+The displayed formula is now *rendered from* an evaluable expression, and the test
+evaluates that same expression against real components. Proven by sabotage: moving
+oTOV% back to a possession denominator, dropping the three-point weighting from eFG%,
+removing the offensive-rebound term from the possession estimate, inverting
+second-chance conversion, and deleting a definition — all five now fail; the first
+four passed before the rework.
+
+**Structural guarantees added:** the partition bar refuses any set of shares that
+does not sum to one; experimental shot metrics are forced neutral so their tint is
+structurally zero and they carry no rank; no page offers a half-court figure, and a
+test asserts every mention of the phrase is a denial.
+
+**Report safety held throughout.** `build_production_packs.py --check` green after
+every structural change; no `METRIC_SPECS` edit, no regeneration, no stored report
+touched.
+
+**Unresolved / next.**
+
+1. **Blocked on the human visual checkpoint** — browser QA at 1440/1024/375 across
+   the four edge teams is the next action, then screenshots for review.
+2. Not pushed, not deployed. Amendment 1 makes the public Railway URL a release
+   gate: verify the service's connected repo, branch and deployed commit before
+   relying on auto-deploy.
+3. The Avast `SSL_CERT_FILE` path stays a local shell workaround and must never
+   reach Railway configuration.
+
+**Next technical action:** browser QA, then the checkpoint report.
+
+---
+
 ## 2026-08-19 — Run 19: Analytics platform, part 1 — League, Team, Explorer
 
 **STATUS: STOPPED AT THE HUMAN VISUAL CHECKPOINT (Amendment 3). Do not continue
