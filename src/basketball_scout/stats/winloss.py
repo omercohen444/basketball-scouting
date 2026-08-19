@@ -89,6 +89,21 @@ _METRIC_GETTERS: dict[str, Callable[[DerivedMetrics], float | None]] = {
     "ast_to_ratio": lambda m: m.ast_to_ratio,
 }
 
+def category_for(metric: str) -> str:
+    """``OUTCOME_CONTEXT`` for the four near-tautological metrics, else ``ACTIONABLE``.
+
+    Accepts a bare metric name (``"net_rating"``) or a segment-qualified signal
+    name (``"clutch:clutch:efg_pct"``), so callers that build ids as
+    ``f"{segment_type}:{segment_value}:{metric}"`` can pass them straight in.
+
+    Anything unrecognised is treated as actionable: an unknown metric is far
+    more likely to be a genuine descriptive factor than one of the four fixed
+    outcome measures, and over-reporting a metric as actionable is the
+    pre-existing behaviour rather than a new failure mode.
+    """
+    return _CATEGORY.get(metric.rsplit(":", 1)[-1], ACTIONABLE)
+
+
 _CATEGORY: dict[str, str] = {
     "offensive_rating": OUTCOME_CONTEXT,
     "defensive_rating": OUTCOME_CONTEXT,

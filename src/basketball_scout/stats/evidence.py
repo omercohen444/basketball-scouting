@@ -27,7 +27,7 @@ from .models import TeamGameStats
 from .profile import TeamGamePair, select_window
 from .segment_metrics import build_canonical_aggregate_metrics
 from .stability import StabilityProfile, build_stability_profile
-from .winloss import ACTIONABLE, MetricSignal, compute_signal_from_pairs, is_agent_rankable
+from .winloss import MetricSignal, category_for, compute_signal_from_pairs, is_agent_rankable
 
 VALUE_DEFINITION_CANONICAL = "canonical_aggregate_ratio"
 VALUE_DEFINITION_UNWEIGHTED_MEAN = "unweighted_mean_of_per_game_values"
@@ -201,9 +201,17 @@ def build_evidence(
     stability = build_stability_profile(season_vals)
     recent = build_recent_delta(team_pairs, extractor)
 
+    # The real category, not a blanket ACTIONABLE. Outcome-context metrics
+    # (ORtg/DRtg/Net/Pace) are near-tautological in a win/loss comparison — a
+    # team does outscore opponents in wins — so mislabelling them actionable
+    # made "the biggest difference" meaningless. This field is not serialized
+    # into the evidence packs, so correcting it moves no shipped value; it just
+    # stops the data model asserting something untrue, and gives the view layer
+    # a field it can filter on.
+    signal_name = f"{segment_type}:{segment_value}:{metric}"
     win_loss_pairs = [(extractor(s, e), s.win) for s, e in team_pairs]
     win_loss = compute_signal_from_pairs(
-        f"{segment_type}:{segment_value}:{metric}", ACTIONABLE, win_loss_pairs,
+        signal_name, category_for(signal_name), win_loss_pairs,
         lower_is_better=(direction == "lower_is_better"),
     )
 

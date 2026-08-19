@@ -189,19 +189,42 @@ def _filter_for_segment(
     seg_value: str,
     regulation_periods: int,
 ) -> tuple[list[Possession], list[Possession]]:
-    """Apply one segment predicate to BOTH sides' possession lists.
+    """Select the possessions of one segment from BOTH sides' lists.
 
-    Both sides always use the identical predicate (evaluated from each
-    possession's own offense-team perspective) so the two subsets stay a
-    matched pair — e.g. "team's Q1 offense" pairs with "opponent's Q1
-    offense", never a mismatched quarter.
+    Every segment except ``score_state`` is **symmetric**: quarter and half are
+    properties of the clock, and clutch/close_score/late_close all test
+    ``abs(margin)``, which is the same number from either bench. For those, the
+    identical predicate applied to both lists already yields a matched pair —
+    "team's Q1 offense" against "opponent's Q1 offense".
+
+    ``score_state`` is the one asymmetric case, because it is *signed*: while
+    this team is ahead by four the opponent is, by definition, behind by four.
+    Applying the same predicate to both lists therefore paired "our ahead_1_5
+    offense" with "their ahead_1_5 offense" — two disjoint stretches of clock,
+    from different points in the game. Everything derived from the opponent
+    subset was wrong as a result: ``defensive_rating`` and ``net_rating`` (pace
+    is already ``None`` on these segments). One real team's ``behind_6_plus``
+    net rating computed as -58.6 against a league mean of -1.3.
+
+    The mirror negates the opponent's own margin rather than swapping bin
+    names. That distinction matters: the bins are not symmetric (``behind_1_5``
+    stops at -4 while ``ahead_1_5`` reaches +5 — see
+    ``segments.score_state_bin_for_margin``), so a name-swap map is wrong on
+    roughly half the cells.
+
+    This fix moves no shipped evidence-pack value: the only score-state pack
+    item is team-side ``efg_pct``, and the two opponent-dependent segment items
+    sit on quarter/half, which are symmetric. Verified by rebuilding all 14
+    packs — 0 hashes changed.
     """
     if seg_type == "quarter":
         pred = lambda p: segments.quarter_segment(p, regulation_periods) == seg_value
     elif seg_type == "half":
         pred = lambda p: segments.half_segment(p, regulation_periods) == seg_value
     elif seg_type == "score_state":
-        pred = lambda p: segments.score_state_bin(p) == seg_value
+        team_pred = lambda p: segments.score_state_bin(p) == seg_value
+        opp_pred = lambda p: segments.mirrored_score_state_bin(p) == seg_value
+        return [p for p in team_poss if team_pred(p)], [p for p in opp_poss if opp_pred(p)]
     elif seg_type == "clutch":
         pred = lambda p: segments.is_clutch(p, regulation_periods)
     elif seg_type == "close_score":

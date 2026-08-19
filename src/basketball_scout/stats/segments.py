@@ -51,7 +51,7 @@ def half_segment(possession: Possession, regulation_periods: int) -> str | None:
     return "1H" if possession.quarter <= half_size else "2H"
 
 
-def _offense_margin_at_start(possession: Possession) -> int | None:
+def offense_margin_at_start(possession: Possession) -> int | None:
     """Offense-team's score minus defense-team's score, at possession start.
 
     ``None`` if the start clock is unknown (can't be classified for
@@ -73,7 +73,7 @@ def is_clutch(possession: Possession, regulation_periods: int) -> bool:
         return False
     if possession.start_clock_s is None or possession.start_clock_s > CLUTCH_CLOCK_SECONDS:
         return False
-    margin = _offense_margin_at_start(possession)
+    margin = offense_margin_at_start(possession)
     return margin is not None and abs(margin) <= CLUTCH_MARGIN
 
 
@@ -81,23 +81,33 @@ def is_late_close(possession: Possession, regulation_periods: int) -> bool:
     """Q4/OT AND |margin|<=5 at possession start (no clock condition)."""
     if possession.quarter < regulation_periods:
         return False
-    margin = _offense_margin_at_start(possession)
+    margin = offense_margin_at_start(possession)
     return margin is not None and abs(margin) <= CLOSE_SCORE_MARGIN
 
 
 def is_close_score(possession: Possession) -> bool:
     """|margin|<=5 at possession start, any period."""
-    margin = _offense_margin_at_start(possession)
+    margin = offense_margin_at_start(possession)
     return margin is not None and abs(margin) <= CLOSE_SCORE_MARGIN
 
 
-def score_state_bin(possession: Possession) -> str | None:
-    """One of the five mutually-exclusive score-state bins, offense perspective.
+def score_state_bin_for_margin(margin: int | None) -> str | None:
+    """The five-bin ladder over a raw margin.
 
-    ``None`` only if the margin itself is unknown (never happens in
-    practice — score is always tracked — kept for defensive completeness).
+    Split out of :func:`score_state_bin` so a margin can be binned without a
+    possession — which is what mirroring needs (see
+    :func:`mirrored_score_state_bin`). The boundaries are unchanged, so no
+    existing value moves.
+
+    **Known asymmetry, deliberately preserved.** ``-CLOSE_SCORE_MARGIN + 1`` is
+    -4, so ``behind_1_5`` is actually -1..-4 while ``ahead_1_5`` is +1..+5, and
+    ``behind_6_plus`` starts at -5 rather than -6. 1,102 possessions across the
+    season sit at exactly -5. Correcting it would move the shipped
+    ``EV.behind_6_plus.efg_pct`` by -8.08pp to +5.96pp and invalidate every
+    stored report, so the bin stays as-is and the *display label* is corrected
+    instead. This is also precisely why mirroring must negate the margin rather
+    than swap bin names: the bins are not symmetric, so a name-swap is wrong.
     """
-    margin = _offense_margin_at_start(possession)
     if margin is None:
         return None
     if margin >= BIG_LEAD_MARGIN:
@@ -106,9 +116,31 @@ def score_state_bin(possession: Possession) -> str | None:
         return "ahead_1_5"
     if margin == 0:
         return "tied"
-    if margin >= -CLOSE_SCORE_MARGIN + 1:  # -1..-5
+    if margin >= -CLOSE_SCORE_MARGIN + 1:  # -1..-4 (see the asymmetry note above)
         return "behind_1_5"
     return "behind_6_plus"
+
+
+def score_state_bin(possession: Possession) -> str | None:
+    """One of the five mutually-exclusive score-state bins, offense perspective.
+
+    ``None`` only if the margin itself is unknown (never happens in
+    practice — score is always tracked — kept for defensive completeness).
+    """
+    return score_state_bin_for_margin(offense_margin_at_start(possession))
+
+
+def mirrored_score_state_bin(possession: Possession) -> str | None:
+    """The bin the possession's *opponent* was in at the same moment.
+
+    While one team is ahead by four, the other is behind by four — so the
+    mirror is the negated margin, re-binned. Used to pair a team's score-state
+    possessions with the opponent possessions that actually overlap them.
+    """
+    margin = offense_margin_at_start(possession)
+    if margin is None:
+        return None
+    return score_state_bin_for_margin(-margin)
 
 
 SCORE_STATE_BINS = ("ahead_6_plus", "ahead_1_5", "tied", "behind_1_5", "behind_6_plus")
@@ -116,5 +148,17 @@ CLOSE_SCORE_STATE_BINS = ("tied", "ahead_1_5", "behind_1_5")
 
 
 def is_close_score_bin(bin_name: str) -> bool:
-    """``close_score`` as a derived combination of three of the five bins (§7)."""
+    """``close_score`` as a derived combination of three of the five bins (§7).
+
+    .. warning::
+       **This does not agree with** :func:`is_close_score`, and is kept only
+       because it is referenced by existing tests. Because ``behind_1_5`` stops
+       at -4 rather than -5 (see :func:`score_state_bin_for_margin`), the union
+       of these three bins misses the 1,102 possessions at exactly -5 that
+       ``is_close_score`` includes — a disagreement on 1,102 of 29,508
+       possessions.
+
+       Use :func:`is_close_score` for anything user-facing. Nothing in
+       production calls this.
+    """
     return bin_name in CLOSE_SCORE_STATE_BINS

@@ -200,3 +200,58 @@ class TestShippedProductionPacks:
         pack = PackStore(PRODUCTION_PACKS_DIR).get_pack("segev:2")
         assert "no_win_loss_evidence" in pack.pack_states
         assert all(not i.win_loss.agent_rankable for i in pack.evidence)
+
+
+# ---- recomputation gate -----------------------------------------------------
+#
+# The tests above prove the committed FILES match the committed INDEX. This one
+# proves the committed artifacts still match the SOURCE DATA — i.e. that a
+# change to the deterministic layer has not silently moved a shipped value.
+#
+# It is the guard that lets a correctness fix land in `stats/` without
+# orphaning the 14 stored scouting reports, whose provenance is a pack_hash.
+# It needs the git-ignored PBP cache, so it skips on a clean checkout and in CI.
+
+_DATA_DIR = PRODUCTION_PACKS_DIR.parent
+_PBP_DIR = _DATA_DIR / "raw" / "pbp"
+_STATS_DIR = _DATA_DIR / "processed" / "stats"
+
+
+@pytest.mark.skipif(
+    not (PRODUCTION_PACKS_DIR / "index.json").is_file()
+    or not _PBP_DIR.is_dir()
+    or not any(_PBP_DIR.glob("*.json"))
+    or not _STATS_DIR.is_dir(),
+    reason="needs the git-ignored raw PBP + processed stats cache",
+)
+def test_recomputing_every_pack_reproduces_the_committed_hash():
+    """Rebuild all 14 packs from source and assert not one hash moved.
+
+    A failure here means a deterministic-layer change altered a shipped
+    evidence value. That is not necessarily wrong — but it invalidates every
+    stored report, so it must be a deliberate, regenerated decision rather
+    than a side effect.
+    """
+    from basketball_scout.agents.evidence_pack import build_evidence_pack, load_league_data
+    from basketball_scout.agents.pack_store import build_artifact
+    from basketball_scout.config import load_settings
+
+    settings = load_settings()
+    league = load_league_data(settings, stats_dir=_STATS_DIR)
+    store = PackStore(PRODUCTION_PACKS_DIR)
+
+    committed = {e.team_id: e.pack_hash for e in store.index.teams}
+    assert len(committed) == EXPECTED_TEAMS
+
+    drifted = []
+    for team_id, expected_hash in sorted(committed.items()):
+        pack = build_evidence_pack(team_id, league)
+        rebuilt = build_artifact(pack, sorted(s.internal_game_id for s, _ in league.pairs[team_id]))
+        if rebuilt.pack_hash != expected_hash:
+            drifted.append(f"{team_id}: committed {expected_hash[:16]} -> rebuilt {rebuilt.pack_hash[:16]}")
+
+    assert not drifted, (
+        "recomputed evidence packs no longer match the committed artifacts:\n  "
+        + "\n  ".join(drifted)
+        + "\nIf this change is intended, the 14 reports must be regenerated."
+    )

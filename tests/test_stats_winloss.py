@@ -265,3 +265,40 @@ def test_effect_size_ranking_differs_from_raw_difference_ranking():
     assert ranked_by_effect != raw_ranked_metrics
     assert ft_rate.effect_size is not None and abs(ft_rate.effect_size) > 1.0
     assert fg3a_rate.effect_size is not None and abs(fg3a_rate.effect_size) < abs(ft_rate.effect_size)
+
+
+# ---- metric categorisation ---------------------------------------------------
+
+
+def test_category_for_separates_outcome_context_from_actionable():
+    """A win/loss comparison of ORtg/DRtg/Net/Pace is near-tautological: a team
+    does outscore its opponents in the games it wins. Ranking those alongside
+    genuine descriptive factors made "the biggest difference" say nothing.
+    """
+    from basketball_scout.stats.winloss import ACTIONABLE, OUTCOME_CONTEXT, category_for
+
+    for metric in ("offensive_rating", "defensive_rating", "net_rating", "pace"):
+        assert category_for(metric) == OUTCOME_CONTEXT, metric
+
+    for metric in ("efg_pct", "tov_pct", "orb_pct", "ft_rate", "fg3a_rate", "ast_to_ratio"):
+        assert category_for(metric) == ACTIONABLE, metric
+
+
+def test_category_for_accepts_a_segment_qualified_signal_name():
+    """Callers build ids as f"{segment_type}:{segment_value}:{metric}", so the
+    lookup has to survive the prefix rather than silently defaulting."""
+    from basketball_scout.stats.winloss import ACTIONABLE, OUTCOME_CONTEXT, category_for
+
+    assert category_for("clutch:clutch:efg_pct") == ACTIONABLE
+    assert category_for("season:season:net_rating") == OUTCOME_CONTEXT
+    assert category_for("quarter:Q4:net_rating") == OUTCOME_CONTEXT
+
+
+def test_an_unknown_metric_defaults_to_actionable():
+    """Unknown names are far more likely to be descriptive factors than one of
+    the four fixed outcome measures, and this preserves prior behaviour rather
+    than introducing a new failure mode."""
+    from basketball_scout.stats.winloss import ACTIONABLE, category_for
+
+    assert category_for("second_chance_points") == ACTIONABLE
+    assert category_for("something:brand_new") == ACTIONABLE
