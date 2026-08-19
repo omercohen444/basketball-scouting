@@ -20,6 +20,7 @@ from fastapi.templating import Jinja2Templates
 
 from ..analytics.schema import OUTCOMES, SEGMENTS
 from ..analytics.views import (
+    BASELINE_TOOLTIP,
     METRIC_FAMILIES,
     OUTCOME_LABELS,
     QUARTER_SEGMENTS,
@@ -28,6 +29,7 @@ from ..analytics.views import (
     SITUATION_SEGMENTS,
     SORTABLE,
     TEAM_TABS,
+    baseline_label,
     consistency_view,
     dumbbell_bounds,
     explorer_columns,
@@ -311,6 +313,11 @@ def explore(
             "segments": [(k, SEGMENT_LABELS[k]) for k in SEGMENTS],
             "outcomes": [(k, OUTCOME_LABELS[k]) for k in OUTCOMES],
             "families": [(k, v[0]) for k, v in METRIC_FAMILIES.items()],
+            # The baseline is always the same-outcome full-game value, so the
+            # header names which outcome that is rather than always saying
+            # "season" while the Losses filter is on.
+            "baseline_label": baseline_label(outcome),
+            "baseline_tooltip": BASELINE_TOOLTIP,
         },
     )
 

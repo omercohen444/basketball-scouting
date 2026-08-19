@@ -151,7 +151,8 @@
 {% macro segment_table(rows, show_definition=false, metrics=none) -%}
   {%- set cols = metrics or [
         ('offensive_rating', 'ORtg'), ('defensive_rating', 'DRtg'), ('net_rating', 'Net'),
-        ('efg_pct', 'eFG%'), ('tov_pct', 'TOV%'), ('orb_pct', 'ORB%')] -%}
+        ('efg_pct', 'eFG%'), ('tov_pct', 'TOV%'), ('orb_pct', 'ORB%'),
+        ('opp_efg_pct', 'oeFG%'), ('opp_tov_pct', 'oTOV%'), ('drb_pct', 'DRB%')] -%}
   <div class="table-wrap">
     <table class="data">
       <thead>

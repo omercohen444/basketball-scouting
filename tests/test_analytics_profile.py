@@ -440,6 +440,59 @@ def test_both_halves_of_the_four_factors_come_from_one_cell():
     assert [c.key for c in factors.defense] == ["opp_efg_pct", "opp_tov_pct", "drb_pct", "opp_ft_rate"]
 
 
+# ---- the explorer's baseline and its families --------------------------------
+
+
+@pytest.mark.parametrize("outcome,expected", [
+    ("all", "vs Season"),
+    ("wins", "vs Win Baseline"),
+    ("losses", "vs Loss Baseline"),
+])
+def test_the_baseline_label_names_the_outcome_it_actually_compares_against(outcome, expected):
+    """The comparison is always the team's own full-game value under the SAME
+    outcome filter. Calling that "vs season" while the Losses filter is on
+    would describe a comparison the page is not making."""
+    assert views.baseline_label(outcome) == expected
+
+
+def test_an_unknown_outcome_falls_back_to_the_season_label():
+    assert views.baseline_label("nonsense") == "vs Season"
+
+
+def test_every_explorer_family_is_genuinely_per_segment():
+    """Transition and the scoring sources exist only at season scope. Offering
+    them here would leave the segment filter inert and quietly misleading, so
+    every family column has to be something a segment cell can carry."""
+    from basketball_scout.analytics.schema import CELL_METRICS
+
+    for family, (_label, keys) in views.METRIC_FAMILIES.items():
+        for key in keys:
+            assert key in CELL_METRICS, f"{family} offers {key}, which is not a cell metric"
+
+
+def test_the_defence_family_columns_resolve():
+    columns = views.explorer_columns("defence")
+    assert [k for k, _ in columns] == ["opp_efg_pct", "opp_tov_pct", "drb_pct", "opp_ft_rate"]
+    assert all(label for _, label in columns)
+
+
+def test_the_defence_family_ranks_the_best_defence_first():
+    """Its primary metric is opponent eFG%, where lower is better — so the
+    ordering runs the opposite way from the offensive families."""
+    teams = {}
+    for i, oefg in enumerate([0.58, 0.50, 0.46], start=2):
+        team = build_team_analytics(
+            f"segev:{i}", [_rebounding_bundle(team_id=f"segev:{i}") for _ in range(6)],
+            f"TEAM {i}", "2025-26",
+        )
+        team.cells["full:all"].metrics["opp_efg_pct"] = oefg
+        teams[f"segev:{i}"] = team
+
+    rows = views.explorer_rows(teams, segment="full", outcome="all", family="defence")
+    assert rows[0].team_id == "segev:4"      # 0.46, the stingiest
+    assert rows[-1].team_id == "segev:2"     # 0.58
+
+
 # ---- the real, committed artifacts -------------------------------------------
 
 from pathlib import Path  # noqa: E402

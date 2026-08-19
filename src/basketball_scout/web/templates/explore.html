@@ -42,7 +42,7 @@
         <th class="n">#</th>
         <th class="sticky">Team</th>
         {%- for _key, label in columns %}<th class="n">{{ label }}</th>{% endfor %}
-        <th class="n">vs season</th>
+        <th class="n" title="{{ baseline_tooltip }}">{{ baseline_label }}</th>
         <th class="n">Games</th><th class="n">Poss</th><th></th>
       </tr>
     </thead>
@@ -70,7 +70,7 @@
 </div>
 
 <p class="small dim" style="margin-top:10px; max-width: 90ch">
-  <strong>vs season</strong> compares each team against its own full-game value under the same
+  <strong>{{ baseline_label }}</strong> compares each team against its own full-game value under the same
   outcome — so in “Losses · Q4” the baseline is that team's play in losses, not its overall
   season. It separates “this team is good” from “this team changes here”.
   Rows below the sample floor are dimmed and left unranked.

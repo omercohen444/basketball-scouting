@@ -578,9 +578,13 @@ DEFENSIVE_FACTORS: tuple[str, ...] = ("opp_efg_pct", "opp_tov_pct", "drb_pct", "
 
 QUARTER_SEGMENTS: tuple[str, ...] = ("q1", "q2", "q3", "q4")
 SITUATION_SEGMENTS: tuple[str, ...] = ("close", "leading", "trailing", "clutch")
+# Both halves. The defensive four ride on the same cell as the offensive ten,
+# so a quarter or a situation can be read from either bench without leaving
+# the row.
 SEGMENT_TABLE_METRICS: tuple[str, ...] = (
     "offensive_rating", "defensive_rating", "net_rating",
     "efg_pct", "tov_pct", "orb_pct",
+    "opp_efg_pct", "opp_tov_pct", "drb_pct",
 )
 
 
@@ -736,19 +740,43 @@ def dumbbell_bounds(rows: list[SplitRow]) -> dict[str, tuple[float, float]]:
 # ---- explorer ---------------------------------------------------------------
 
 
+# Every family here is genuinely per-segment: the filter above the table
+# changes every column. Transition and the scoring sources are deliberately
+# absent — they exist only at season scope, so a segment filter could not act
+# on them and the control would be quietly inert.
 METRIC_FAMILIES: dict[str, tuple[str, tuple[str, ...]]] = {
     "efficiency": ("Efficiency", ("offensive_rating", "defensive_rating", "net_rating", "pace")),
     "four_factors": ("Four factors", ("efg_pct", "tov_pct", "orb_pct", "ft_rate")),
+    "defence": ("Defence", ("opp_efg_pct", "opp_tov_pct", "drb_pct", "opp_ft_rate")),
     "shooting": ("Shooting", ("efg_pct", "fg3a_rate", "ast_to_ratio")),
 }
 
-# The metric each family is ranked by, and which is used for the "vs season"
+# The metric each family is ranked by, and which is used for the baseline
 # delta. Chosen as the one a reader is actually comparing teams on.
 FAMILY_PRIMARY: dict[str, str] = {
     "efficiency": "net_rating",
     "four_factors": "efg_pct",
+    "defence": "opp_efg_pct",
     "shooting": "efg_pct",
 }
+
+# The baseline is always the team's own full-game value under the SAME outcome
+# filter, so the column header has to say which outcome that is. Calling it
+# "vs season" while the Losses filter is on would describe a comparison the
+# page is not making.
+BASELINE_LABELS: dict[str, str] = {
+    "all": "vs Season",
+    "wins": "vs Win Baseline",
+    "losses": "vs Loss Baseline",
+}
+
+BASELINE_TOOLTIP = (
+    "Difference from this team's full-game value under the same outcome filter."
+)
+
+
+def baseline_label(outcome: str) -> str:
+    return BASELINE_LABELS.get(outcome, BASELINE_LABELS["all"])
 
 
 @dataclass(frozen=True)
@@ -774,7 +802,7 @@ class ExplorerRow:
         """
         if self.vs_season is None:
             return 0
-        meta = METRIC_META.get(self.primary_key)
+        meta = CELL_META.get(self.primary_key)
         if meta is None or meta.direction == "neutral":
             return 0
         better = self.vs_season > 0 if meta.direction == "higher_is_better" else self.vs_season < 0
@@ -803,7 +831,7 @@ def explorer_rows(
     """
     _label, keys = METRIC_FAMILIES.get(family, METRIC_FAMILIES["efficiency"])
     primary = FAMILY_PRIMARY.get(family, "net_rating")
-    meta = METRIC_META[primary]
+    meta = CELL_META[primary]
 
     built: list[tuple[float | None, ExplorerRow]] = []
     for tid, team in teams.items():
@@ -849,7 +877,7 @@ def explorer_rows(
 
 def explorer_columns(family: str) -> list[tuple[str, str]]:
     _label, keys = METRIC_FAMILIES.get(family, METRIC_FAMILIES["efficiency"])
-    return [(k, METRIC_META[k].short) for k in keys]
+    return [(k, CELL_META[k].short) for k in keys]
 
 
 # ---- season identity profile ------------------------------------------------

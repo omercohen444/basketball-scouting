@@ -332,9 +332,11 @@ def test_a_style_metric_never_reads_as_better_or_worse():
 
 
 def test_every_family_names_columns_that_exist():
+    """Families may draw on either half of a cell — the Defence family is
+    entirely opponent-side — so the lookup has to cover both."""
     for family in METRIC_FAMILIES:
         columns = explorer_columns(family)
         assert columns
         for key, label in columns:
-            assert key in METRIC_META, key
+            assert key in CELL_META, key
             assert label
