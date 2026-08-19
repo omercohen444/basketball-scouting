@@ -5,6 +5,96 @@ session — not a place for terminal output.
 
 ---
 
+## 2026-08-19 — Run 19: Analytics platform, part 1 — League, Team, Explorer
+
+**STATUS: STOPPED AT THE HUMAN VISUAL CHECKPOINT (Amendment 3). Do not continue
+to Games / Compare / Scouting propagation / Methodology without approval.**
+
+**Objective:** Turn `choose opponent -> read AI report` into a browsable
+analytics platform, so the deterministic layer that already exists is visible
+and the AI report is one feature on top of it rather than the whole product.
+Plan: `~/.claude/plans/vivid-conjuring-feigenbaum.md` (sections A–U), with three
+approved amendments.
+
+**Six commits on top of `9ab7d4c`:**
+
+| | |
+|---|---|
+| `81dc8fd` | score-state possessions paired with the opponent's *mirrored* state |
+| `10e5d28` | the `data/analytics/` artifact + builder + completeness guard |
+| `d3b4fbb` | view-layer gating: unsafe metrics absent, style metrics untintable |
+| `5046c77` | League dashboard replaces the report picker |
+| `ef102c5` | Explorer, and the report moves to `/scouting/{id}` |
+| `d07a126` | responsive fix: the filter bar no longer drags the page sideways |
+
+**The score-state correctness fix (D1).** `_filter_for_segment` applied the same
+predicate to both possession lists, so a team's "ahead by 1–5" was matched
+against the opponent's *own* "ahead by 1–5" — a different stretch of the game.
+One team's `behind_6_plus` net rating computed as −58.6 against a league mean of
+−1.3. The mirror is on the **margin**, not the bin name: a bin-name map is wrong
+on 902 of 1,820 cells because the bins are not symmetric. Verified pack-neutral
+by rebuilding all 14 packs — `build_production_packs.py --check` green, 0/14
+hashes moved — and a permanent regression test now rebuilds them on every run
+(3.5s, never skipped).
+
+**W/L classification (D2) split in two.** Fix A (`evidence.py` passing the real
+category instead of hardcoding ACTIONABLE) is pack-neutral and landed. Fix B
+(excluding outcome-context in `build_screening`) would change 13 of 14 packs and
+orphan the provenance link in all 14 stored reports — **deliberately not done**.
+The classification lives in `analytics/views.py` instead, so Jerusalem's top
+differences are now AST/TO, eFG% and TOV% rather than Net Rating.
+
+**Amendment 1 — the mislabelled legacy metric.** `behind_6_plus` actually starts
+at a margin of −5 (the `-CLOSE_SCORE_MARGIN + 1` off-by-one). The internal key is
+untouched; `DISPLAY_LABEL_OVERRIDES` corrects the user-facing string to
+"Trailing 5+" at render time, in the analytics views, the report template and the
+PDF. No pack byte, no `pack_hash` and no stored `report_json` changes.
+
+**Amendment 2 — volume-weighted is simply the value.** No table carries a second
+numeric column. Maccabi Tel Aviv's clutch eFG% reads 61.6%; the legacy per-game
+mean puts them at 73.5%, and eleven of fourteen teams change rank between the two
+conventions. `SegmentCell.unweighted` is carried in the artifact for
+reconciliation but is not rendered. **The report EvidencePack mathematics is
+unchanged.** Methodology still owes the explanation of why saved reports differ.
+
+**Sample handling.** The builder stamps every one of the 462 cells with its own
+state, so the gate cannot drift from the data: 405 sufficient, 34 limited, 23
+insufficient. The badge names whichever count actually binds — a clutch cell can
+span 14 games and 61 possessions, and "Limited sample — 14 games" would have
+stated a reason that is not the reason.
+
+**Tests: 984, all passing, offline.** New: `test_stats_enrichment.py`,
+`test_analytics_build.py`, `test_analytics_views.py`, `test_web_logos.py`,
+`analytics_factories.py`. The three no-provider guarantees now read one
+`PUBLIC_HTML_ROUTES` list in `product_factories.py`, so a surface added to the app
+but forgotten there fails the OpenAPI test rather than sitting outside the cost
+guarantee. `build_from_bundles` was split out of `build_all` so the web suite can
+render real artifacts built from synthetic bundles.
+
+**Browser QA.** The Chrome tool wedged (viewport collapsed to 83px, resize would
+not take), so the surfaces were frozen server-side into a self-contained review
+page instead — real pages, real league, inlined CSS and crests. All eleven QA
+surfaces measured at 375 / 1024 / 1440: no page scrolls horizontally at any
+width. Two bugs found and fixed this way: lazy-loaded crests never load inside a
+scaled frame, and a `flex-direction: column` container that still has
+`flex-wrap: wrap` lays its items out in side-by-side columns and takes their
+combined width.
+
+**Unresolved / next.**
+
+1. **Blocked on human approval of the visual system** — Games, Compare, the
+   Scouting re-home polish and Methodology are unbuilt. Their nav links 404.
+2. `test_openapi_documents_the_whole_surface_and_nothing_more` will need the
+   remaining paths added as each route lands.
+3. Methodology must carry the weighted-vs-legacy explanation (Amendment 2).
+4. Not deployed. Railway needs `SSL_CERT_FILE` set to the Avast root on this
+   machine before any `railway` command.
+
+**Next technical action:** on approval, propagate the settled visual system to
+the four remaining surfaces per plan §T step 9.
+
+---
+
 ## 2026-08-19 — Run 18: Finish the product — semantics, design, deployment
 
 **Objective:** One long autonomous run to take the project from "advanced but
