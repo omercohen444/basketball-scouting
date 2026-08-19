@@ -271,6 +271,13 @@ bundler and no frontend framework.
 .venv\Scripts\python.exe -m pytest
 ```
 
+**The evidence is in the repository, not just the claims.** `artifacts/` holds the
+validation output each gate actually produced — shot-coordinate geometry
+(`artifacts/cp2/coords/`), the fast-break provider flag against three independent
+criteria (`artifacts/cp2/fastbreak/`), and one live end-to-end acceptance run through
+the production path with its resulting PDF (`artifacts/acceptance/`). Each carries the
+command that reproduces it.
+
 ---
 
 ## Running it locally
