@@ -1,0 +1,166 @@
+{
+ "artifact_version": "packs-v1",
+ "source": "segev",
+ "season": "2025-26",
+ "generated_at": "2026-08-19T01:51:05+00:00",
+ "teams_n": 14,
+ "definition_version": "agents-v1",
+ "teams": [
+  {
+   "team_id": "segev:10",
+   "team_name": "GALIL ELION",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 7,
+   "losses": 19,
+   "file": "pack_segev_10.json",
+   "pack_hash": "sha256:fc3d03fe458230462e0556e49e09ada75a7e5350f7aaf38628fd930e2ffc448c",
+   "pack_states": []
+  },
+  {
+   "team_id": "segev:11",
+   "team_name": "BEER SHEVA",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 10,
+   "losses": 16,
+   "file": "pack_segev_11.json",
+   "pack_hash": "sha256:a0e4c4c0cbc25efa2ce177a4179ab38000c731e4de19d6b5cc070f38a90b1371",
+   "pack_states": []
+  },
+  {
+   "team_id": "segev:12",
+   "team_name": "KIRYAT ATA",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 9,
+   "losses": 17,
+   "file": "pack_segev_12.json",
+   "pack_hash": "sha256:ebcf82afd2aa8edc3220f045f908be14c3736fa76da5ae727c1d9789010a3231",
+   "pack_states": []
+  },
+  {
+   "team_id": "segev:13",
+   "team_name": "MACCABI RAANANA",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 6,
+   "losses": 20,
+   "file": "pack_segev_13.json",
+   "pack_hash": "sha256:ef8afb2ffff8c2df8476e4312aebada5855d738b7ff7218ef4cb646e16328359",
+   "pack_states": []
+  },
+  {
+   "team_id": "segev:14",
+   "team_name": "RISHON LEZION",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 12,
+   "losses": 14,
+   "file": "pack_segev_14.json",
+   "pack_hash": "sha256:0d79c9e8f143e66cbce4a46b6ff668aff4b1cc03821d1213d5a362ea458ea8c9",
+   "pack_states": []
+  },
+  {
+   "team_id": "segev:15",
+   "team_name": "ELIZUR NETANYA",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 7,
+   "losses": 19,
+   "file": "pack_segev_15.json",
+   "pack_hash": "sha256:3c2997c7ec2f5fe2fe1a91bbe0edcdb0798616fe61d36f8a29d5d58f48c3b8d7",
+   "pack_states": []
+  },
+  {
+   "team_id": "segev:2",
+   "team_name": "MACCABI TEL AVIV",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 24,
+   "losses": 2,
+   "file": "pack_segev_2.json",
+   "pack_hash": "sha256:22fcea837bef43d0240429f0535321a22b531c0337ab788cc2cdf556394d6555",
+   "pack_states": [
+    "no_win_loss_evidence"
+   ]
+  },
+  {
+   "team_id": "segev:3",
+   "team_name": "HAPOEL TEL AVIV",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 22,
+   "losses": 4,
+   "file": "pack_segev_3.json",
+   "pack_hash": "sha256:c4b1d702e98290926a85c084c285c4716000823e88147243d1b346bc06241aba",
+   "pack_states": []
+  },
+  {
+   "team_id": "segev:4",
+   "team_name": "HAPOEL JERUSALEM",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 18,
+   "losses": 8,
+   "file": "pack_segev_4.json",
+   "pack_hash": "sha256:cb5c6614c5da8807da3bfc03f30210863ab35ae9003a60bacaa91d6351af55cc",
+   "pack_states": []
+  },
+  {
+   "team_id": "segev:5",
+   "team_name": "HAPOEL HOLON",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 15,
+   "losses": 11,
+   "file": "pack_segev_5.json",
+   "pack_hash": "sha256:33b95f32f9a75136585adc79ea7b659b7b97d9d12ca55cbe75befb70078ca23a",
+   "pack_states": []
+  },
+  {
+   "team_id": "segev:6",
+   "team_name": "BNEI HERZLIYA",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 18,
+   "losses": 8,
+   "file": "pack_segev_6.json",
+   "pack_hash": "sha256:97796513f008124ca6ca86711a905eb1856293a234e637dfdf686c8213abb73d",
+   "pack_states": []
+  },
+  {
+   "team_id": "segev:7",
+   "team_name": "MACCABI RAMAT GAN",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 10,
+   "losses": 16,
+   "file": "pack_segev_7.json",
+   "pack_hash": "sha256:8849817b608a009cb35a6e531a63b740e6d26a4907b8ca4377ffa1ad5701061f",
+   "pack_states": []
+  },
+  {
+   "team_id": "segev:8",
+   "team_name": "HAPOEL HAEMEK",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 15,
+   "losses": 11,
+   "file": "pack_segev_8.json",
+   "pack_hash": "sha256:aa42dc0d0a98f5368d1c2bbee6f5efc2f0f8e65b9259392187288f204464ff63",
+   "pack_states": []
+  },
+  {
+   "team_id": "segev:9",
+   "team_name": "NESS ZIONA",
+   "season": "2025-26",
+   "games_n": 26,
+   "wins": 9,
+   "losses": 17,
+   "file": "pack_segev_9.json",
+   "pack_hash": "sha256:0984020a5f722eead4f8865f5549fe361ab5ca9de61d9f1ce5997e66ba280560",
+   "pack_states": []
+  }
+ ]
+}

@@ -1,0 +1,1429 @@
+{
+ "artifact_version": "packs-v1",
+ "pack_hash": "sha256:a0e4c4c0cbc25efa2ce177a4179ab38000c731e4de19d6b5cc070f38a90b1371",
+ "provenance": {
+  "source": "segev",
+  "season": "2025-26",
+  "team_id": "segev:11",
+  "team_name": "BEER SHEVA",
+  "games_n": 26,
+  "wins": 10,
+  "losses": 16,
+  "date_range": "2025-10-12T18:40:00 to 2026-05-27T18:40:00",
+  "definition_version": "agents-v1",
+  "source_game_ids": [
+   "105",
+   "111",
+   "122",
+   "125",
+   "133",
+   "138",
+   "150",
+   "155",
+   "159",
+   "165",
+   "178",
+   "181",
+   "187",
+   "196",
+   "202",
+   "207",
+   "220",
+   "223",
+   "50",
+   "53",
+   "65",
+   "70",
+   "76",
+   "85",
+   "90",
+   "95"
+  ],
+  "source_fingerprint": "sha256:6d585b262fcb59dc004a9ff29e76ec6e0a5012059a41c9893e1b3d3770cd4db9",
+  "evidence_items_n": 25,
+  "candidate_ids_n": 20,
+  "pack_states": []
+ },
+ "pack": {
+  "pack_id": "segev:11|2025-26|agents-v1",
+  "team_id": "segev:11",
+  "team_name": "BEER SHEVA",
+  "season": "2025-26",
+  "games_n": 26,
+  "wins": 10,
+  "losses": 16,
+  "date_range": "2025-10-12T18:40:00 to 2026-05-27T18:40:00",
+  "definition_version": "agents-v1",
+  "source": "segev",
+  "evidence": [
+   {
+    "evidence_id": "EV.season.offensive_rating",
+    "metric_name": "offensive_rating",
+    "metric_label": "Offensive Rating",
+    "scope": "season",
+    "perspective": "for",
+    "value": 108.65930098075175,
+    "display_value": "108.7",
+    "typical_game_value": "108.7",
+    "unit": "per100",
+    "direction": "higher_is_better",
+    "league_rank": 6,
+    "league_percentile": 61.53846153846154,
+    "eligible_teams": 14,
+    "league_mean_display": "110.4",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 12.224005152777979,
+     "coefficient_of_variation": 0.11244942739202014,
+     "min_display": "88.4",
+     "max_display": "134.3",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "116.5",
+     "loss_average_display": "103.8",
+     "effect_size": 1.1909764565047956,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -5.441130253158661,
+     "last10_minus_season": -1.4221874433359432
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": true,
+     "recent_shift": false,
+     "stable_pattern": true
+    },
+    "limitation_codes": []
+   },
+   {
+    "evidence_id": "EV.season.defensive_rating",
+    "metric_name": "defensive_rating",
+    "metric_label": "Defensive Rating",
+    "scope": "season",
+    "perspective": "for",
+    "value": 113.09893013575221,
+    "display_value": "113.1",
+    "typical_game_value": "113.1",
+    "unit": "per100",
+    "direction": "lower_is_better",
+    "league_rank": 13,
+    "league_percentile": 7.6923076923076925,
+    "eligible_teams": 14,
+    "league_mean_display": "110.3",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 12.233044090568345,
+     "coefficient_of_variation": 0.10815888471424573,
+     "min_display": "91.2",
+     "max_display": "137.9",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "104.9",
+     "loss_average_display": "118.2",
+     "effect_size": -1.2634567822767455,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": 6.272351430500635,
+     "last10_minus_season": 1.94831942079189
+    },
+    "flags": {
+     "league_extreme": true,
+     "win_loss_signal": true,
+     "recent_shift": true,
+     "stable_pattern": true
+    },
+    "limitation_codes": []
+   },
+   {
+    "evidence_id": "EV.season.net_rating",
+    "metric_name": "net_rating",
+    "metric_label": "Net Rating",
+    "scope": "season",
+    "perspective": "for",
+    "value": -4.4396291550004605,
+    "display_value": "-4.4",
+    "typical_game_value": "-4.4",
+    "unit": "per100",
+    "direction": "higher_is_better",
+    "league_rank": 9,
+    "league_percentile": 38.46153846153846,
+    "eligible_teams": 14,
+    "league_mean_display": "0.1",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 16.91331904248646,
+     "coefficient_of_variation": 3.8475699438864353,
+     "min_display": "-45.7",
+     "max_display": "34.1",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "11.6",
+     "loss_average_display": "-14.4",
+     "effect_size": 2.331342328936737,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -11.713481683659321,
+     "last10_minus_season": -3.370506864127851
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": true,
+     "recent_shift": true,
+     "stable_pattern": false
+    },
+    "limitation_codes": []
+   },
+   {
+    "evidence_id": "EV.season.pace",
+    "metric_name": "pace",
+    "metric_label": "Pace",
+    "scope": "season",
+    "perspective": "for",
+    "value": 78.61802785083562,
+    "display_value": "78.6",
+    "typical_game_value": "78.6",
+    "unit": "possessions",
+    "direction": "neutral",
+    "league_rank": 3,
+    "league_percentile": 84.61538461538461,
+    "eligible_teams": 14,
+    "league_mean_display": "77.1",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 3.6906072415363966,
+     "coefficient_of_variation": 0.04692791743512054,
+     "min_display": "68.2",
+     "max_display": "84.4",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "78.9",
+     "loss_average_display": "78.5",
+     "effect_size": 0.10512301927579214,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -0.5024780627644674,
+     "last10_minus_season": 0.3640423289884751
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": false,
+     "stable_pattern": true
+    },
+    "limitation_codes": [
+     "neutral_direction"
+    ]
+   },
+   {
+    "evidence_id": "EV.season.efg_pct",
+    "metric_name": "efg_pct",
+    "metric_label": "Effective FG%",
+    "scope": "season",
+    "perspective": "for",
+    "value": 0.5166290868094702,
+    "display_value": "51.7%",
+    "typical_game_value": "52.0%",
+    "unit": "pct",
+    "direction": "higher_is_better",
+    "league_rank": 9,
+    "league_percentile": 38.46153846153846,
+    "eligible_teams": 14,
+    "league_mean_display": "53.1%",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 0.07889046204666647,
+     "coefficient_of_variation": 0.1516534444905888,
+     "min_display": "34.4%",
+     "max_display": "67.5%",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "55.1%",
+     "loss_average_display": "50.1%",
+     "effect_size": 0.6611702042386227,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -0.057856963225384916,
+     "last10_minus_season": -0.021642576187528295
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": true,
+     "stable_pattern": false
+    },
+    "limitation_codes": []
+   },
+   {
+    "evidence_id": "EV.season.tov_pct",
+    "metric_name": "tov_pct",
+    "metric_label": "Turnover Rate",
+    "scope": "season",
+    "perspective": "for",
+    "value": 0.1676038062283737,
+    "display_value": "16.8%",
+    "typical_game_value": "16.8%",
+    "unit": "pct",
+    "direction": "lower_is_better",
+    "league_rank": 9,
+    "league_percentile": 38.46153846153846,
+    "eligible_teams": 14,
+    "league_mean_display": "15.8%",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 0.0405515462197296,
+     "coefficient_of_variation": 0.24192769937282319,
+     "min_display": "9.7%",
+     "max_display": "26.5%",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "15.7%",
+     "loss_average_display": "17.4%",
+     "effect_size": -0.43606704134212587,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -0.023346748212268287,
+     "last10_minus_season": -0.016269760987225768
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": true,
+     "stable_pattern": false
+    },
+    "limitation_codes": []
+   },
+   {
+    "evidence_id": "EV.season.orb_pct",
+    "metric_name": "orb_pct",
+    "metric_label": "Offensive Rebound %",
+    "scope": "season",
+    "perspective": "for",
+    "value": 0.31848983543078413,
+    "display_value": "31.8%",
+    "typical_game_value": "31.3%",
+    "unit": "pct",
+    "direction": "higher_is_better",
+    "league_rank": 5,
+    "league_percentile": 69.23076923076923,
+    "eligible_teams": 14,
+    "league_mean_display": "30.3%",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 0.07330486567010491,
+     "coefficient_of_variation": 0.23387734755811754,
+     "min_display": "15.4%",
+     "max_display": "46.9%",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "31.2%",
+     "loss_average_display": "31.5%",
+     "effect_size": -0.04045841960999441,
+     "favorable_in_wins": false,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": 0.0621988153895735,
+     "last10_minus_season": 0.01996132704799941
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": true,
+     "stable_pattern": false
+    },
+    "limitation_codes": []
+   },
+   {
+    "evidence_id": "EV.season.ft_rate",
+    "metric_name": "ft_rate",
+    "metric_label": "Free Throw Rate",
+    "scope": "season",
+    "perspective": "for",
+    "value": 0.2914317925591883,
+    "display_value": "0.29",
+    "typical_game_value": "0.30",
+    "unit": "ratio",
+    "direction": "neutral",
+    "league_rank": 10,
+    "league_percentile": 30.76923076923077,
+    "eligible_teams": 14,
+    "league_mean_display": "0.30",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 0.0979777004515355,
+     "coefficient_of_variation": 0.33165705529751177,
+     "min_display": "0.10",
+     "max_display": "0.51",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "0.34",
+     "loss_average_display": "0.27",
+     "effect_size": 0.8539110849812352,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -0.04399331160651515,
+     "last10_minus_season": -0.014691002826823174
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": true,
+     "recent_shift": false,
+     "stable_pattern": false
+    },
+    "limitation_codes": [
+     "neutral_direction"
+    ]
+   },
+   {
+    "evidence_id": "EV.season.fg3a_rate",
+    "metric_name": "fg3a_rate",
+    "metric_label": "3PA Rate",
+    "scope": "season",
+    "perspective": "for",
+    "value": 0.4250281848928974,
+    "display_value": "42.5%",
+    "typical_game_value": "42.7%",
+    "unit": "share",
+    "direction": "neutral",
+    "league_rank": 4,
+    "league_percentile": 76.92307692307692,
+    "eligible_teams": 14,
+    "league_mean_display": "40.3%",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 0.060731202343526296,
+     "coefficient_of_variation": 0.14233857060966837,
+     "min_display": "26.1%",
+     "max_display": "53.1%",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "44.6%",
+     "loss_average_display": "41.5%",
+     "effect_size": 0.5262268852635037,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -0.047701327868854726,
+     "last10_minus_season": -0.019569132317800886
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": true,
+     "stable_pattern": true
+    },
+    "limitation_codes": [
+     "neutral_direction"
+    ]
+   },
+   {
+    "evidence_id": "EV.season.ast_to_ratio",
+    "metric_name": "ast_to_ratio",
+    "metric_label": "Assist/Turnover Ratio",
+    "scope": "season",
+    "perspective": "for",
+    "value": 1.3126550868486353,
+    "display_value": "1.31",
+    "typical_game_value": "1.41",
+    "unit": "ratio",
+    "direction": "higher_is_better",
+    "league_rank": 8,
+    "league_percentile": 46.15384615384615,
+    "eligible_teams": 14,
+    "league_mean_display": "1.40",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "moderate",
+    "stability": {
+     "games": 26,
+     "std": 0.5169821208942731,
+     "coefficient_of_variation": 0.3677251788155293,
+     "min_display": "0.67",
+     "max_display": "2.78",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "1.64",
+     "loss_average_display": "1.26",
+     "effect_size": 0.7905757190898921,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -0.04990972981514186,
+     "last10_minus_season": 0.05321603331062108
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": false,
+     "stable_pattern": false
+    },
+    "limitation_codes": []
+   },
+   {
+    "evidence_id": "EV.clutch.efg_pct",
+    "metric_name": "efg_pct",
+    "metric_label": "Clutch Effective FG%",
+    "scope": "clutch",
+    "perspective": "for",
+    "value": 0.3926936026936027,
+    "display_value": "39.3%",
+    "typical_game_value": "39.3%",
+    "unit": "pct",
+    "direction": "higher_is_better",
+    "league_rank": 11,
+    "league_percentile": 23.076923076923077,
+    "eligible_teams": 14,
+    "league_mean_display": "50.2%",
+    "sample_games": 15,
+    "sample_possessions": 121,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "low",
+    "stability": {
+     "games": 15,
+     "std": 0.3045467589972199,
+     "coefficient_of_variation": 0.7755327739190114,
+     "min_display": "0.0%",
+     "max_display": "100.0%",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "61.6%",
+     "loss_average_display": "19.7%",
+     "effect_size": 1.886091439332855,
+     "favorable_in_wins": true,
+     "sample_wins": 7,
+     "sample_losses": 8,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": 0.26355639730639724,
+     "last10_minus_season": 0.15765361952861945
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": true,
+     "recent_shift": true,
+     "stable_pattern": false
+    },
+    "limitation_codes": [
+     "unweighted_segment_mean"
+    ]
+   },
+   {
+    "evidence_id": "EV.clutch.tov_pct",
+    "metric_name": "tov_pct",
+    "metric_label": "Clutch Turnover Rate",
+    "scope": "clutch",
+    "perspective": "for",
+    "value": 0.19288581964567675,
+    "display_value": "19.3%",
+    "typical_game_value": "19.3%",
+    "unit": "pct",
+    "direction": "lower_is_better",
+    "league_rank": 13,
+    "league_percentile": 7.6923076923076925,
+    "eligible_teams": 14,
+    "league_mean_display": "13.4%",
+    "sample_games": 17,
+    "sample_possessions": 121,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "low",
+    "stability": {
+     "games": 17,
+     "std": 0.2606609821287687,
+     "coefficient_of_variation": 1.35137452098652,
+     "min_display": "0.0%",
+     "max_display": "100.0%",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "23.3%",
+     "loss_average_display": "15.7%",
+     "effect_size": 0.28552331496647076,
+     "favorable_in_wins": false,
+     "sample_wins": 8,
+     "sample_losses": 9,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -0.000704095039865682,
+     "last10_minus_season": -0.05246871620801946
+    },
+    "flags": {
+     "league_extreme": true,
+     "win_loss_signal": false,
+     "recent_shift": false,
+     "stable_pattern": false
+    },
+    "limitation_codes": [
+     "unweighted_segment_mean"
+    ]
+   },
+   {
+    "evidence_id": "EV.Q4.net_rating",
+    "metric_name": "net_rating",
+    "metric_label": "Q4 Net Rating",
+    "scope": "Q4",
+    "perspective": "for",
+    "value": -2.134489304904526,
+    "display_value": "-2.1",
+    "typical_game_value": "-2.1",
+    "unit": "per100",
+    "direction": "higher_is_better",
+    "league_rank": 8,
+    "league_percentile": 46.15384615384615,
+    "eligible_teams": 14,
+    "league_mean_display": "0.1",
+    "sample_games": 26,
+    "sample_possessions": 549,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 28.77866569479141,
+     "coefficient_of_variation": 13.482693789406763,
+     "min_display": "-51.5",
+     "max_display": "73.9",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "14.1",
+     "loss_average_display": "-12.3",
+     "effect_size": 1.0086648418755224,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": 5.587946324045037,
+     "last10_minus_season": 1.8200192855624906
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": true,
+     "recent_shift": false,
+     "stable_pattern": false
+    },
+    "limitation_codes": [
+     "unweighted_segment_mean"
+    ]
+   },
+   {
+    "evidence_id": "EV.behind_6_plus.efg_pct",
+    "metric_name": "efg_pct",
+    "metric_label": "Effective FG% When Trailing 6+",
+    "scope": "behind_6_plus",
+    "perspective": "for",
+    "value": 0.5712774330461642,
+    "display_value": "57.1%",
+    "typical_game_value": "57.1%",
+    "unit": "pct",
+    "direction": "higher_is_better",
+    "league_rank": 9,
+    "league_percentile": 38.46153846153846,
+    "eligible_teams": 14,
+    "league_mean_display": "60.0%",
+    "sample_games": 22,
+    "sample_possessions": 811,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 22,
+     "std": 0.13954100338475503,
+     "coefficient_of_variation": 0.24426136114058422,
+     "min_display": "31.2%",
+     "max_display": "87.5%",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "68.5%",
+     "loss_average_display": "51.8%",
+     "effect_size": 1.4191681059823864,
+     "favorable_in_wins": true,
+     "sample_wins": 7,
+     "sample_losses": 15,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -0.055924170489511704,
+     "last10_minus_season": -0.02226034669386112
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": true,
+     "recent_shift": false,
+     "stable_pattern": false
+    },
+    "limitation_codes": [
+     "unweighted_segment_mean"
+    ]
+   },
+   {
+    "evidence_id": "EV.1H.net_rating",
+    "metric_name": "net_rating",
+    "metric_label": "First-Half Net Rating",
+    "scope": "1H",
+    "perspective": "for",
+    "value": -7.215922589826186,
+    "display_value": "-7.2",
+    "typical_game_value": "-7.2",
+    "unit": "per100",
+    "direction": "higher_is_better",
+    "league_rank": 11,
+    "league_percentile": 23.076923076923077,
+    "eligible_teams": 14,
+    "league_mean_display": "0.0",
+    "sample_games": 26,
+    "sample_possessions": 1056,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 24.927717683821687,
+     "coefficient_of_variation": 3.4545433897763216,
+     "min_display": "-48.6",
+     "max_display": "48.2",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "9.6",
+     "loss_average_display": "-17.7",
+     "effect_size": 1.2791481391915327,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -26.032876217473962,
+     "last10_minus_season": -11.727257647657872
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": true,
+     "recent_shift": true,
+     "stable_pattern": false
+    },
+    "limitation_codes": [
+     "unweighted_segment_mean"
+    ]
+   },
+   {
+    "evidence_id": "EV.season.scoring_share_2pt",
+    "metric_name": "scoring_share_2pt",
+    "metric_label": "Share of Points from 2PT",
+    "scope": "season",
+    "perspective": "for",
+    "value": 0.47336615854381653,
+    "display_value": "47.3%",
+    "typical_game_value": "47.3%",
+    "unit": "share",
+    "direction": "neutral",
+    "league_rank": 11,
+    "league_percentile": 23.076923076923077,
+    "eligible_teams": 14,
+    "league_mean_display": "50.7%",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 0.07066020198112474,
+     "coefficient_of_variation": 0.14927176500849115,
+     "min_display": "32.6%",
+     "max_display": "67.6%",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "46.0%",
+     "loss_average_display": "48.2%",
+     "effect_size": -0.3159134958652359,
+     "favorable_in_wins": false,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": 0.05748473642331747,
+     "last10_minus_season": 0.015084773536638119
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": true,
+     "stable_pattern": true
+    },
+    "limitation_codes": [
+     "neutral_direction"
+    ]
+   },
+   {
+    "evidence_id": "EV.season.scoring_share_3pt",
+    "metric_name": "scoring_share_3pt",
+    "metric_label": "Share of Points from 3PT",
+    "scope": "season",
+    "perspective": "for",
+    "value": 0.3512590162840714,
+    "display_value": "35.1%",
+    "typical_game_value": "35.1%",
+    "unit": "share",
+    "direction": "neutral",
+    "league_rank": 3,
+    "league_percentile": 84.61538461538461,
+    "eligible_teams": 14,
+    "league_mean_display": "32.5%",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 0.0822829559733784,
+     "coefficient_of_variation": 0.23425151286888032,
+     "min_display": "17.6%",
+     "max_display": "55.4%",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "34.5%",
+     "loss_average_display": "35.5%",
+     "effect_size": -0.11243151039727048,
+     "favorable_in_wins": false,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -0.032264675806956244,
+     "last10_minus_season": -0.0015376409399669444
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": false,
+     "stable_pattern": false
+    },
+    "limitation_codes": [
+     "neutral_direction"
+    ]
+   },
+   {
+    "evidence_id": "EV.season.scoring_share_ft",
+    "metric_name": "scoring_share_ft",
+    "metric_label": "Share of Points from FT",
+    "scope": "season",
+    "perspective": "for",
+    "value": 0.17537482517211203,
+    "display_value": "17.5%",
+    "typical_game_value": "17.5%",
+    "unit": "share",
+    "direction": "neutral",
+    "league_rank": 4,
+    "league_percentile": 76.92307692307692,
+    "eligible_teams": 14,
+    "league_mean_display": "16.8%",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 0.05197747831411527,
+     "coefficient_of_variation": 0.2963793592558385,
+     "min_display": "8.1%",
+     "max_display": "29.1%",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "19.5%",
+     "loss_average_display": "16.3%",
+     "effect_size": 0.6318179397890858,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -0.02522006061636145,
+     "last10_minus_season": -0.013547132596671396
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": false,
+     "stable_pattern": false
+    },
+    "limitation_codes": [
+     "neutral_direction"
+    ]
+   },
+   {
+    "evidence_id": "EV.season.points_off_turnovers",
+    "metric_name": "points_off_turnovers",
+    "metric_label": "Points Off Turnovers (per game)",
+    "scope": "season",
+    "perspective": "for",
+    "value": 17.576923076923077,
+    "display_value": "17.6",
+    "typical_game_value": "17.6",
+    "unit": "count_per_game",
+    "direction": "higher_is_better",
+    "league_rank": 6,
+    "league_percentile": 61.53846153846154,
+    "eligible_teams": 14,
+    "league_mean_display": "16.9",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "moderate",
+    "stability": {
+     "games": 26,
+     "std": 6.8010180233437225,
+     "coefficient_of_variation": 0.3869288153324656,
+     "min_display": "6.0",
+     "max_display": "28.0",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "19.8",
+     "loss_average_display": "16.2",
+     "effect_size": 0.5395103407974027,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -6.776923076923076,
+     "last10_minus_season": -4.076923076923077
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": true,
+     "stable_pattern": false
+    },
+    "limitation_codes": []
+   },
+   {
+    "evidence_id": "EV.season.second_chance_points",
+    "metric_name": "second_chance_points",
+    "metric_label": "Second Chance Points (per game)",
+    "scope": "season",
+    "perspective": "for",
+    "value": 9.538461538461538,
+    "display_value": "9.5",
+    "typical_game_value": "9.5",
+    "unit": "count_per_game",
+    "direction": "higher_is_better",
+    "league_rank": 6,
+    "league_percentile": 61.53846153846154,
+    "eligible_teams": 14,
+    "league_mean_display": "9.5",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "moderate",
+    "stability": {
+     "games": 26,
+     "std": 4.726358168660257,
+     "coefficient_of_variation": 0.4955052918756721,
+     "min_display": "1.0",
+     "max_display": "21.0",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "8.6",
+     "loss_average_display": "10.1",
+     "effect_size": -0.32026991740481475,
+     "favorable_in_wins": false,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": 2.0615384615384613,
+     "last10_minus_season": 1.161538461538461
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": false,
+     "stable_pattern": false
+    },
+    "limitation_codes": []
+   },
+   {
+    "evidence_id": "EV.season.points_per_second_chance_possession",
+    "metric_name": "points_per_second_chance_possession",
+    "metric_label": "Points per Second-Chance Possession",
+    "scope": "season",
+    "perspective": "for",
+    "value": 0.9421457197772988,
+    "display_value": "0.94",
+    "typical_game_value": "0.94",
+    "unit": "ratio",
+    "direction": "higher_is_better",
+    "league_rank": 6,
+    "league_percentile": 61.53846153846154,
+    "eligible_teams": 14,
+    "league_mean_display": "0.92",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "moderate",
+    "stability": {
+     "games": 26,
+     "std": 0.3802056093681965,
+     "coefficient_of_variation": 0.40355287020575564,
+     "min_display": "0.08",
+     "max_display": "1.86",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "0.88",
+     "loss_average_display": "0.98",
+     "effect_size": -0.2558385737832256,
+     "favorable_in_wins": false,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -0.2235651775125459,
+     "last10_minus_season": -0.0790314948209685
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": true,
+     "stable_pattern": false
+    },
+    "limitation_codes": []
+   },
+   {
+    "evidence_id": "EV.season.provider_fast_break_points",
+    "metric_name": "provider_fast_break_points",
+    "metric_label": "Fast Break Points (per game)",
+    "scope": "season",
+    "perspective": "for",
+    "value": 10.961538461538462,
+    "display_value": "11.0",
+    "typical_game_value": "11.0",
+    "unit": "count_per_game",
+    "direction": "higher_is_better",
+    "league_rank": 7,
+    "league_percentile": 53.84615384615385,
+    "eligible_teams": 14,
+    "league_mean_display": "10.8",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "moderate",
+    "stability": {
+     "games": 26,
+     "std": 5.502586804264112,
+     "coefficient_of_variation": 0.5019903751258489,
+     "min_display": "0.0",
+     "max_display": "28.0",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "12.4",
+     "loss_average_display": "10.1",
+     "effect_size": 0.42578146310180737,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -1.9615384615384617,
+     "last10_minus_season": -0.36153846153846203
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": false,
+     "stable_pattern": false
+    },
+    "limitation_codes": [
+     "fast_break_one_directional"
+    ]
+   },
+   {
+    "evidence_id": "EV.season.assisted_fgm_pct",
+    "metric_name": "assisted_fgm_pct",
+    "metric_label": "Assisted Share of Made Field Goals",
+    "scope": "season",
+    "perspective": "for",
+    "value": 0.6020425217793774,
+    "display_value": "60.2%",
+    "typical_game_value": "60.2%",
+    "unit": "pct",
+    "direction": "neutral",
+    "league_rank": 3,
+    "league_percentile": 84.61538461538461,
+    "eligible_teams": 14,
+    "league_mean_display": "56.4%",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 0.10462501958308983,
+     "coefficient_of_variation": 0.17378343854162243,
+     "min_display": "40.0%",
+     "max_display": "78.6%",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "61.8%",
+     "loss_average_display": "59.2%",
+     "effect_size": 0.2382220725515721,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -0.09841264189949761,
+     "last10_minus_season": -0.038200270915067724
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": true,
+     "stable_pattern": false
+    },
+    "limitation_codes": [
+     "neutral_direction"
+    ]
+   },
+   {
+    "evidence_id": "EV.season.largest_scoring_run_for",
+    "metric_name": "largest_scoring_run_for",
+    "metric_label": "Largest Scoring Run (per game)",
+    "scope": "season",
+    "perspective": "for",
+    "value": 9.538461538461538,
+    "display_value": "9.5",
+    "typical_game_value": "9.5",
+    "unit": "count_per_game",
+    "direction": "higher_is_better",
+    "league_rank": 9,
+    "league_percentile": 38.46153846153846,
+    "eligible_teams": 14,
+    "league_mean_display": "9.5",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "high",
+    "stability": {
+     "games": 26,
+     "std": 2.595854683618006,
+     "coefficient_of_variation": 0.2721460555405974,
+     "min_display": "5.0",
+     "max_display": "19.0",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "10.0",
+     "loss_average_display": "9.2",
+     "effect_size": 0.28603877677367767,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -1.9384615384615387,
+     "last10_minus_season": -1.5384615384615383
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": false,
+     "recent_shift": true,
+     "stable_pattern": false
+    },
+    "limitation_codes": []
+   },
+   {
+    "evidence_id": "EV.season.runs_8_plus_for",
+    "metric_name": "runs_8_plus_for",
+    "metric_label": "8+ Point Runs Made (per game)",
+    "scope": "season",
+    "perspective": "for",
+    "value": 1.3846153846153846,
+    "display_value": "1.4",
+    "typical_game_value": "1.4",
+    "unit": "count_per_game",
+    "direction": "higher_is_better",
+    "league_rank": 9,
+    "league_percentile": 38.46153846153846,
+    "eligible_teams": 14,
+    "league_mean_display": "1.5",
+    "sample_games": 26,
+    "sample_possessions": null,
+    "validation_state": "validated_deterministic",
+    "reliability_tier": "low",
+    "stability": {
+     "games": 26,
+     "std": 0.9829312519977408,
+     "coefficient_of_variation": 0.7098947931094794,
+     "min_display": "0.0",
+     "max_display": "4.0",
+     "applicable": true
+    },
+    "win_loss": {
+     "agent_rankable": true,
+     "effect_status": "rankable",
+     "win_average_display": "1.9",
+     "loss_average_display": "1.1",
+     "effect_size": 0.9211852314403539,
+     "favorable_in_wins": true,
+     "sample_wins": 10,
+     "sample_losses": 16,
+     "sample_sufficient": true
+    },
+    "recent": {
+     "last5_minus_season": -0.7846153846153846,
+     "last10_minus_season": -0.2846153846153845
+    },
+    "flags": {
+     "league_extreme": false,
+     "win_loss_signal": true,
+     "recent_shift": true,
+     "stable_pattern": false
+    },
+    "limitation_codes": []
+   }
+  ],
+  "screening": {
+   "candidate_ids": [
+    "EV.season.net_rating",
+    "EV.clutch.efg_pct",
+    "EV.behind_6_plus.efg_pct",
+    "EV.1H.net_rating",
+    "EV.season.defensive_rating",
+    "EV.season.offensive_rating",
+    "EV.Q4.net_rating",
+    "EV.season.runs_8_plus_for",
+    "EV.clutch.tov_pct",
+    "EV.season.points_off_turnovers",
+    "EV.season.largest_scoring_run_for",
+    "EV.season.points_per_second_chance_possession",
+    "EV.season.assisted_fgm_pct",
+    "EV.season.pace",
+    "EV.season.scoring_share_3pt",
+    "EV.season.scoring_share_2pt",
+    "EV.season.fg3a_rate",
+    "EV.season.scoring_share_ft",
+    "EV.season.ft_rate",
+    "EV.season.orb_pct"
+   ],
+   "top_league_extremes": [
+    "EV.clutch.tov_pct",
+    "EV.season.defensive_rating"
+   ],
+   "top_win_loss_effects": [
+    "EV.season.net_rating",
+    "EV.clutch.efg_pct",
+    "EV.behind_6_plus.efg_pct",
+    "EV.1H.net_rating",
+    "EV.season.defensive_rating"
+   ],
+   "top_recent_shifts": [
+    "EV.1H.net_rating",
+    "EV.season.net_rating",
+    "EV.season.points_off_turnovers",
+    "EV.season.defensive_rating",
+    "EV.season.largest_scoring_run_for"
+   ]
+  },
+  "unavailable_evidence": [
+   {
+    "evidence_id": "NA.shot_zone_share",
+    "label": "Rim / shot-zone share (season)",
+    "reason": "Coarse shot-zone geometry is validated only at game scope and is still provisional_deterministic pending fresh blind human labelling. Season-scope aggregation was deliberately not built for this MVP checkpoint.",
+    "validation_state": "deferred"
+   },
+   {
+    "evidence_id": "NA.shot_distance",
+    "label": "Shot distance",
+    "reason": "Distance carries +/-1m uncertainty (validation_state 'partial') and is not aggregated at season scope.",
+    "validation_state": "partial"
+   },
+   {
+    "evidence_id": "NA.possession_type_half_court",
+    "label": "Half-court / set-offense possession type",
+    "reason": "No half-court classification exists. The provider fast-break flag is one-directional: its absence never implies half-court or set offense.",
+    "validation_state": "deferred"
+   },
+   {
+    "evidence_id": "NA.last_passer",
+    "label": "Last-passer identity / pass origin",
+    "reason": "Audit found a linked passer for only 38/62 made and 0/78 missed field-goal attempts. Not implemented.",
+    "validation_state": "deferred"
+   },
+   {
+    "evidence_id": "NA.player_level",
+    "label": "Player-level and lineup analytics",
+    "reason": "This MVP is team-level only by locked product decision. No per-player claim is supportable.",
+    "validation_state": "deferred"
+   },
+   {
+    "evidence_id": "NA.video",
+    "label": "Video-derived metrics (shot contest, creation, on-ball pressure)",
+    "reason": "The video layer failed reliability validation and was removed from the MVP. No video evidence exists.",
+    "validation_state": "deferred"
+   },
+   {
+    "evidence_id": "NA.scheme",
+    "label": "Defensive scheme / coverage / play-calling",
+    "reason": "Play-by-play carries no scheme, coverage, or personnel information. Any claim about switching, drop coverage, zone, or coaching intent is unsupportable.",
+    "validation_state": "deferred"
+   }
+  ],
+  "pack_states": [],
+  "limitation_legend": {
+   "fast_break_one_directional": "The provider fast-break flag is one-directional: a False (or missing) value means only 'the provider did not classify this as a fast break'. It never means half-court, set offense, or secondary transition.",
+   "neutral_direction": "This metric has no inherently good or bad direction. A high or low league percentile describes style, not quality, and must not be phrased as a strength or weakness.",
+   "unweighted_segment_mean": "Segment values are the unweighted mean of per-game segment values, so a game with very few segment possessions counts as much as a game with many."
+  }
+ }
+}
