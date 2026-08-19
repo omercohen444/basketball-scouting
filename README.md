@@ -218,6 +218,44 @@ python scripts\scouting_report\build_production_packs.py --check   # verify only
 
 ---
 
+## Known limitations
+
+Stated here rather than discovered later. The product declares most of these to
+the coach as well, in its Data Limits section.
+
+**Team-level only.** No player, lineup or pass-tracking data, so no individual
+matchup advice. This is a property of the source, not a missing feature.
+
+**No video-derived anything** — shot contests, shot creation, on-ball pressure.
+Prototyped, evaluated, cut (above).
+
+**No scheme, coverage or coaching intent.** Play-by-play does not record it, and
+the validator rejects claims that pretend otherwise.
+
+**Situational splits are small.** Clutch and trailing segments rest on subsets
+of a 26-game season and are directional rather than precise. The evidence cards
+carry their own sample size and reliability tier so this is visible per metric,
+not buried in a footnote.
+
+**A win/loss split is a correlation.** Two subsets of the same team's games,
+grouped by an outcome many other things also affected. R10 rejects causal
+phrasing, and for a team whose record is too lopsided to compare — Maccabi Tel
+Aviv at 22-4 — the deterministic layer withholds the split entirely and the
+report says so instead of guessing.
+
+**One season, one league, 14 teams.** League-relative ranks mean "of these 14".
+
+**The prose is model-written.** Every number is not: values, ranks, averages and
+samples are attached by the renderer from the pack after the agents are done.
+The validator constrains what the prose may claim, but it is a set of rules, not
+a comprehension check — a sentence can satisfy all eighteen and still read
+awkwardly. `scripts/ops/qa_reports.py` exists for exactly that sweep.
+
+**Reports are snapshots.** They are generated on demand and stored; nothing
+refreshes them when new games land. Re-run the generator.
+
+---
+
 ## Layout
 
 ```
