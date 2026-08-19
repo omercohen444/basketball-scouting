@@ -190,6 +190,18 @@ Roughly 3 provider calls and 2–3 minutes per report. Existing reports are not
 regenerated unless `--force` is given, and `--all` refuses to run against a real
 provider without `--yes`.
 
+Afterwards, sweep the league for prose that looks like something the validator
+is meant to prevent:
+
+```powershell
+python scripts\ops\qa_reports.py
+```
+
+Read-only, no provider call. It is deliberately over-broad — it matches words,
+whereas the real rules match words *against the cited evidence*, so it cannot
+tell an earned "elite" from an unearned one. Treat a finding as a question,
+confirm it against the rule, and only then regenerate.
+
 ---
 
 ## Rebuilding the deterministic evidence
