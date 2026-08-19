@@ -84,3 +84,6 @@ desktop.ini
 
 # ---- Notebooks ----
 .ipynb_checkpoints/
+
+# ---- Supabase CLI local link state (may embed connection credentials) ----
+supabase/.temp/
