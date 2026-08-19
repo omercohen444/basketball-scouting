@@ -1,0 +1,13 @@
+# Normalize text in the repository (matches what core.autocrlf already does on
+# add) and make binary types explicit, so no future checkout can line-ending
+# convert a PDF or an image into corruption.
+* text=auto
+
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.mp4   binary
+*.zip   binary
