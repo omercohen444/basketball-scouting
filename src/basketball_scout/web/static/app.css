@@ -727,6 +727,161 @@ ol.pipeline li::marker { color: var(--ink-3); font-variant-numeric: tabular-nums
 .kind-line { font-size: 11.5px; color: var(--ink-3); margin: 10px 0 5px; }
 .kind-line .kind { margin-left: 0; margin-right: 6px; }
 
+/* ---- the scouting report ------------------------------------------------- */
+/*
+ * These rules were lost when the stylesheet was rewritten for the workstation
+ * design: thirty-seven classes were still in report.html with nothing styling
+ * them, so the report rendered as unstyled semantic HTML inside a styled shell.
+ * The evidence table also pushed the page sideways on a phone, because its
+ * wrapper kept the class and the ARIA role and lost its overflow rule.
+ *
+ * The three information types drive the visual weight. MEASURED evidence is
+ * bordered, tabular and numeric. INTERPRETED prose is plain text at reading
+ * width. A TACTICAL OPTION is set apart with the warn accent, because it is a
+ * suggestion rather than a finding.
+ */
+
+.report { max-width: 96ch; }
+
+.report-head {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+  gap: 16px; padding-bottom: 14px; margin-bottom: 14px;
+  border-bottom: 1px solid var(--line-2);
+}
+.report-head h1 { font-size: 24px; }
+.report-meta {
+  font-size: 12.5px; color: var(--ink-3);
+  font-variant-numeric: tabular-nums; margin-top: 3px;
+}
+.report-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.report-actions .btn + .btn { margin-top: 0; }
+
+.block { margin-bottom: 28px; }
+.block > h2 {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--ink-3); padding-bottom: 6px; margin-bottom: 11px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* INTERPRETED — prose, at reading width, never dressed up as a measurement. */
+.summary { font-size: 15px; line-height: 1.6; color: var(--ink); max-width: 78ch; }
+.keys-note { max-width: 82ch; margin-bottom: 12px; }
+
+.claims { list-style: none; padding: 0; margin: 0; }
+.claim { padding: 11px 0; }
+.claim + .claim { border-top: 1px solid var(--line); }
+.claim-text { font-size: 14px; line-height: 1.58; color: var(--ink-2); max-width: 82ch; }
+.claim-text strong { color: var(--ink); }
+
+.keys { list-style: none; padding: 0; margin: 0; counter-reset: key; }
+.key {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+  padding: 13px 15px; margin-bottom: 10px;
+}
+.key-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 7px; }
+.key-num {
+  font-size: 11px; font-weight: 700; color: var(--ink-3);
+  font-variant-numeric: tabular-nums; flex: none;
+}
+.key-obj { font-size: 15px; font-weight: 600; flex: 1 1 20ch; min-width: 0; }
+.why { font-size: 13.5px; line-height: 1.55; color: var(--ink-2); max-width: 80ch; }
+.why b {
+  display: block; font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 2px; font-weight: 600;
+}
+
+/* MEASURED — a fact, and it should look like one. */
+.ev-list { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 7px; }
+.ev {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "metric value" "rank rank" "wl wl" "foot foot";
+  gap: 2px 12px; align-items: baseline;
+  background: var(--sunken); border: 1px solid var(--line);
+  border-left: 3px solid var(--navy); border-radius: var(--r);
+  padding: 9px 12px;
+}
+.ev-metric { grid-area: metric; font-size: 13px; font-weight: 600; color: var(--ink); }
+.ev-value {
+  grid-area: value; font-size: 17px; font-weight: 650; color: var(--ink);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.ev-rank { grid-area: rank; font-size: 11.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.ev-foot {
+  grid-area: foot; display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--ink-3); margin-top: 4px;
+}
+
+.wl { grid-area: wl; display: flex; flex-direction: column; gap: 3px; margin-top: 5px; }
+.wl-values {
+  display: flex; align-items: baseline; gap: 6px;
+  font-size: 12px; font-variant-numeric: tabular-nums;
+}
+.wl-w { color: var(--win); font-weight: 600; }
+.wl-l { color: var(--loss); font-weight: 600; }
+.wl-sep { color: var(--ink-3); }
+.wl-gap { color: var(--ink-3); margin-left: 4px; }
+.wl-bar { display: block; height: 4px; border-radius: 2px; background: var(--line-2); overflow: hidden; }
+.wl-bar i { display: block; height: 100%; background: var(--navy); border-radius: 2px; }
+/* A large gap is not automatically a good thing — it is a large gap. Weight,
+   not colour, carries the difference. */
+.wl-bar.is-strong i { background: var(--navy-dark); }
+.wl-bar.is-weak i { background: var(--line-2); }
+.wl-none { grid-area: wl; font-size: 11.5px; color: var(--ink-3); margin-top: 4px; }
+
+/* TACTICAL OPTION — a suggestion, set apart from the findings above it. */
+.tactics { list-style: none; padding: 0; margin: 9px 0 0; display: grid; gap: 6px; }
+.tactic {
+  display: grid; gap: 2px;
+  border: 1px solid var(--line-2); border-left: 3px solid var(--warn);
+  border-radius: var(--r); background: var(--warn-soft); padding: 8px 12px;
+}
+.tactic-label {
+  font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--warn); font-weight: 600;
+}
+.tactic-method { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.tactic-why { font-size: 12.5px; color: var(--ink-2); line-height: 1.5; }
+
+/* The wrapper kept its class and its ARIA role and lost its overflow rule,
+   which is how a seven-column table pushed a phone page sideways. */
+.table-scroll {
+  overflow-x: auto; border: 1px solid var(--line);
+  border-radius: var(--r); background: var(--surface);
+}
+table.evidence-table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 12.5px; }
+table.evidence-table th {
+  position: sticky; top: 0; z-index: 2; text-align: left;
+  background: var(--sunken); color: var(--ink-3);
+  font-size: 9.5px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+  padding: 7px 10px; border-bottom: 1px solid var(--line-2); white-space: nowrap;
+}
+table.evidence-table td {
+  padding: 6px 10px; border-bottom: 1px solid var(--line);
+  vertical-align: top; white-space: nowrap;
+}
+table.evidence-table td:first-child { white-space: normal; min-width: 20ch; }
+table.evidence-table tbody tr:last-child td { border-bottom: 0; }
+table.evidence-table tbody tr:hover td { background: var(--navy-soft); }
+
+.limits { padding-left: 20px; margin: 0; max-width: 88ch; }
+.limits li { font-size: 13px; color: var(--ink-2); margin-bottom: 6px; }
+.limits li::marker { color: var(--ink-3); }
+
+.empty { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 26px 22px; }
+.empty h1 { font-size: 20px; margin-bottom: 6px; }
+.empty .lede { font-size: 15px; color: var(--ink-2); margin-bottom: 8px; }
+.empty p { margin-bottom: 10px; max-width: 74ch; }
+
+.wrap { white-space: normal; }
+
+@media (max-width: 720px) {
+  .report-head { gap: 10px; }
+  .report-actions { align-items: flex-start; }
+  .ev { grid-template-columns: 1fr; grid-template-areas: "metric" "value" "rank" "wl" "foot"; }
+  .ev-value { font-size: 19px; }
+}
+
 /* ---- responsive ---------------------------------------------------------- */
 
 @media (max-width: 1100px) {

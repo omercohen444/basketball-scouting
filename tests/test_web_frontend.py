@@ -319,3 +319,46 @@ def test_frontend_never_constructs_an_agent_backend(tmp_path, repo):
     )
     for path in ("/", "/teams/segev:4", "/teams/segev:4/splits", "/explore", "/scouting/segev:4"):
         assert client.get(path).status_code == 200, path
+
+
+def test_every_class_a_template_uses_has_a_rule_in_the_stylesheet():
+    """The general form of two real defects found in QA.
+
+    The scouting report's whole stylesheet was lost when app.css was rewritten
+    for the workstation design: thirty-seven classes were still in report.html
+    with nothing styling them. One of them was the evidence table's scroll
+    wrapper, which kept its class and its ARIA role and lost its overflow rule,
+    so a seven-column table pushed the page sideways on a phone.
+
+    Both were invisible to the suite, because the tests asserted the class
+    string was present rather than that anything styled it.
+    """
+    import re
+    from pathlib import Path
+
+    web = Path(__file__).resolve().parents[1] / "src" / "basketball_scout" / "web"
+    stylesheet = (web / "static" / "app.css").read_text(encoding="utf-8")
+    defined = set(re.findall(r"\.([a-zA-Z][\w-]*)", stylesheet))
+
+    used: set[str] = set()
+    for template in (web / "templates").rglob("*.html"):
+        for attribute in re.findall(r'class="([^"{}]*)"', template.read_text(encoding="utf-8")):
+            used.update(attribute.split())
+
+    unstyled = sorted(used - defined)
+    assert not unstyled, f"classes used in a template with no rule anywhere: {unstyled}"
+
+
+def test_the_report_table_wrapper_actually_scrolls():
+    """It is not enough for the class to be in the markup — a wrapper with no
+    overflow rule is a wrapper that does nothing."""
+    import re
+    from pathlib import Path
+
+    stylesheet = (
+        Path(__file__).resolve().parents[1]
+        / "src" / "basketball_scout" / "web" / "static" / "app.css"
+    ).read_text(encoding="utf-8")
+    block = re.search(r"\.table-scroll\s*\{([^}]*)\}", stylesheet)
+    assert block, ".table-scroll has no rule at all"
+    assert "overflow-x" in block.group(1)
