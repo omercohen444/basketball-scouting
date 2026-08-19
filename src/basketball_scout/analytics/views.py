@@ -566,6 +566,9 @@ TEAM_TABS: tuple[tuple[str, str], ...] = (
     ("splits", "Splits"),
     ("quarters", "Quarters"),
     ("situations", "Situations"),
+    # Identity rather than situation: where a team shoots from, where its
+    # points come from, what its turnovers are, how its scoring runs.
+    ("profile", "Profile"),
     ("games", "Games"),
 )
 
@@ -1185,6 +1188,20 @@ class TurnoverBucket:
 
 
 @dataclass(frozen=True)
+class TurnoverRow:
+    """One provider category, both directions."""
+
+    name: str
+    committed: int
+    share: float
+    forced: int
+
+    @property
+    def share_display(self) -> str:
+        return f"{self.share * 100:.1f}%"
+
+
+@dataclass(frozen=True)
 class TurnoverView:
     """The provider's own categories, grouped for reading and listed in full
     underneath. These four are exhaustive over the ten, so they genuinely do
@@ -1192,7 +1209,7 @@ class TurnoverView:
 
     total: int
     buckets: list[TurnoverBucket] = field(default_factory=list)
-    detail: list[tuple[str, int, float]] = field(default_factory=list)
+    detail: list[TurnoverRow] = field(default_factory=list)
     forced_total: int = 0
     forced_buckets: list[TurnoverBucket] = field(default_factory=list)
 
@@ -1216,9 +1233,20 @@ def turnover_view(team: TeamAnalytics) -> TurnoverView:
     nulls anywhere in the season, so it is already the trusted representation.
     """
     tv = team.profile.turnovers
+    # Every category either side ever produced, so a type the team never
+    # committed but repeatedly forced still has a row.
+    names = sorted(
+        set(tv.by_type) | set(tv.forced_by_type),
+        key=lambda n: (-(tv.by_type.get(n, 0)), n),
+    )
     detail = [
-        (name, count, (count / tv.total) if tv.total else 0.0)
-        for name, count in sorted(tv.by_type.items(), key=lambda kv: (-kv[1], kv[0]))
+        TurnoverRow(
+            name=name,
+            committed=tv.by_type.get(name, 0),
+            share=(tv.by_type.get(name, 0) / tv.total) if tv.total else 0.0,
+            forced=tv.forced_by_type.get(name, 0),
+        )
+        for name in names
     ]
     return TurnoverView(
         total=tv.total,

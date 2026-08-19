@@ -28,6 +28,7 @@ from ..analytics.views import (
     SITUATION_SEGMENTS,
     SORTABLE,
     TEAM_TABS,
+    consistency_view,
     dumbbell_bounds,
     explorer_columns,
     explorer_rows,
@@ -37,12 +38,18 @@ from ..analytics.views import (
     largest_differences,
     league_leaders,
     league_rows,
+    profile_ranks,
     quarter_bars,
+    runs_view,
     scatter_mean_position,
     scatter_points,
+    scoring_sources_view,
     segment_rows,
+    shot_profile_view,
     split_rows,
     team_four_factors,
+    transition_view,
+    turnover_view,
 )
 from ..persistence.repository import RepositoryError
 from ..reports.contracts import PublicReport
@@ -75,9 +82,21 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 # needed in the nav, the league table, team headers and the compare selectors,
 # and threading it through every context dict would guarantee it is forgotten
 # somewhere and silently render nothing.
+def _template_raise(message: str):
+    """Let a macro refuse to render something it must not draw.
+
+    Used by the part-to-whole bar, which may only be handed a genuine
+    partition. Overlapping scoring sources stacked into one bar would assert
+    that they sum to the scoring, which is false — and a silently wrong chart
+    is worse than a failed render, because nobody goes looking for it.
+    """
+    raise ValueError(message)
+
+
 templates.env.globals["logo_url"] = logo_url
 templates.env.globals["initials"] = initials
 templates.env.globals["NAV"] = NAV
+templates.env.globals["raise"] = _template_raise
 
 router = APIRouter(tags=["ui"], dependencies=[Depends(enforce_api_rate_limit)])
 
@@ -195,6 +214,17 @@ def _render_team(request: Request, ctx: AppContext, team_id: str, tab: str) -> H
             top_differences=largest_differences(rows),
             bounds=dumbbell_bounds(rows),
             splits_unavailable=_splits_note(team),
+            transition=transition_view(team, _profile_ranks(ctx, resolved)),
+            consistency=consistency_view(team),
+        )
+    elif tab == "profile":
+        ranks = _profile_ranks(ctx, resolved)
+        context.update(
+            shots=shot_profile_view(team),
+            sources=scoring_sources_view(team, ranks),
+            turnovers=turnover_view(team),
+            runs=runs_view(team, ranks),
+            transition=transition_view(team, ranks),
         )
     elif tab == "splits":
         rows = split_rows(team)
@@ -220,6 +250,17 @@ def _render_team(request: Request, ctx: AppContext, team_id: str, tab: str) -> H
         context.update(games=game_log(team), game_columns=GAME_LOG_COLUMNS)
 
     return templates.TemplateResponse(request, "team.html", context)
+
+
+def _profile_ranks(ctx: AppContext, team_id: str) -> dict:
+    """One team's season profile ranks, which need the whole league in scope.
+
+    Fourteen small cached objects and one pass over them, so this costs
+    nothing worth caching separately — and computing it here rather than
+    stamping it at build time means a rank can never disagree with the value
+    printed beside it.
+    """
+    return profile_ranks(ctx.analytics.load_all()).get(team_id, {})
 
 
 def _splits_note(team) -> str:

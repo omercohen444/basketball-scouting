@@ -164,6 +164,66 @@ def test_report_permalink_renders(client):
     assert "Executive summary" in response.text
 
 
+def test_every_team_tab_renders(client):
+    """Six tabs, each with one job. A tab that 404s is a broken nav item."""
+    for tab in ("", "/splits", "/quarters", "/situations", "/profile", "/games"):
+        response = client.get(f"/teams/segev:4{tab}")
+        assert response.status_code == 200, tab
+
+
+def test_a_tab_that_does_not_exist_is_a_404_not_a_blank_page(client):
+    assert client.get("/teams/segev:4/nonsense").status_code == 404
+
+
+def test_the_shot_profile_announces_that_it_is_experimental(client):
+    """Complete data, provisional validation. The caveat belongs on the page,
+    not in a tooltip."""
+    body = client.get("/teams/segev:4/profile").text
+    assert "Experimental" in body
+    assert "single arena" in body or "single game" in body
+    assert "/methodology#shot-geometry" in body
+
+
+def test_half_court_is_only_ever_mentioned_to_deny_it(client):
+    """A false provider fast-break flag means only that the provider did not
+    call the play a fast break — 5.7% of provider-negatives happen inside four
+    seconds of a change of possession. So the site carries no half-court
+    *figure*, and every occurrence of the phrase is part of saying so."""
+    import re
+
+    for path in ("/", "/teams/segev:4", "/teams/segev:4/profile", "/explore"):
+        text = re.sub(r"\s+", " ", client.get(path).text.lower())
+        for match in re.finditer(r"half[- ]court", text):
+            before = text[max(0, match.start() - 60):match.start()]
+            assert any(word in before for word in ("never", "not ", "no ")), (
+                f"{path}: 'half-court' used without denying it — ...{before[-60:]}"
+            )
+
+
+def test_no_surface_claims_momentum(client):
+    """Runs and droughts describe patterns. None of them claims a cause."""
+    for path in ("/teams/segev:4", "/teams/segev:4/profile"):
+        assert "momentum" not in client.get(path).text.lower(), path
+
+
+def test_the_scoring_partition_is_the_only_thing_drawn_as_a_whole(client):
+    """Points off turnovers, second chance and fast break overlap each other.
+    The partition macro refuses anything whose shares do not sum to one, so a
+    page that stacked them would fail to render rather than mislead."""
+    body = client.get("/teams/segev:4/profile").text
+    assert 'class="partition"' in body
+    assert body.count('class="partition"') == 1
+    assert "overlap" in body
+
+
+def test_consistency_is_silent_where_the_measure_does_not_apply(client):
+    """Net rating sits near zero, so relative variability has no meaning. The
+    page shows its range and no label at all."""
+    body = client.get("/teams/segev:4").text
+    assert "Consistency" in body
+    assert "/methodology#stability" in body
+
+
 def test_the_underscore_slug_form_works_on_both_team_surfaces(client):
     """`segev_4` is the URL-safe spelling of `segev:4`; both routes accept it."""
     generate(client)

@@ -374,8 +374,25 @@ def test_the_four_turnover_buckets_partition_the_ten_provider_types():
 def test_the_raw_provider_categories_survive_into_the_detail():
     """No scouting taxonomy is invented on top of a clean provider field."""
     view = views.turnover_view(_league()["segev:2"])
-    assert dict((name, count) for name, count, _ in view.detail)["bad-pass"] > 0
-    assert view.detail == sorted(view.detail, key=lambda row: (-row[1], row[0]))
+    by_name = {row.name: row for row in view.detail}
+    assert by_name["bad-pass"].committed > 0
+    assert view.detail == sorted(view.detail, key=lambda r: (-r.committed, r.name))
+
+
+def test_a_category_the_team_only_ever_forced_still_gets_a_row():
+    """The two taxonomies are independent — a type this team never committed
+    but repeatedly took away is exactly the kind of thing worth seeing."""
+    team = build_team_analytics(
+        "segev:2",
+        [make_bundle(facts=make_facts(
+            turnovers_by_type={"bad-pass": 5},
+            forced_by_type={"bad-pass": 3, "travelling": 4},
+        )) for _ in range(4)],
+        "TEST", "2025-26",
+    )
+    by_name = {row.name: row for row in views.turnover_view(team).detail}
+    assert by_name["travelling"].committed == 0
+    assert by_name["travelling"].forced == 16
 
 
 def test_consistency_says_nothing_at_all_where_cv_does_not_apply():

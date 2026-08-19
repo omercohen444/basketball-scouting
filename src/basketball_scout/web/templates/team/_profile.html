@@ -1,0 +1,121 @@
+{% from "_macros.html" import stat, partition_bar, share_row, experimental %}
+
+{#- Identity rather than situation. Where a team shoots from, where its points
+    come from, what its turnovers actually are, and how its scoring runs. -#}
+
+<div class="cols-2">
+  <section class="section">
+    <h2>Shot profile {{ experimental() }}</h2>
+    <p class="small dim caveat">
+      Zones come from the provider's shot coordinates. The official 2PT/3PT value of every
+      attempt is authoritative and is never overridden by geometry — the coordinates only
+      decide <em>which</em> zone inside the family the box score already recorded.
+      Human validation covers 20 shots from a single game in a single arena, and a fresh
+      blind sample is still outstanding, so these describe tendency and carry no league rank.
+      <a href="/methodology#shot-geometry">How this is built →</a>
+    </p>
+
+    <div class="shares">
+      {%- for zone in shots.zones %}
+      {{ share_row(zone.label, zone.share.display, zone.share.value, zone.attempts,
+                   "eFG " ~ zone.efg) }}
+      {%- endfor %}
+    </div>
+
+    <div class="rim-line">
+      <span>{{ shots.rim.label }}</span>
+      <strong>{{ shots.rim.display }}</strong>
+      <span class="dim small">{{ shots.attempts }} attempts · {{ shots.unclassified }} without a zone</span>
+    </div>
+    <p class="small dim">
+      Rim attempts come from the play-by-play shot type — dunk, lay-up or alley-oop — not from
+      coordinates, so that share is the sturdiest number in this block.
+      Efficiency is shown with its attempt count because a corner-three rate rests on far
+      fewer shots than a lane rate.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2>Where the points come from</h2>
+
+    <h3 class="sub">Scoring split</h3>
+    {{ partition_bar(sources) }}
+    <p class="small dim">Two-point, three-point and free-throw scoring account for every point. These three add up.</p>
+
+    <h3 class="sub">In context</h3>
+    <div class="stat-row">
+      {%- for cell in sources.context %}{{ stat(cell) }}{% endfor %}
+    </div>
+    <p class="small dim">
+      These <strong>overlap</strong> and are shown separately for that reason. A fast-break
+      lay-up off a steal is points off turnovers, fast-break points and two-point scoring at
+      the same time, so they are never stacked and never summed.
+    </p>
+  </section>
+</div>
+
+<section class="section">
+  <h2>Transition</h2>
+  <div class="stat-row">
+    {%- for cell in transition %}{{ stat(cell, wide=true) }}{% endfor %}
+  </div>
+  <p class="small dim">
+    From the provider's own fast-break flag, which is present on every shot in the season.
+    A <em>false</em> flag means only that the provider did not call the play a fast break —
+    it never means half-court or set defence, and no such figure is offered anywhere on this
+    site. Attempt rate carries no better end; conceding transition does.
+    <a href="/methodology#transition">Definition →</a>
+  </p>
+</section>
+
+<div class="cols-2">
+  <section class="section">
+    <h2>Turnover types</h2>
+    <div class="shares">
+      {%- for bucket in turnovers.buckets %}
+      {{ share_row(bucket.label, bucket.display, bucket.share, bucket.count) }}
+      {%- endfor %}
+    </div>
+    <p class="small dim">
+      {{ turnovers.total }} turnovers committed · {{ turnovers.forced_total }} forced.
+      Turnover rate says how often; this says what kind. Categories are the provider's own,
+      unchanged.
+    </p>
+
+    <details class="detail">
+      <summary>All ten categories, committed and forced</summary>
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr><th class="sticky">Type</th><th class="n">Committed</th><th class="n">Share</th>
+                <th class="n">Forced</th></tr>
+          </thead>
+          <tbody>
+            {%- for row in turnovers.detail %}
+            <tr>
+              <td class="sticky">{{ row.name }}</td>
+              <td class="n">{{ row.committed }}</td>
+              <td class="n dim">{{ row.share_display }}</td>
+              <td class="n dim">{{ row.forced }}</td>
+            </tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <section class="section">
+    <h2>Scoring rhythm</h2>
+    <div class="stat-row">
+      {%- for cell in runs %}{{ stat(cell) }}{% endfor %}
+    </div>
+    <p class="small dim">
+      A scoring drought is three minutes or more of quarter clock with no point of any kind.
+      A field-goal drought is three minutes with no made field goal, so free throws end the
+      first and not the second — a team can look like it kept scoring while going without a
+      basket. Neither is carried across a quarter break.
+      These describe patterns; none of them claims a cause.
+    </p>
+  </section>
+</div>

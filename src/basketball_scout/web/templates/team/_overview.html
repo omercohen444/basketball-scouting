@@ -1,4 +1,4 @@
-{% from "_macros.html" import factor_card, bar_chart, dumbbell %}
+{% from "_macros.html" import factor_card, bar_chart, dumbbell, stat %}
 
 <div class="cols-2">
   <div>
@@ -29,6 +29,40 @@
       <a href="/teams/{{ team.team_id }}/quarters">Full quarter detail →</a>
     </p>
   </div>
+</div>
+
+<div class="cols-2">
+  <section class="section">
+    <h2>Transition</h2>
+    <div class="stat-row">
+      {%- for cell in transition %}{{ stat(cell) }}{% endfor %}
+    </div>
+    <p class="small dim" style="margin-top:8px">
+      The provider's fast-break flag, present on every shot this season. A false flag means
+      only that the play was not called a fast break — never half-court.
+      <a href="/teams/{{ team.team_id }}/profile">Full profile →</a>
+    </p>
+  </section>
+
+  <section class="section">
+    <h2>Consistency</h2>
+    <div class="table-wrap" style="padding: 4px 14px 10px">
+      {%- for cell in consistency %}
+      <div class="consistency">
+        <span class="metric">{{ cell.label }}</span>
+        <span class="level{% if cell.level %} is-{{ cell.level | lower }}{% endif %}">
+          {{ cell.level or "—" }}
+        </span>
+        <span class="spread">{{ cell.spread }}</span>
+      </div>
+      {%- endfor %}
+    </div>
+    <p class="small dim" style="margin-top:8px">
+      Game-to-game spread across the season. Net rating carries no consistency label at all:
+      it sits near zero, so the usual measure of relative variability has no meaning there.
+      <a href="/methodology#stability">Why →</a>
+    </p>
+  </section>
 </div>
 
 <section class="section">

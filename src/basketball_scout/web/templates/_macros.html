@@ -94,6 +94,57 @@
   </div>
 {%- endmacro %}
 
+{#- One metric with its league position, for the compact strips. -#}
+{% macro stat(cell, wide=false) -%}
+  {%- if cell %}
+  <div class="stat{% if cell.is_style %} is-style{% endif %}{% if wide %} is-wide{% endif %}">
+    <span class="k">{{ cell.short }}</span>
+    <span class="v">{{ cell.display }}</span>
+    <span class="r">{% if cell.rank %}{{ cell.rank_display }}{% else %}&nbsp;{% endif %}</span>
+  </div>
+  {%- endif -%}
+{%- endmacro %}
+
+{#- A part-to-whole bar. Deliberately refuses anything that is not a genuine
+    partition: points off turnovers, second-chance and fast-break points all
+    overlap each other, and stacking them would assert that they add up to the
+    scoring when they do not. The guard is here rather than in a comment so it
+    cannot be forgotten at a new call site. -#}
+{% macro partition_bar(sources) -%}
+  {%- if not sources.partition_reconciles -%}
+    {{ raise("partition_bar refuses a set of shares that does not sum to 1") }}
+  {%- endif -%}
+  <div class="partition" role="img"
+       aria-label="{% for c in sources.partition %}{{ c.label }} {{ c.display }}{% if not loop.last %}, {% endif %}{% endfor %}">
+    {%- for cell in sources.partition %}
+    <span class="seg seg-{{ loop.index }}" style="width: {{ (cell.value * 100) | round(2) }}%"
+          title="{{ cell.label }} — {{ cell.display }}"></span>
+    {%- endfor %}
+  </div>
+  <div class="partition-key">
+    {%- for cell in sources.partition %}
+    <span><i class="swatch seg-{{ loop.index }}"></i>{{ cell.short }} <b>{{ cell.display }}</b></span>
+    {%- endfor %}
+  </div>
+{%- endmacro %}
+
+{#- A single share as a proportional bar — used where the categories are
+    exhaustive (turnover types) or where each row stands alone (shot zones). -#}
+{% macro share_row(label, display, share, count=none, note=none) -%}
+  <div class="share">
+    <span class="lbl">{{ label }}</span>
+    <span class="track"><i style="width: {{ (share * 100) | round(1) }}%"></i></span>
+    <span class="val">{{ display }}</span>
+    <span class="cnt">{% if count is not none %}{{ count }}{% endif %}</span>
+    <span class="note">{% if note %}{{ note }}{% endif %}</span>
+  </div>
+{%- endmacro %}
+
+{#- Marks a block whose data is complete but whose validation is not. -#}
+{% macro experimental() -%}
+  <span class="badge-exp">Experimental</span>
+{%- endmacro %}
+
 {#- A table of segments (quarters, situations). Every row carries its sample,
     and a row below the floor is dimmed rather than removed — "we have too
     little of this" is itself worth showing. -#}
