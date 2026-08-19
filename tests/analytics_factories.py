@@ -10,7 +10,14 @@ possession/bundle shape, and a hand-rolled `Possession` is 20 fields wide.
 
 from __future__ import annotations
 
-from basketball_scout.analytics.build import TeamGameBundle, build_from_bundles, write_all
+from basketball_scout.analytics.build import (
+    GameFacts,
+    TeamGameBundle,
+    build_from_bundles,
+    write_all,
+)
+from basketball_scout.stats.dynamics import GameDynamics
+from basketball_scout.stats.runs_droughts import DroughtsProfile, RunsProfile
 from basketball_scout.stats.models import DerivedMetrics, TeamGameComponents, TeamGameStats
 from basketball_scout.stats.possession import Possession
 
@@ -31,8 +38,15 @@ def make_possession(
     ftm: int = 0,
     orb: int = 0,
     turnover: bool = False,
+    ended_by: str | None = None,
 ) -> Possession:
-    """One possession whose offense leads by ``margin`` at its start."""
+    """One possession whose offense leads by ``margin`` at its start.
+
+    ``ended_by`` matters for rebounding: a team's defensive rebounds are derived
+    as the opponent possessions that ended in one, so a fixture whose
+    possessions all end in a made basket has no contested defensive glass and no
+    defensive rebound rate at all.
+    """
     home_lead = margin if offense == "home" else -margin
     return Possession(
         possession_index=index,
@@ -41,7 +55,7 @@ def make_possession(
         defense_team="away" if offense == "home" else "home",
         start_clock_s=start_clock_s,
         end_clock_s=start_clock_s - 14.0,
-        ended_by="turnover" if turnover else "made_fg",
+        ended_by=ended_by or ("turnover" if turnover else "made_fg"),
         points=points, fgm=fgm, fga=fga, fg3m=fg3m, fg3a=fg3a,
         ftm=ftm, fta=fta, orb=orb, turnover=turnover,
         score_before_home=100 + max(home_lead, 0) if home_lead >= 0 else 100,
@@ -101,10 +115,52 @@ def make_metrics(**overrides) -> DerivedMetrics:
     return DerivedMetrics(**base)
 
 
+def make_facts(**overrides) -> GameFacts:
+    """One team-game's identity facts, plausible and internally consistent.
+
+    Written by hand rather than derived from synthetic actions: the real
+    derivation is already covered against real data, and what the artifact tests
+    need here is a bundle whose profile block folds to sensible totals.
+
+    The internal consistency matters — ``fga`` equals the zone attempts plus the
+    unclassified count, and the zone points imply a believable eFG% — because
+    the build asserts several of those relationships.
+    """
+    base = dict(
+        fga=60,
+        zone_attempts={"lane_2pt": 26, "midrange_2pt": 8, "corner_3": 6, "atb_3": 20},
+        zone_points={"lane_2pt": 30, "midrange_2pt": 6, "corner_3": 9, "atb_3": 21},
+        rim_attempts=24,
+        unclassified=0,
+        opp_fga=58,
+        fb_fga=7, fb_fgm=5, fb_points=11,
+        fb_fga_allowed=6, fb_fgm_allowed=3, fb_points_allowed=7,
+        turnovers_by_type={"bad-pass": 6, "ball-handling": 4, "travelling": 1, "other": 1},
+        forced_by_type={"bad-pass": 5, "ball-handling": 4, "travelling": 2},
+        points_off_turnovers=16,
+        opponent_turnovers=11,
+        second_chance_points=10,
+        oreb_possessions=11,
+        scoring_oreb_possessions=5,
+        fast_break_points=11,
+        assisted_fgm=18, unassisted_fgm=12,
+        assisted_3pm=8, unassisted_3pm=2,
+        runs=RunsProfile(largest_scoring_run_for=9, largest_scoring_run_against=8,
+                         runs_8_plus_for=1, runs_8_plus_against=1),
+        droughts=DroughtsProfile(drought_count_3m_plus=1, longest_scoring_drought_seconds=205.0,
+                                 fg_drought_count_3m_plus=2, longest_fg_drought_seconds=260.0),
+        dynamics=GameDynamics(times_tied=4, lead_changes=5, largest_lead=12, largest_deficit=6,
+                              trailed_by_10_plus=False, led_by_10_plus=True, team_won=True),
+    )
+    base.update(overrides)
+    return GameFacts(**base)
+
+
 def make_bundle(
     *,
     team_possessions: list[Possession] | None = None,
     opponent_possessions: list[Possession] | None = None,
+    facts: GameFacts | None = None,
     **stats_kwargs,
 ) -> TeamGameBundle:
     """One team-game. Defaults to a quarter's worth of even, tied possessions."""
@@ -116,11 +172,23 @@ def make_bundle(
         opponent_possessions = [
             make_possession(index=i, quarter=1, offense="away", margin=0) for i in range(10)
         ]
+    stats = make_stats(**stats_kwargs)
+    if facts is None:
+        # The dynamics flags have to agree with the game's own result, or the
+        # comeback fold counts a win the team did not have.
+        facts = make_facts(
+            dynamics=GameDynamics(
+                times_tied=4, lead_changes=5, largest_lead=12, largest_deficit=6,
+                trailed_by_10_plus=not stats.win, led_by_10_plus=stats.win,
+                team_won=stats.win,
+            )
+        )
     return TeamGameBundle(
-        stats=make_stats(**stats_kwargs),
+        stats=stats,
         team_possessions=team_possessions,
         opponent_possessions=opponent_possessions,
         regulation_periods=4,
+        facts=facts,
     )
 
 

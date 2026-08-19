@@ -16,7 +16,13 @@ import json
 from pathlib import Path
 
 from .build import content_hash
-from .schema import INDEX_FILENAME, AnalyticsArtifact, AnalyticsIndex, TeamAnalytics
+from .schema import (
+    INDEX_FILENAME,
+    SUPPORTED_ARTIFACT_VERSIONS,
+    AnalyticsArtifact,
+    AnalyticsIndex,
+    TeamAnalytics,
+)
 
 DEFAULT_ANALYTICS_DIRNAME = "analytics"
 
@@ -34,9 +40,26 @@ def load_index(analytics_dir: Path) -> AnalyticsIndex:
     if not path.is_file():
         raise AnalyticsArtifactError(f"no analytics index at {path}")
     try:
-        return AnalyticsIndex.model_validate(json.loads(path.read_text(encoding="utf-8")))
+        index = AnalyticsIndex.model_validate(json.loads(path.read_text(encoding="utf-8")))
     except Exception as exc:  # noqa: BLE001 - any malformed index is the same failure
         raise AnalyticsArtifactError(f"unreadable analytics index at {path}: {exc}") from exc
+    _check_version(index.artifact_version, path)
+    return index
+
+
+def _check_version(version: str, path: Path) -> None:
+    """Refuse an artifact this build does not understand.
+
+    An older artifact is missing whole blocks rather than a field or two, so
+    half-loading it would render a team with no identity profile at all — which
+    reads as a gap in the league rather than a stale build directory.
+    """
+    if version not in SUPPORTED_ARTIFACT_VERSIONS:
+        raise AnalyticsArtifactError(
+            f"analytics artifact at {path} is version {version!r}; this build reads "
+            f"{sorted(SUPPORTED_ARTIFACT_VERSIONS)}. Rebuild with "
+            f"scripts/ops/build_analytics_artifacts.py."
+        )
 
 
 def load_artifact(path: Path, *, verify: bool = True) -> AnalyticsArtifact:
@@ -46,6 +69,8 @@ def load_artifact(path: Path, *, verify: bool = True) -> AnalyticsArtifact:
         artifact = AnalyticsArtifact.model_validate(json.loads(path.read_text(encoding="utf-8")))
     except Exception as exc:  # noqa: BLE001
         raise AnalyticsArtifactError(f"unreadable analytics artifact at {path}: {exc}") from exc
+
+    _check_version(artifact.artifact_version, path)
 
     if verify:
         actual = content_hash(artifact.team)
