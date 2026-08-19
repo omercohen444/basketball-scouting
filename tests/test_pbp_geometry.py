@@ -132,13 +132,26 @@ def test_coordinate_implied_is_three_just_outside_band():
 
 # ---- Rim attempt (trusted shot_type) -----------------------------------
 
-def test_is_rim_attempt_dunk_and_layup():
+def test_is_rim_attempt_covers_every_finish_at_the_basket():
     assert is_rim_attempt("dunk") is True
     assert is_rim_attempt("lay-up") is True
+    # An alley-oop is a catch-and-finish at the rim by definition, and the
+    # season data agrees on every measurable property — see _RIM_SHOT_TYPES.
+    assert is_rim_attempt("allyhoop") is True
 
 
 def test_is_rim_attempt_false_for_jump_shot():
     assert is_rim_attempt("jump-shot") is False
+
+
+def test_rim_attempt_is_case_insensitive_but_not_fuzzy():
+    """The provider's strings are stable, so matching is exact after casing.
+    A near-miss must not be swept in — a silent rim reclassification would move
+    a shot-profile share with nothing to point at."""
+    assert is_rim_attempt("Lay-Up") is True
+    assert is_rim_attempt("ALLYHOOP") is True
+    assert is_rim_attempt("alley-oop") is False
+    assert is_rim_attempt("layup") is False
 
 
 def test_is_rim_attempt_false_for_missing_type():

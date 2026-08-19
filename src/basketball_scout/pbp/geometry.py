@@ -91,7 +91,15 @@ UNDER_TEN_FT_MAX_M = 2.5
 CoarseZone = Literal["lane_2pt", "midrange_2pt", "corner_3", "atb_3"]
 DistanceEligibility = Literal["over_10ft", "under_10ft", "uncertain"]
 
-_RIM_SHOT_TYPES = {"dunk", "lay-up"}
+# `allyhoop` was added 2026-08-19 on measured evidence, not on the name. Across
+# all 24,432 shots in the 182-game season there are 27 of them, and every
+# property matches a rim finish rather than a jump shot: median distance 0.45 m
+# (identical to a dunk; a lay-up is 1.77 m), maximum 2.43 m, all 27 classify
+# geometrically as `lane_2pt`, all 27 are 2-point attempts, and the 85.2% make
+# rate sits between dunk (91.7%) and lay-up (56.2%) — exactly where a
+# catch-and-finish belongs. 16 of the 27 belong to one team, which is a real
+# basketball fact rather than an artifact.
+_RIM_SHOT_TYPES = {"dunk", "lay-up", "allyhoop"}
 
 
 class GeometryError(ValueError):
