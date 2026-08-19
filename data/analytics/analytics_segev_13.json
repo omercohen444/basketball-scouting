@@ -1,7 +1,7 @@
 {
- "artifact_version": "analytics-v1",
- "content_hash": "sha256:5d7a094ce3dba9c45892d305436eeeb934c1e89600740a7337a31916a632149a",
- "generated_at": "2026-08-19T17:55:28Z",
+ "artifact_version": "analytics-v2",
+ "content_hash": "sha256:57bc857257ec453a744a200a753a8b574046d98582fcd3918f08d327daef666a",
+ "generated_at": "2026-08-19T20:21:38Z",
  "team": {
   "team_id": "segev:13",
   "team_name": "MACCABI RAANANA",
@@ -62,7 +62,11 @@
      "ft_rate": 0.2687,
      "fg3a_rate": 0.3284,
      "ast_to_ratio": 1.0588
-    }
+    },
+    "times_tied": 10,
+    "lead_changes": 8,
+    "largest_lead": 13,
+    "largest_deficit": 6
    },
    {
     "game_id": "segev:55",
@@ -115,7 +119,11 @@
      "ft_rate": 0.2353,
      "fg3a_rate": 0.3088,
      "ast_to_ratio": 0.6316
-    }
+    },
+    "times_tied": 6,
+    "lead_changes": 8,
+    "largest_lead": 3,
+    "largest_deficit": 20
    },
    {
     "game_id": "segev:63",
@@ -168,7 +176,11 @@
      "ft_rate": 0.4035,
      "fg3a_rate": 0.4211,
      "ast_to_ratio": 1.25
-    }
+    },
+    "times_tied": 1,
+    "lead_changes": 7,
+    "largest_lead": 15,
+    "largest_deficit": 5
    },
    {
     "game_id": "segev:68",
@@ -221,7 +233,11 @@
      "ft_rate": 0.1695,
      "fg3a_rate": 0.3051,
      "ast_to_ratio": 0.625
-    }
+    },
+    "times_tied": 6,
+    "lead_changes": 4,
+    "largest_lead": 9,
+    "largest_deficit": 23
    },
    {
     "game_id": "segev:76",
@@ -274,7 +290,11 @@
      "ft_rate": 0.5,
      "fg3a_rate": 0.3889,
      "ast_to_ratio": 0.7778
-    }
+    },
+    "times_tied": 4,
+    "lead_changes": 2,
+    "largest_lead": 5,
+    "largest_deficit": 14
    },
    {
     "game_id": "segev:81",
@@ -327,7 +347,11 @@
      "ft_rate": 0.3182,
      "fg3a_rate": 0.3788,
      "ast_to_ratio": 1.375
-    }
+    },
+    "times_tied": 3,
+    "lead_changes": 2,
+    "largest_lead": 3,
+    "largest_deficit": 16
    },
    {
     "game_id": "segev:92",
@@ -380,7 +404,11 @@
      "ft_rate": 0.2985,
      "fg3a_rate": 0.3134,
      "ast_to_ratio": 1.0714
-    }
+    },
+    "times_tied": 10,
+    "lead_changes": 8,
+    "largest_lead": 5,
+    "largest_deficit": 12
    },
    {
     "game_id": "segev:96",
@@ -433,7 +461,11 @@
      "ft_rate": 0.2754,
      "fg3a_rate": 0.3333,
      "ast_to_ratio": 1.2222
-    }
+    },
+    "times_tied": 7,
+    "lead_changes": 3,
+    "largest_lead": 3,
+    "largest_deficit": 16
    },
    {
     "game_id": "segev:102",
@@ -486,7 +518,11 @@
      "ft_rate": 0.3857,
      "fg3a_rate": 0.3571,
      "ast_to_ratio": 1.0
-    }
+    },
+    "times_tied": 11,
+    "lead_changes": 12,
+    "largest_lead": 11,
+    "largest_deficit": 7
    },
    {
     "game_id": "segev:109",
@@ -539,7 +575,11 @@
      "ft_rate": 0.2794,
      "fg3a_rate": 0.3676,
      "ast_to_ratio": 1.1429
-    }
+    },
+    "times_tied": 3,
+    "lead_changes": 6,
+    "largest_lead": 6,
+    "largest_deficit": 13
    },
    {
     "game_id": "segev:121",
@@ -592,7 +632,11 @@
      "ft_rate": 0.3099,
      "fg3a_rate": 0.3803,
      "ast_to_ratio": 2.875
-    }
+    },
+    "times_tied": 0,
+    "lead_changes": 0,
+    "largest_lead": 0,
+    "largest_deficit": 17
    },
    {
     "game_id": "segev:123",
@@ -645,7 +689,11 @@
      "ft_rate": 0.3043,
      "fg3a_rate": 0.3623,
      "ast_to_ratio": 1.1538
-    }
+    },
+    "times_tied": 4,
+    "lead_changes": 7,
+    "largest_lead": 7,
+    "largest_deficit": 15
    },
    {
     "game_id": "segev:131",
@@ -698,7 +746,11 @@
      "ft_rate": 0.3788,
      "fg3a_rate": 0.3939,
      "ast_to_ratio": 1.75
-    }
+    },
+    "times_tied": 4,
+    "lead_changes": 8,
+    "largest_lead": 26,
+    "largest_deficit": 2
    },
    {
     "game_id": "segev:139",
@@ -751,7 +803,11 @@
      "ft_rate": 0.3611,
      "fg3a_rate": 0.3333,
      "ast_to_ratio": 1.2308
-    }
+    },
+    "times_tied": 7,
+    "lead_changes": 14,
+    "largest_lead": 9,
+    "largest_deficit": 11
    },
    {
     "game_id": "segev:145",
@@ -804,7 +860,11 @@
      "ft_rate": 0.1493,
      "fg3a_rate": 0.3731,
      "ast_to_ratio": 1.3636
-    }
+    },
+    "times_tied": 4,
+    "lead_changes": 6,
+    "largest_lead": 3,
+    "largest_deficit": 25
    },
    {
     "game_id": "segev:151",
@@ -857,7 +917,11 @@
      "ft_rate": 0.1077,
      "fg3a_rate": 0.4923,
      "ast_to_ratio": 2.0
-    }
+    },
+    "times_tied": 3,
+    "lead_changes": 5,
+    "largest_lead": 2,
+    "largest_deficit": 24
    },
    {
     "game_id": "segev:212",
@@ -910,7 +974,11 @@
      "ft_rate": 0.1765,
      "fg3a_rate": 0.3382,
      "ast_to_ratio": 1.0625
-    }
+    },
+    "times_tied": 2,
+    "lead_changes": 0,
+    "largest_lead": 0,
+    "largest_deficit": 23
    },
    {
     "game_id": "segev:167",
@@ -963,7 +1031,11 @@
      "ft_rate": 0.35,
      "fg3a_rate": 0.3875,
      "ast_to_ratio": 1.8
-    }
+    },
+    "times_tied": 2,
+    "lead_changes": 3,
+    "largest_lead": 19,
+    "largest_deficit": 6
    },
    {
     "game_id": "segev:193",
@@ -1016,7 +1088,11 @@
      "ft_rate": 0.2687,
      "fg3a_rate": 0.3582,
      "ast_to_ratio": 1.4375
-    }
+    },
+    "times_tied": 7,
+    "lead_changes": 8,
+    "largest_lead": 6,
+    "largest_deficit": 10
    },
    {
     "game_id": "segev:179",
@@ -1069,7 +1145,11 @@
      "ft_rate": 0.3,
      "fg3a_rate": 0.4429,
      "ast_to_ratio": 1.2857
-    }
+    },
+    "times_tied": 0,
+    "lead_changes": 0,
+    "largest_lead": 0,
+    "largest_deficit": 25
    },
    {
     "game_id": "segev:159",
@@ -1122,7 +1202,11 @@
      "ft_rate": 0.3014,
      "fg3a_rate": 0.3151,
      "ast_to_ratio": 1.0
-    }
+    },
+    "times_tied": 2,
+    "lead_changes": 1,
+    "largest_lead": 5,
+    "largest_deficit": 27
    },
    {
     "game_id": "segev:215",
@@ -1175,7 +1259,11 @@
      "ft_rate": 0.3387,
      "fg3a_rate": 0.4677,
      "ast_to_ratio": 2.0
-    }
+    },
+    "times_tied": 4,
+    "lead_changes": 1,
+    "largest_lead": 14,
+    "largest_deficit": 5
    },
    {
     "game_id": "segev:191",
@@ -1228,7 +1316,11 @@
      "ft_rate": 0.2714,
      "fg3a_rate": 0.4,
      "ast_to_ratio": 1.8182
-    }
+    },
+    "times_tied": 3,
+    "lead_changes": 3,
+    "largest_lead": 16,
+    "largest_deficit": 4
    },
    {
     "game_id": "segev:204",
@@ -1281,7 +1373,11 @@
      "ft_rate": 0.1719,
      "fg3a_rate": 0.3281,
      "ast_to_ratio": 1.9091
-    }
+    },
+    "times_tied": 6,
+    "lead_changes": 9,
+    "largest_lead": 8,
+    "largest_deficit": 8
    },
    {
     "game_id": "segev:172",
@@ -1334,7 +1430,11 @@
      "ft_rate": 0.3651,
      "fg3a_rate": 0.381,
      "ast_to_ratio": 1.2667
-    }
+    },
+    "times_tied": 4,
+    "lead_changes": 13,
+    "largest_lead": 27,
+    "largest_deficit": 9
    },
    {
     "game_id": "segev:221",
@@ -1387,7 +1487,11 @@
      "ft_rate": 0.2131,
      "fg3a_rate": 0.4754,
      "ast_to_ratio": 1.25
-    }
+    },
+    "times_tied": 10,
+    "lead_changes": 8,
+    "largest_lead": 5,
+    "largest_deficit": 18
    }
   ],
   "cells": {
@@ -1407,7 +1511,11 @@
      "orb_pct": 0.2996,
      "ft_rate": 0.2879,
      "fg3a_rate": 0.3733,
-     "ast_to_ratio": 1.2703
+     "ast_to_ratio": 1.2703,
+     "opp_efg_pct": 0.5625,
+     "opp_tov_pct": 0.163,
+     "drb_pct": 0.675,
+     "opp_ft_rate": 0.3335
     },
     "ranks": {
      "offensive_rating": 10,
@@ -1419,7 +1527,11 @@
      "orb_pct": 8,
      "ft_rate": 11,
      "fg3a_rate": 11,
-     "ast_to_ratio": 10
+     "ast_to_ratio": 10,
+     "opp_efg_pct": 14,
+     "opp_tov_pct": 5,
+     "drb_pct": 12,
+     "opp_ft_rate": 13
     },
     "percentiles": {
      "offensive_rating": 30.8,
@@ -1431,7 +1543,11 @@
      "orb_pct": 46.2,
      "ft_rate": 23.1,
      "fg3a_rate": 23.1,
-     "ast_to_ratio": 30.8
+     "ast_to_ratio": 30.8,
+     "opp_efg_pct": 0.0,
+     "opp_tov_pct": 69.2,
+     "drb_pct": 15.4,
+     "opp_ft_rate": 7.7
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -1463,7 +1579,11 @@
      "orb_pct": 0.2958,
      "ft_rate": 0.2975,
      "fg3a_rate": 0.3249,
-     "ast_to_ratio": 1.3191
+     "ast_to_ratio": 1.3191,
+     "opp_efg_pct": 0.5772,
+     "opp_tov_pct": 0.1768,
+     "drb_pct": 0.6814,
+     "opp_ft_rate": 0.2627
     },
     "ranks": {
      "offensive_rating": 7,
@@ -1475,7 +1595,11 @@
      "orb_pct": 6,
      "ft_rate": 3,
      "fg3a_rate": 11,
-     "ast_to_ratio": 11
+     "ast_to_ratio": 11,
+     "opp_efg_pct": 13,
+     "opp_tov_pct": 2,
+     "drb_pct": 11,
+     "opp_ft_rate": 8
     },
     "percentiles": {
      "offensive_rating": 53.8,
@@ -1487,7 +1611,11 @@
      "orb_pct": 61.5,
      "ft_rate": 84.6,
      "fg3a_rate": 23.1,
-     "ast_to_ratio": 23.1
+     "ast_to_ratio": 23.1,
+     "opp_efg_pct": 7.7,
+     "opp_tov_pct": 92.3,
+     "drb_pct": 23.1,
+     "opp_ft_rate": 46.2
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -1519,7 +1647,11 @@
      "orb_pct": 0.3012,
      "ft_rate": 0.2262,
      "fg3a_rate": 0.3769,
-     "ast_to_ratio": 1.4713
+     "ast_to_ratio": 1.4713,
+     "opp_efg_pct": 0.5562,
+     "opp_tov_pct": 0.1463,
+     "drb_pct": 0.664,
+     "opp_ft_rate": 0.2899
     },
     "ranks": {
      "offensive_rating": 7,
@@ -1531,7 +1663,11 @@
      "orb_pct": 11,
      "ft_rate": 12,
      "fg3a_rate": 11,
-     "ast_to_ratio": 5
+     "ast_to_ratio": 5,
+     "opp_efg_pct": 13,
+     "opp_tov_pct": 8,
+     "drb_pct": 11,
+     "opp_ft_rate": 6
     },
     "percentiles": {
      "offensive_rating": 53.8,
@@ -1543,7 +1679,11 @@
      "orb_pct": 23.1,
      "ft_rate": 15.4,
      "fg3a_rate": 23.1,
-     "ast_to_ratio": 69.2
+     "ast_to_ratio": 69.2,
+     "opp_efg_pct": 7.7,
+     "opp_tov_pct": 46.2,
+     "drb_pct": 23.1,
+     "opp_ft_rate": 61.5
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -1575,7 +1715,11 @@
      "orb_pct": 0.2918,
      "ft_rate": 0.3152,
      "fg3a_rate": 0.3791,
-     "ast_to_ratio": 1.2105
+     "ast_to_ratio": 1.2105,
+     "opp_efg_pct": 0.5498,
+     "opp_tov_pct": 0.1646,
+     "drb_pct": 0.7009,
+     "opp_ft_rate": 0.3034
     },
     "ranks": {
      "offensive_rating": 10,
@@ -1587,7 +1731,11 @@
      "orb_pct": 8,
      "ft_rate": 4,
      "fg3a_rate": 14,
-     "ast_to_ratio": 9
+     "ast_to_ratio": 9,
+     "opp_efg_pct": 12,
+     "opp_tov_pct": 7,
+     "drb_pct": 9,
+     "opp_ft_rate": 7
     },
     "percentiles": {
      "offensive_rating": 30.8,
@@ -1599,7 +1747,11 @@
      "orb_pct": 46.2,
      "ft_rate": 76.9,
      "fg3a_rate": 0.0,
-     "ast_to_ratio": 38.5
+     "ast_to_ratio": 38.5,
+     "opp_efg_pct": 15.4,
+     "opp_tov_pct": 53.8,
+     "drb_pct": 38.5,
+     "opp_ft_rate": 53.8
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -1631,7 +1783,11 @@
      "orb_pct": 0.3103,
      "ft_rate": 0.3168,
      "fg3a_rate": 0.4137,
-     "ast_to_ratio": 1.0957
+     "ast_to_ratio": 1.0957,
+     "opp_efg_pct": 0.5668,
+     "opp_tov_pct": 0.1644,
+     "drb_pct": 0.6545,
+     "opp_ft_rate": 0.4912
     },
     "ranks": {
      "offensive_rating": 9,
@@ -1643,7 +1799,11 @@
      "orb_pct": 6,
      "ft_rate": 12,
      "fg3a_rate": 9,
-     "ast_to_ratio": 12
+     "ast_to_ratio": 12,
+     "opp_efg_pct": 13,
+     "opp_tov_pct": 6,
+     "drb_pct": 12,
+     "opp_ft_rate": 14
     },
     "percentiles": {
      "offensive_rating": 38.5,
@@ -1655,7 +1815,11 @@
      "orb_pct": 61.5,
      "ft_rate": 15.4,
      "fg3a_rate": 38.5,
-     "ast_to_ratio": 15.4
+     "ast_to_ratio": 15.4,
+     "opp_efg_pct": 7.7,
+     "opp_tov_pct": 61.5,
+     "drb_pct": 15.4,
+     "opp_ft_rate": 0.0
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -1687,7 +1851,11 @@
      "orb_pct": 0.2986,
      "ft_rate": 0.2613,
      "fg3a_rate": 0.3514,
-     "ast_to_ratio": 1.3923
+     "ast_to_ratio": 1.3923,
+     "opp_efg_pct": 0.5666,
+     "opp_tov_pct": 0.1616,
+     "drb_pct": 0.6722,
+     "opp_ft_rate": 0.2765
     },
     "ranks": {
      "offensive_rating": 6,
@@ -1699,7 +1867,11 @@
      "orb_pct": 10,
      "ft_rate": 9,
      "fg3a_rate": 11,
-     "ast_to_ratio": 9
+     "ast_to_ratio": 9,
+     "opp_efg_pct": 14,
+     "opp_tov_pct": 4,
+     "drb_pct": 13,
+     "opp_ft_rate": 9
     },
     "percentiles": {
      "offensive_rating": 61.5,
@@ -1711,7 +1883,11 @@
      "orb_pct": 30.8,
      "ft_rate": 38.5,
      "fg3a_rate": 23.1,
-     "ast_to_ratio": 38.5
+     "ast_to_ratio": 38.5,
+     "opp_efg_pct": 0.0,
+     "opp_tov_pct": 76.9,
+     "drb_pct": 7.7,
+     "opp_ft_rate": 38.5
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -1743,7 +1919,11 @@
      "orb_pct": 0.3012,
      "ft_rate": 0.316,
      "fg3a_rate": 0.3964,
-     "ast_to_ratio": 1.1534
+     "ast_to_ratio": 1.1534,
+     "opp_efg_pct": 0.5581,
+     "opp_tov_pct": 0.1645,
+     "drb_pct": 0.6779,
+     "opp_ft_rate": 0.3956
     },
     "ranks": {
      "offensive_rating": 10,
@@ -1755,7 +1935,11 @@
      "orb_pct": 7,
      "ft_rate": 8,
      "fg3a_rate": 10,
-     "ast_to_ratio": 10
+     "ast_to_ratio": 10,
+     "opp_efg_pct": 13,
+     "opp_tov_pct": 7,
+     "drb_pct": 11,
+     "opp_ft_rate": 14
     },
     "percentiles": {
      "offensive_rating": 30.8,
@@ -1767,7 +1951,11 @@
      "orb_pct": 53.8,
      "ft_rate": 46.2,
      "fg3a_rate": 30.8,
-     "ast_to_ratio": 30.8
+     "ast_to_ratio": 30.8,
+     "opp_efg_pct": 7.7,
+     "opp_tov_pct": 53.8,
+     "drb_pct": 23.1,
+     "opp_ft_rate": 0.0
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -1798,7 +1986,11 @@
      "orb_pct": 0.2803,
      "ft_rate": 0.2573,
      "fg3a_rate": 0.3659,
-     "ast_to_ratio": 1.2174
+     "ast_to_ratio": 1.2174,
+     "opp_efg_pct": 0.5743,
+     "opp_tov_pct": 0.1602,
+     "drb_pct": 0.6903,
+     "opp_ft_rate": 0.2913
     },
     "ranks": {
      "offensive_rating": 12,
@@ -1809,7 +2001,11 @@
      "orb_pct": 11,
      "ft_rate": 11,
      "fg3a_rate": 11,
-     "ast_to_ratio": 12
+     "ast_to_ratio": 12,
+     "opp_efg_pct": 14,
+     "opp_tov_pct": 5,
+     "drb_pct": 11,
+     "opp_ft_rate": 11
     },
     "percentiles": {
      "offensive_rating": 15.4,
@@ -1820,7 +2016,11 @@
      "orb_pct": 23.1,
      "ft_rate": 23.1,
      "fg3a_rate": 23.1,
-     "ast_to_ratio": 15.4
+     "ast_to_ratio": 15.4,
+     "opp_efg_pct": 0.0,
+     "opp_tov_pct": 69.2,
+     "drb_pct": 23.1,
+     "opp_ft_rate": 23.1
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -1850,7 +2050,11 @@
      "orb_pct": 0.3204,
      "ft_rate": 0.3049,
      "fg3a_rate": 0.4148,
-     "ast_to_ratio": 1.3274
+     "ast_to_ratio": 1.3274,
+     "opp_efg_pct": 0.5389,
+     "opp_tov_pct": 0.1532,
+     "drb_pct": 0.6791,
+     "opp_ft_rate": 0.3262
     },
     "ranks": {
      "offensive_rating": 9,
@@ -1861,7 +2065,11 @@
      "orb_pct": 5,
      "ft_rate": 9,
      "fg3a_rate": 7,
-     "ast_to_ratio": 7
+     "ast_to_ratio": 7,
+     "opp_efg_pct": 10,
+     "opp_tov_pct": 8,
+     "drb_pct": 10,
+     "opp_ft_rate": 13
     },
     "percentiles": {
      "offensive_rating": 38.5,
@@ -1872,7 +2080,11 @@
      "orb_pct": 69.2,
      "ft_rate": 38.5,
      "fg3a_rate": 53.8,
-     "ast_to_ratio": 53.8
+     "ast_to_ratio": 53.8,
+     "opp_efg_pct": 30.8,
+     "opp_tov_pct": 46.2,
+     "drb_pct": 30.8,
+     "opp_ft_rate": 7.7
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -1902,7 +2114,11 @@
      "orb_pct": 0.2916,
      "ft_rate": 0.2835,
      "fg3a_rate": 0.3668,
-     "ast_to_ratio": 1.2819
+     "ast_to_ratio": 1.2819,
+     "opp_efg_pct": 0.5687,
+     "opp_tov_pct": 0.1679,
+     "drb_pct": 0.6751,
+     "opp_ft_rate": 0.3365
     },
     "ranks": {
      "offensive_rating": 8,
@@ -1913,7 +2129,11 @@
      "orb_pct": 9,
      "ft_rate": 7,
      "fg3a_rate": 13,
-     "ast_to_ratio": 11
+     "ast_to_ratio": 11,
+     "opp_efg_pct": 14,
+     "opp_tov_pct": 5,
+     "drb_pct": 12,
+     "opp_ft_rate": 8
     },
     "percentiles": {
      "offensive_rating": 46.2,
@@ -1924,7 +2144,11 @@
      "orb_pct": 38.5,
      "ft_rate": 53.8,
      "fg3a_rate": 7.7,
-     "ast_to_ratio": 23.1
+     "ast_to_ratio": 23.1,
+     "opp_efg_pct": 0.0,
+     "opp_tov_pct": 69.2,
+     "drb_pct": 15.4,
+     "opp_ft_rate": 46.2
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -1954,7 +2178,11 @@
      "orb_pct": 0.4054,
      "ft_rate": 0.463,
      "fg3a_rate": 0.3704,
-     "ast_to_ratio": 1.4
+     "ast_to_ratio": 1.4,
+     "opp_efg_pct": 0.537,
+     "opp_tov_pct": 0.0723,
+     "drb_pct": 0.5667,
+     "opp_ft_rate": 0.4259
     },
     "ranks": {
      "offensive_rating": 8,
@@ -1965,7 +2193,11 @@
      "orb_pct": 4,
      "ft_rate": 8,
      "fg3a_rate": 10,
-     "ast_to_ratio": 7
+     "ast_to_ratio": 7,
+     "opp_efg_pct": 12,
+     "opp_tov_pct": 13,
+     "drb_pct": 13,
+     "opp_ft_rate": 5
     },
     "percentiles": {
      "offensive_rating": 46.2,
@@ -1976,7 +2208,11 @@
      "orb_pct": 76.9,
      "ft_rate": 46.2,
      "fg3a_rate": 30.8,
-     "ast_to_ratio": 53.8
+     "ast_to_ratio": 53.8,
+     "opp_efg_pct": 15.4,
+     "opp_tov_pct": 7.7,
+     "drb_pct": 7.7,
+     "opp_ft_rate": 69.2
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -2007,7 +2243,11 @@
      "orb_pct": 0.345,
      "ft_rate": 0.3375,
      "fg3a_rate": 0.3846,
-     "ast_to_ratio": 1.4321
+     "ast_to_ratio": 1.4321,
+     "opp_efg_pct": 0.4727,
+     "opp_tov_pct": 0.1924,
+     "drb_pct": 0.675,
+     "opp_ft_rate": 0.2865
     },
     "ranks": {
      "offensive_rating": 10,
@@ -2019,7 +2259,11 @@
      "orb_pct": 3,
      "ft_rate": 8,
      "fg3a_rate": 10,
-     "ast_to_ratio": 8
+     "ast_to_ratio": 8,
+     "opp_efg_pct": 4,
+     "opp_tov_pct": 3,
+     "drb_pct": 13,
+     "opp_ft_rate": 8
     },
     "percentiles": {
      "offensive_rating": 30.8,
@@ -2031,7 +2275,11 @@
      "orb_pct": 84.6,
      "ft_rate": 46.2,
      "fg3a_rate": 30.8,
-     "ast_to_ratio": 46.2
+     "ast_to_ratio": 46.2,
+     "opp_efg_pct": 76.9,
+     "opp_tov_pct": 84.6,
+     "drb_pct": 7.7,
+     "opp_ft_rate": 46.2
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -2063,7 +2311,11 @@
      "orb_pct": 0.3673,
      "ft_rate": 0.2451,
      "fg3a_rate": 0.3235,
-     "ast_to_ratio": 1.24
+     "ast_to_ratio": 1.24,
+     "opp_efg_pct": 0.45,
+     "opp_tov_pct": 0.2091,
+     "drb_pct": 0.623,
+     "opp_ft_rate": 0.22
     },
     "ranks": {
      "offensive_rating": 7,
@@ -2075,7 +2327,11 @@
      "orb_pct": 1,
      "ft_rate": 9,
      "fg3a_rate": 11,
-     "ast_to_ratio": 12
+     "ast_to_ratio": 12,
+     "opp_efg_pct": 1,
+     "opp_tov_pct": 1,
+     "drb_pct": 14,
+     "opp_ft_rate": 5
     },
     "percentiles": {
      "offensive_rating": 53.8,
@@ -2087,7 +2343,11 @@
      "orb_pct": 100.0,
      "ft_rate": 38.5,
      "fg3a_rate": 23.1,
-     "ast_to_ratio": 15.4
+     "ast_to_ratio": 15.4,
+     "opp_efg_pct": 100.0,
+     "opp_tov_pct": 100.0,
+     "drb_pct": 0.0,
+     "opp_ft_rate": 69.2
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -2119,7 +2379,11 @@
      "orb_pct": 0.2833,
      "ft_rate": 0.2308,
      "fg3a_rate": 0.4135,
-     "ast_to_ratio": 1.3684
+     "ast_to_ratio": 1.3684,
+     "opp_efg_pct": 0.5253,
+     "opp_tov_pct": 0.1803,
+     "drb_pct": 0.7,
+     "opp_ft_rate": 0.2323
     },
     "ranks": {
      "offensive_rating": 14,
@@ -2131,7 +2395,11 @@
      "orb_pct": 11,
      "ft_rate": 11,
      "fg3a_rate": 7,
-     "ast_to_ratio": 12
+     "ast_to_ratio": 12,
+     "opp_efg_pct": 11,
+     "opp_tov_pct": 4,
+     "drb_pct": 7,
+     "opp_ft_rate": 4
     },
     "percentiles": {
      "offensive_rating": 0.0,
@@ -2143,7 +2411,11 @@
      "orb_pct": 23.1,
      "ft_rate": 23.1,
      "fg3a_rate": 53.8,
-     "ast_to_ratio": 15.4
+     "ast_to_ratio": 15.4,
+     "opp_efg_pct": 23.1,
+     "opp_tov_pct": 76.9,
+     "drb_pct": 53.8,
+     "opp_ft_rate": 76.9
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -2175,7 +2447,11 @@
      "orb_pct": 0.3333,
      "ft_rate": 0.5652,
      "fg3a_rate": 0.3696,
-     "ast_to_ratio": 1.5
+     "ast_to_ratio": 1.5,
+     "opp_efg_pct": 0.4479,
+     "opp_tov_pct": 0.2166,
+     "drb_pct": 0.7119,
+     "opp_ft_rate": 0.125
     },
     "ranks": {
      "offensive_rating": 9,
@@ -2187,7 +2463,11 @@
      "orb_pct": 7,
      "ft_rate": 1,
      "fg3a_rate": 13,
-     "ast_to_ratio": 7
+     "ast_to_ratio": 7,
+     "opp_efg_pct": 3,
+     "opp_tov_pct": 2,
+     "drb_pct": 6,
+     "opp_ft_rate": 1
     },
     "percentiles": {
      "offensive_rating": 38.5,
@@ -2199,7 +2479,11 @@
      "orb_pct": 53.8,
      "ft_rate": 100.0,
      "fg3a_rate": 7.7,
-     "ast_to_ratio": 53.8
+     "ast_to_ratio": 53.8,
+     "opp_efg_pct": 84.6,
+     "opp_tov_pct": 92.3,
+     "drb_pct": 61.5,
+     "opp_ft_rate": 100.0
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -2231,7 +2515,11 @@
      "orb_pct": 0.3968,
      "ft_rate": 0.3333,
      "fg3a_rate": 0.4286,
-     "ast_to_ratio": 1.7059
+     "ast_to_ratio": 1.7059,
+     "opp_efg_pct": 0.4663,
+     "opp_tov_pct": 0.1638,
+     "drb_pct": 0.6667,
+     "opp_ft_rate": 0.5955
     },
     "ranks": {
      "offensive_rating": 10,
@@ -2243,7 +2531,11 @@
      "orb_pct": 2,
      "ft_rate": 12,
      "fg3a_rate": 7,
-     "ast_to_ratio": 2
+     "ast_to_ratio": 2,
+     "opp_efg_pct": 5,
+     "opp_tov_pct": 6,
+     "drb_pct": 10,
+     "opp_ft_rate": 14
     },
     "percentiles": {
      "offensive_rating": 30.8,
@@ -2255,7 +2547,11 @@
      "orb_pct": 92.3,
      "ft_rate": 15.4,
      "fg3a_rate": 53.8,
-     "ast_to_ratio": 92.3
+     "ast_to_ratio": 92.3,
+     "opp_efg_pct": 69.2,
+     "opp_tov_pct": 61.5,
+     "drb_pct": 30.8,
+     "opp_ft_rate": 0.0
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -2287,7 +2583,11 @@
      "orb_pct": 0.3211,
      "ft_rate": 0.2379,
      "fg3a_rate": 0.3689,
-     "ast_to_ratio": 1.2955
+     "ast_to_ratio": 1.2955,
+     "opp_efg_pct": 0.4874,
+     "opp_tov_pct": 0.195,
+     "drb_pct": 0.6612,
+     "opp_ft_rate": 0.2261
     },
     "ranks": {
      "offensive_rating": 12,
@@ -2299,7 +2599,11 @@
      "orb_pct": 6,
      "ft_rate": 11,
      "fg3a_rate": 11,
-     "ast_to_ratio": 12
+     "ast_to_ratio": 12,
+     "opp_efg_pct": 7,
+     "opp_tov_pct": 2,
+     "drb_pct": 13,
+     "opp_ft_rate": 3
     },
     "percentiles": {
      "offensive_rating": 15.4,
@@ -2311,7 +2615,11 @@
      "orb_pct": 61.5,
      "ft_rate": 23.1,
      "fg3a_rate": 23.1,
-     "ast_to_ratio": 15.4
+     "ast_to_ratio": 15.4,
+     "opp_efg_pct": 53.8,
+     "opp_tov_pct": 92.3,
+     "drb_pct": 7.7,
+     "opp_ft_rate": 84.6
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -2343,7 +2651,11 @@
      "orb_pct": 0.3667,
      "ft_rate": 0.4416,
      "fg3a_rate": 0.401,
-     "ast_to_ratio": 1.5946
+     "ast_to_ratio": 1.5946,
+     "opp_efg_pct": 0.4568,
+     "opp_tov_pct": 0.1897,
+     "drb_pct": 0.6891,
+     "opp_ft_rate": 0.3514
     },
     "ranks": {
      "offensive_rating": 10,
@@ -2355,7 +2667,11 @@
      "orb_pct": 2,
      "ft_rate": 1,
      "fg3a_rate": 7,
-     "ast_to_ratio": 5
+     "ast_to_ratio": 5,
+     "opp_efg_pct": 3,
+     "opp_tov_pct": 4,
+     "drb_pct": 8,
+     "opp_ft_rate": 12
     },
     "percentiles": {
      "offensive_rating": 30.8,
@@ -2367,7 +2683,11 @@
      "orb_pct": 92.3,
      "ft_rate": 100.0,
      "fg3a_rate": 53.8,
-     "ast_to_ratio": 69.2
+     "ast_to_ratio": 69.2,
+     "opp_efg_pct": 84.6,
+     "opp_tov_pct": 76.9,
+     "drb_pct": 46.2,
+     "opp_ft_rate": 15.4
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -2398,7 +2718,11 @@
      "orb_pct": 0.3423,
      "ft_rate": 0.2294,
      "fg3a_rate": 0.3761,
-     "ast_to_ratio": 1.5385
+     "ast_to_ratio": 1.5385,
+     "opp_efg_pct": 0.4629,
+     "opp_tov_pct": 0.2054,
+     "drb_pct": 0.6455,
+     "opp_ft_rate": 0.24
     },
     "ranks": {
      "offensive_rating": 9,
@@ -2409,7 +2733,11 @@
      "orb_pct": 4,
      "ft_rate": 14,
      "fg3a_rate": 11,
-     "ast_to_ratio": 10
+     "ast_to_ratio": 10,
+     "opp_efg_pct": 5,
+     "opp_tov_pct": 2,
+     "drb_pct": 14,
+     "opp_ft_rate": 6
     },
     "percentiles": {
      "offensive_rating": 38.5,
@@ -2420,7 +2748,11 @@
      "orb_pct": 76.9,
      "ft_rate": 0.0,
      "fg3a_rate": 23.1,
-     "ast_to_ratio": 30.8
+     "ast_to_ratio": 30.8,
+     "opp_efg_pct": 69.2,
+     "opp_tov_pct": 92.3,
+     "drb_pct": 0.0,
+     "opp_ft_rate": 61.5
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -2450,7 +2782,11 @@
      "orb_pct": 0.3785,
      "ft_rate": 0.3581,
      "fg3a_rate": 0.4257,
-     "ast_to_ratio": 1.4194
+     "ast_to_ratio": 1.4194,
+     "opp_efg_pct": 0.4676,
+     "opp_tov_pct": 0.1751,
+     "drb_pct": 0.6804,
+     "opp_ft_rate": 0.2913
     },
     "ranks": {
      "offensive_rating": 10,
@@ -2461,7 +2797,11 @@
      "orb_pct": 1,
      "ft_rate": 6,
      "fg3a_rate": 7,
-     "ast_to_ratio": 7
+     "ast_to_ratio": 7,
+     "opp_efg_pct": 3,
+     "opp_tov_pct": 5,
+     "drb_pct": 10,
+     "opp_ft_rate": 9
     },
     "percentiles": {
      "offensive_rating": 30.8,
@@ -2472,7 +2812,11 @@
      "orb_pct": 100.0,
      "ft_rate": 61.5,
      "fg3a_rate": 53.8,
-     "ast_to_ratio": 53.8
+     "ast_to_ratio": 53.8,
+     "opp_efg_pct": 84.6,
+     "opp_tov_pct": 69.2,
+     "drb_pct": 30.8,
+     "opp_ft_rate": 38.5
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -2502,7 +2846,11 @@
      "orb_pct": 0.1795,
      "ft_rate": 0.2697,
      "fg3a_rate": 0.2809,
-     "ast_to_ratio": 1.8462
+     "ast_to_ratio": 1.8462,
+     "opp_efg_pct": 0.4623,
+     "opp_tov_pct": 0.2771,
+     "drb_pct": 0.6857,
+     "opp_ft_rate": 0.1887
     },
     "ranks": {
      "offensive_rating": 9,
@@ -2513,7 +2861,11 @@
      "orb_pct": 14,
      "ft_rate": 10,
      "fg3a_rate": 14,
-     "ast_to_ratio": 6
+     "ast_to_ratio": 6,
+     "opp_efg_pct": 5,
+     "opp_tov_pct": 1,
+     "drb_pct": 14,
+     "opp_ft_rate": 2
     },
     "percentiles": {
      "offensive_rating": 38.5,
@@ -2524,7 +2876,11 @@
      "orb_pct": 0.0,
      "ft_rate": 30.8,
      "fg3a_rate": 0.0,
-     "ast_to_ratio": 61.5
+     "ast_to_ratio": 61.5,
+     "opp_efg_pct": 69.2,
+     "opp_tov_pct": 100.0,
+     "drb_pct": 0.0,
+     "opp_ft_rate": 92.3
     },
     "eligible_teams": 14,
     "unweighted": {
@@ -2554,7 +2910,11 @@
      "orb_pct": 0.6154,
      "ft_rate": 0.2727,
      "fg3a_rate": 0.2273,
-     "ast_to_ratio": 3.0
+     "ast_to_ratio": 3.0,
+     "opp_efg_pct": 0.3333,
+     "opp_tov_pct": 0.0639,
+     "drb_pct": 0.7143,
+     "opp_ft_rate": 0.5
     },
     "ranks": {},
     "percentiles": {},
@@ -2587,7 +2947,11 @@
      "orb_pct": 0.2863,
      "ft_rate": 0.2729,
      "fg3a_rate": 0.3699,
-     "ast_to_ratio": 1.2249
+     "ast_to_ratio": 1.2249,
+     "opp_efg_pct": 0.589,
+     "opp_tov_pct": 0.1542,
+     "drb_pct": 0.675,
+     "opp_ft_rate": 0.3474
     },
     "ranks": {
      "offensive_rating": 3,
@@ -2599,7 +2963,11 @@
      "orb_pct": 7,
      "ft_rate": 7,
      "fg3a_rate": 11,
-     "ast_to_ratio": 6
+     "ast_to_ratio": 6,
+     "opp_efg_pct": 11,
+     "opp_tov_pct": 5,
+     "drb_pct": 8,
+     "opp_ft_rate": 10
     },
     "percentiles": {
      "offensive_rating": 83.3,
@@ -2611,7 +2979,11 @@
      "orb_pct": 50.0,
      "ft_rate": 50.0,
      "fg3a_rate": 16.7,
-     "ast_to_ratio": 58.3
+     "ast_to_ratio": 58.3,
+     "opp_efg_pct": 16.7,
+     "opp_tov_pct": 66.7,
+     "drb_pct": 41.7,
+     "opp_ft_rate": 25.0
     },
     "eligible_teams": 13,
     "unweighted": {
@@ -2643,7 +3015,11 @@
      "orb_pct": 0.2775,
      "ft_rate": 0.3134,
      "fg3a_rate": 0.3254,
-     "ast_to_ratio": 1.3478
+     "ast_to_ratio": 1.3478,
+     "opp_efg_pct": 0.6153,
+     "opp_tov_pct": 0.1669,
+     "drb_pct": 0.703,
+     "opp_ft_rate": 0.2754
     },
     "ranks": {
      "offensive_rating": 4,
@@ -2655,7 +3031,11 @@
      "orb_pct": 6,
      "ft_rate": 2,
      "fg3a_rate": 10,
-     "ast_to_ratio": 6
+     "ast_to_ratio": 6,
+     "opp_efg_pct": 11,
+     "opp_tov_pct": 3,
+     "drb_pct": 5,
+     "opp_ft_rate": 8
     },
     "percentiles": {
      "offensive_rating": 75.0,
@@ -2667,7 +3047,11 @@
      "orb_pct": 58.3,
      "ft_rate": 91.7,
      "fg3a_rate": 25.0,
-     "ast_to_ratio": 58.3
+     "ast_to_ratio": 58.3,
+     "opp_efg_pct": 16.7,
+     "opp_tov_pct": 83.3,
+     "drb_pct": 66.7,
+     "opp_ft_rate": 41.7
     },
     "eligible_teams": 13,
     "unweighted": {
@@ -2699,7 +3083,11 @@
      "orb_pct": 0.3069,
      "ft_rate": 0.2248,
      "fg3a_rate": 0.366,
-     "ast_to_ratio": 1.5
+     "ast_to_ratio": 1.5,
+     "opp_efg_pct": 0.565,
+     "opp_tov_pct": 0.1364,
+     "drb_pct": 0.6528,
+     "opp_ft_rate": 0.3064
     },
     "ranks": {
      "offensive_rating": 3,
@@ -2711,7 +3099,11 @@
      "orb_pct": 7,
      "ft_rate": 10,
      "fg3a_rate": 10,
-     "ast_to_ratio": 3
+     "ast_to_ratio": 3,
+     "opp_efg_pct": 8,
+     "opp_tov_pct": 6,
+     "drb_pct": 8,
+     "opp_ft_rate": 8
     },
     "percentiles": {
      "offensive_rating": 83.3,
@@ -2723,7 +3115,11 @@
      "orb_pct": 50.0,
      "ft_rate": 25.0,
      "fg3a_rate": 25.0,
-     "ast_to_ratio": 83.3
+     "ast_to_ratio": 83.3,
+     "opp_efg_pct": 41.7,
+     "opp_tov_pct": 58.3,
+     "drb_pct": 41.7,
+     "opp_ft_rate": 41.7
     },
     "eligible_teams": 13,
     "unweighted": {
@@ -2755,7 +3151,11 @@
      "orb_pct": 0.28,
      "ft_rate": 0.2455,
      "fg3a_rate": 0.3818,
-     "ast_to_ratio": 1.1333
+     "ast_to_ratio": 1.1333,
+     "opp_efg_pct": 0.5807,
+     "opp_tov_pct": 0.1489,
+     "drb_pct": 0.697,
+     "opp_ft_rate": 0.3576
     },
     "ranks": {
      "offensive_rating": 7,
@@ -2767,7 +3167,11 @@
      "orb_pct": 10,
      "ft_rate": 9,
      "fg3a_rate": 9,
-     "ast_to_ratio": 8
+     "ast_to_ratio": 8,
+     "opp_efg_pct": 9,
+     "opp_tov_pct": 8,
+     "drb_pct": 5,
+     "opp_ft_rate": 11
     },
     "percentiles": {
      "offensive_rating": 50.0,
@@ -2779,7 +3183,11 @@
      "orb_pct": 25.0,
      "ft_rate": 33.3,
      "fg3a_rate": 33.3,
-     "ast_to_ratio": 41.7
+     "ast_to_ratio": 41.7,
+     "opp_efg_pct": 33.3,
+     "opp_tov_pct": 41.7,
+     "drb_pct": 66.7,
+     "opp_ft_rate": 16.7
     },
     "eligible_teams": 13,
     "unweighted": {
@@ -2811,7 +3219,11 @@
      "orb_pct": 0.2828,
      "ft_rate": 0.3113,
      "fg3a_rate": 0.4088,
-     "ast_to_ratio": 0.961
+     "ast_to_ratio": 0.961,
+     "opp_efg_pct": 0.5958,
+     "opp_tov_pct": 0.1646,
+     "drb_pct": 0.65,
+     "opp_ft_rate": 0.461
     },
     "ranks": {
      "offensive_rating": 6,
@@ -2823,7 +3235,11 @@
      "orb_pct": 7,
      "ft_rate": 5,
      "fg3a_rate": 10,
-     "ast_to_ratio": 13
+     "ast_to_ratio": 13,
+     "opp_efg_pct": 11,
+     "opp_tov_pct": 6,
+     "drb_pct": 12,
+     "opp_ft_rate": 11
     },
     "percentiles": {
      "offensive_rating": 58.3,
@@ -2835,7 +3251,11 @@
      "orb_pct": 50.0,
      "ft_rate": 66.7,
      "fg3a_rate": 25.0,
-     "ast_to_ratio": 0.0
+     "ast_to_ratio": 0.0,
+     "opp_efg_pct": 16.7,
+     "opp_tov_pct": 58.3,
+     "drb_pct": 8.3,
+     "opp_ft_rate": 16.7
     },
     "eligible_teams": 13,
     "unweighted": {
@@ -2867,7 +3287,11 @@
      "orb_pct": 0.2921,
      "ft_rate": 0.2683,
      "fg3a_rate": 0.346,
-     "ast_to_ratio": 1.4234
+     "ast_to_ratio": 1.4234,
+     "opp_efg_pct": 0.5897,
+     "opp_tov_pct": 0.1515,
+     "drb_pct": 0.676,
+     "opp_ft_rate": 0.2912
     },
     "ranks": {
      "offensive_rating": 3,
@@ -2879,7 +3303,11 @@
      "orb_pct": 6,
      "ft_rate": 6,
      "fg3a_rate": 10,
-     "ast_to_ratio": 5
+     "ast_to_ratio": 5,
+     "opp_efg_pct": 10,
+     "opp_tov_pct": 4,
+     "drb_pct": 8,
+     "opp_ft_rate": 8
     },
     "percentiles": {
      "offensive_rating": 83.3,
@@ -2891,7 +3319,11 @@
      "orb_pct": 58.3,
      "ft_rate": 58.3,
      "fg3a_rate": 25.0,
-     "ast_to_ratio": 66.7
+     "ast_to_ratio": 66.7,
+     "opp_efg_pct": 25.0,
+     "opp_tov_pct": 75.0,
+     "drb_pct": 41.7,
+     "opp_ft_rate": 41.7
     },
     "eligible_teams": 13,
     "unweighted": {
@@ -2923,7 +3355,11 @@
      "orb_pct": 0.2814,
      "ft_rate": 0.2778,
      "fg3a_rate": 0.3951,
-     "ast_to_ratio": 1.0461
+     "ast_to_ratio": 1.0461,
+     "opp_efg_pct": 0.5881,
+     "opp_tov_pct": 0.1569,
+     "drb_pct": 0.6738,
+     "opp_ft_rate": 0.4087
     },
     "ranks": {
      "offensive_rating": 9,
@@ -2935,7 +3371,11 @@
      "orb_pct": 9,
      "ft_rate": 6,
      "fg3a_rate": 12,
-     "ast_to_ratio": 10
+     "ast_to_ratio": 10,
+     "opp_efg_pct": 10,
+     "opp_tov_pct": 7,
+     "drb_pct": 9,
+     "opp_ft_rate": 12
     },
     "percentiles": {
      "offensive_rating": 33.3,
@@ -2947,7 +3387,11 @@
      "orb_pct": 33.3,
      "ft_rate": 58.3,
      "fg3a_rate": 8.3,
-     "ast_to_ratio": 25.0
+     "ast_to_ratio": 25.0,
+     "opp_efg_pct": 25.0,
+     "opp_tov_pct": 50.0,
+     "drb_pct": 33.3,
+     "opp_ft_rate": 8.3
     },
     "eligible_teams": 13,
     "unweighted": {
@@ -2978,7 +3422,11 @@
      "orb_pct": 0.2611,
      "ft_rate": 0.2674,
      "fg3a_rate": 0.3621,
-     "ast_to_ratio": 1.131
+     "ast_to_ratio": 1.131,
+     "opp_efg_pct": 0.6036,
+     "opp_tov_pct": 0.1478,
+     "drb_pct": 0.7047,
+     "opp_ft_rate": 0.3048
     },
     "ranks": {
      "offensive_rating": 5,
@@ -2989,7 +3437,11 @@
      "orb_pct": 9,
      "ft_rate": 4,
      "fg3a_rate": 11,
-     "ast_to_ratio": 8
+     "ast_to_ratio": 8,
+     "opp_efg_pct": 11,
+     "opp_tov_pct": 5,
+     "drb_pct": 7,
+     "opp_ft_rate": 5
     },
     "percentiles": {
      "offensive_rating": 66.7,
@@ -3000,7 +3452,11 @@
      "orb_pct": 33.3,
      "ft_rate": 75.0,
      "fg3a_rate": 16.7,
-     "ast_to_ratio": 41.7
+     "ast_to_ratio": 41.7,
+     "opp_efg_pct": 16.7,
+     "opp_tov_pct": 66.7,
+     "drb_pct": 50.0,
+     "opp_ft_rate": 66.7
     },
     "eligible_teams": 13,
     "unweighted": {
@@ -3030,7 +3486,11 @@
      "orb_pct": 0.2424,
      "ft_rate": 0.2371,
      "fg3a_rate": 0.4009,
-     "ast_to_ratio": 1.2157
+     "ast_to_ratio": 1.2157,
+     "opp_efg_pct": 0.6136,
+     "opp_tov_pct": 0.1297,
+     "drb_pct": 0.6774,
+     "opp_ft_rate": 0.3627
     },
     "ranks": {
      "offensive_rating": 3,
@@ -3041,7 +3501,11 @@
      "orb_pct": 8,
      "ft_rate": 9,
      "fg3a_rate": 6,
-     "ast_to_ratio": 4
+     "ast_to_ratio": 4,
+     "opp_efg_pct": 10,
+     "opp_tov_pct": 9,
+     "drb_pct": 9,
+     "opp_ft_rate": 11
     },
     "percentiles": {
      "offensive_rating": 83.3,
@@ -3052,7 +3516,11 @@
      "orb_pct": 41.7,
      "ft_rate": 33.3,
      "fg3a_rate": 58.3,
-     "ast_to_ratio": 75.0
+     "ast_to_ratio": 75.0,
+     "opp_efg_pct": 25.0,
+     "opp_tov_pct": 33.3,
+     "drb_pct": 33.3,
+     "opp_ft_rate": 16.7
     },
     "eligible_teams": 13,
     "unweighted": {
@@ -3082,7 +3550,11 @@
      "orb_pct": 0.299,
      "ft_rate": 0.2847,
      "fg3a_rate": 0.3744,
-     "ast_to_ratio": 1.2477
+     "ast_to_ratio": 1.2477,
+     "opp_efg_pct": 0.5749,
+     "opp_tov_pct": 0.1609,
+     "drb_pct": 0.6744,
+     "opp_ft_rate": 0.3452
     },
     "ranks": {
      "offensive_rating": 4,
@@ -3093,7 +3565,11 @@
      "orb_pct": 8,
      "ft_rate": 5,
      "fg3a_rate": 11,
-     "ast_to_ratio": 8
+     "ast_to_ratio": 8,
+     "opp_efg_pct": 12,
+     "opp_tov_pct": 4,
+     "drb_pct": 9,
+     "opp_ft_rate": 7
     },
     "percentiles": {
      "offensive_rating": 75.0,
@@ -3104,7 +3580,11 @@
      "orb_pct": 41.7,
      "ft_rate": 66.7,
      "fg3a_rate": 16.7,
-     "ast_to_ratio": 41.7
+     "ast_to_ratio": 41.7,
+     "opp_efg_pct": 8.3,
+     "opp_tov_pct": 75.0,
+     "drb_pct": 33.3,
+     "opp_ft_rate": 50.0
     },
     "eligible_teams": 13,
     "unweighted": {
@@ -3134,7 +3614,11 @@
      "orb_pct": 0.2917,
      "ft_rate": 0.5938,
      "fg3a_rate": 0.4688,
-     "ast_to_ratio": 1.0
+     "ast_to_ratio": 1.0,
+     "opp_efg_pct": 0.5952,
+     "opp_tov_pct": 0.0748,
+     "drb_pct": 0.5217,
+     "opp_ft_rate": 0.4048
     },
     "ranks": {},
     "percentiles": {},
@@ -3149,6 +3633,192 @@
      "ft_rate": 0.531,
      "fg3a_rate": 0.5399,
      "ast_to_ratio": 1.0
+    }
+   }
+  },
+  "profile": {
+   "shots": {
+    "fga": 1733,
+    "lane_2pt": 850,
+    "midrange_2pt": 236,
+    "corner_3": 136,
+    "atb_3": 511,
+    "unclassified": 0,
+    "rim_attempts": 823,
+    "zone_attempts": {
+     "lane_2pt": 850,
+     "midrange_2pt": 236,
+     "corner_3": 136,
+     "atb_3": 511
+    },
+    "zone_points": {
+     "lane_2pt": 934,
+     "midrange_2pt": 152,
+     "corner_3": 153,
+     "atb_3": 534
+    },
+    "validation_state": "provisional_deterministic"
+   },
+   "transition": {
+    "fga": 1733,
+    "opp_fga": 1688,
+    "fb_fga": 200,
+    "fb_fgm": 124,
+    "fb_points": 262,
+    "fb_fga_allowed": 207,
+    "fb_fgm_allowed": 146,
+    "fb_points_allowed": 330
+   },
+   "turnovers": {
+    "total": 370,
+    "by_type": {
+     "bad-pass": 153,
+     "ball-handling": 120,
+     "other": 44,
+     "travelling": 29,
+     "24-seconds-violation": 12,
+     "out-of-bounds": 6,
+     "8-seconds-violation": 3,
+     "5-seconds-violation": 2,
+     "backcourt-violation": 1
+    },
+    "forced_total": 377,
+    "forced_by_type": {
+     "bad-pass": 184,
+     "ball-handling": 93,
+     "other": 47,
+     "travelling": 31,
+     "out-of-bounds": 10,
+     "24-seconds-violation": 9,
+     "backcourt-violation": 2,
+     "8-seconds-violation": 1
+    }
+   },
+   "scoring": {
+    "points": 2148,
+    "points_2pt": 1086,
+    "points_3pt": 687,
+    "points_ft": 375,
+    "points_off_turnovers": 422,
+    "opponent_turnovers": 377,
+    "second_chance_points": 233,
+    "oreb_possessions": 270,
+    "scoring_oreb_possessions": 115,
+    "fast_break_points": 262,
+    "assisted_fgm": 417,
+    "unassisted_fgm": 355,
+    "assisted_3pm": 170,
+    "unassisted_3pm": 59
+   },
+   "runs": {
+    "games": 26,
+    "largest_run_for_sum": 244,
+    "largest_run_against_sum": 242,
+    "largest_run_for_max": 18,
+    "largest_run_against_max": 12,
+    "runs_8_plus_for": 27,
+    "runs_8_plus_against": 37,
+    "scoring_droughts_3m": 22,
+    "fg_droughts_3m": 40,
+    "longest_scoring_drought_s": 255.0,
+    "longest_fg_drought_s": 389.0
+   },
+   "comeback": {
+    "games_trailing_10_plus": 17,
+    "comeback_wins": 0,
+    "games_leading_10_plus": 8,
+    "blown_leads": 2
+   },
+   "stability": {
+    "offensive_rating": {
+     "games": 26,
+     "mean": 107.8179,
+     "std": 10.9423,
+     "cv": 0.1015,
+     "cv_applicable": true,
+     "min": 92.0745,
+     "max": 130.2118
+    },
+    "defensive_rating": {
+     "games": 26,
+     "mean": 116.7193,
+     "std": 15.0202,
+     "cv": 0.1287,
+     "cv_applicable": true,
+     "min": 87.7784,
+     "max": 147.4739
+    },
+    "net_rating": {
+     "games": 26,
+     "mean": -8.9014,
+     "std": 16.9013,
+     "cv": null,
+     "cv_applicable": false,
+     "min": -34.1084,
+     "max": 29.5377
+    },
+    "pace": {
+     "games": 26,
+     "mean": 76.5616,
+     "std": 3.8201,
+     "cv": 0.0499,
+     "cv_applicable": true,
+     "min": 71.3961,
+     "max": 85.3908
+    },
+    "efg_pct": {
+     "games": 26,
+     "mean": 0.5151,
+     "std": 0.0776,
+     "cv": 0.1507,
+     "cv_applicable": true,
+     "min": 0.3857,
+     "max": 0.6641
+    },
+    "tov_pct": {
+     "games": 26,
+     "mean": 0.1594,
+     "std": 0.0405,
+     "cv": 0.2543,
+     "cv_applicable": true,
+     "min": 0.0902,
+     "max": 0.2907
+    },
+    "orb_pct": {
+     "games": 26,
+     "mean": 0.2939,
+     "std": 0.0745,
+     "cv": 0.2534,
+     "cv_applicable": true,
+     "min": 0.1562,
+     "max": 0.4286
+    },
+    "ft_rate": {
+     "games": 26,
+     "mean": 0.2885,
+     "std": 0.0888,
+     "cv": 0.3078,
+     "cv_applicable": true,
+     "min": 0.1077,
+     "max": 0.5
+    },
+    "fg3a_rate": {
+     "games": 26,
+     "mean": 0.3743,
+     "std": 0.0519,
+     "cv": 0.1385,
+     "cv_applicable": true,
+     "min": 0.3051,
+     "max": 0.4923
+    },
+    "ast_to_ratio": {
+     "games": 26,
+     "mean": 1.3599,
+     "std": 0.4929,
+     "cv": 0.3624,
+     "cv_applicable": true,
+     "min": 0.625,
+     "max": 2.875
     }
    }
   }
