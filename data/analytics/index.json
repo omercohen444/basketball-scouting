@@ -1,0 +1,133 @@
+{
+ "artifact_version": "analytics-v1",
+ "season": "2025-26",
+ "generated_at": "2026-08-19T17:55:28Z",
+ "teams": [
+  {
+   "team_id": "segev:10",
+   "team_name": "GALIL ELION",
+   "file": "analytics_segev_10.json",
+   "content_hash": "sha256:725a1a386f47f3224686e7ecc1f7ef4dca2fa7ef41eefa291d25a66e6dbd4fef",
+   "games_n": 26,
+   "wins": 7,
+   "losses": 19
+  },
+  {
+   "team_id": "segev:11",
+   "team_name": "BEER SHEVA",
+   "file": "analytics_segev_11.json",
+   "content_hash": "sha256:927eb421d8d34514695b64f46e7ed907f96dfb7392eb8870a686d42d6bcbdf92",
+   "games_n": 26,
+   "wins": 10,
+   "losses": 16
+  },
+  {
+   "team_id": "segev:12",
+   "team_name": "KIRYAT ATA",
+   "file": "analytics_segev_12.json",
+   "content_hash": "sha256:8b100f9c2e83ec653b41bb03b4ce221ebe796560b5cc2b3fa2f163786dcb5df7",
+   "games_n": 26,
+   "wins": 9,
+   "losses": 17
+  },
+  {
+   "team_id": "segev:13",
+   "team_name": "MACCABI RAANANA",
+   "file": "analytics_segev_13.json",
+   "content_hash": "sha256:5d7a094ce3dba9c45892d305436eeeb934c1e89600740a7337a31916a632149a",
+   "games_n": 26,
+   "wins": 6,
+   "losses": 20
+  },
+  {
+   "team_id": "segev:14",
+   "team_name": "RISHON LEZION",
+   "file": "analytics_segev_14.json",
+   "content_hash": "sha256:3708927d313e34d62d04c798d5f32dab8e3d68f565a587ee3d36d8bd5f8da3e9",
+   "games_n": 26,
+   "wins": 12,
+   "losses": 14
+  },
+  {
+   "team_id": "segev:15",
+   "team_name": "ELIZUR NETANYA",
+   "file": "analytics_segev_15.json",
+   "content_hash": "sha256:cade09522b3b42895242ba3412d872d90ba23191442546d71584b18903b1768f",
+   "games_n": 26,
+   "wins": 7,
+   "losses": 19
+  },
+  {
+   "team_id": "segev:2",
+   "team_name": "MACCABI TEL AVIV",
+   "file": "analytics_segev_2.json",
+   "content_hash": "sha256:cb058c8896e656355d21bdaa2b0e559d2fa87b47f8f6614fcd626badf75de5e7",
+   "games_n": 26,
+   "wins": 24,
+   "losses": 2
+  },
+  {
+   "team_id": "segev:3",
+   "team_name": "HAPOEL TEL AVIV",
+   "file": "analytics_segev_3.json",
+   "content_hash": "sha256:174648875a75405439aff27b5f58d586de55a5cb40a2e617b35001995f29a79b",
+   "games_n": 26,
+   "wins": 22,
+   "losses": 4
+  },
+  {
+   "team_id": "segev:4",
+   "team_name": "HAPOEL JERUSALEM",
+   "file": "analytics_segev_4.json",
+   "content_hash": "sha256:aafd10fd34afd5bd81ab6a4e1ebdfc72187e0f5ba811b1af5858b75f7df574ef",
+   "games_n": 26,
+   "wins": 18,
+   "losses": 8
+  },
+  {
+   "team_id": "segev:5",
+   "team_name": "HAPOEL HOLON",
+   "file": "analytics_segev_5.json",
+   "content_hash": "sha256:1d00474bba7ba490d5df3f3c4723b1ddef88b89fb1e5ffe6a975728efae19547",
+   "games_n": 26,
+   "wins": 15,
+   "losses": 11
+  },
+  {
+   "team_id": "segev:6",
+   "team_name": "BNEI HERZLIYA",
+   "file": "analytics_segev_6.json",
+   "content_hash": "sha256:79c72f229ae2f349ecde4d11c372565c6c4d939129124599c9722bfc5c82c168",
+   "games_n": 26,
+   "wins": 18,
+   "losses": 8
+  },
+  {
+   "team_id": "segev:7",
+   "team_name": "MACCABI RAMAT GAN",
+   "file": "analytics_segev_7.json",
+   "content_hash": "sha256:bc452780cbff68c21815fcd1baaeb65c08d2e8fa7a9b615f9c1914f6fce1c89f",
+   "games_n": 26,
+   "wins": 10,
+   "losses": 16
+  },
+  {
+   "team_id": "segev:8",
+   "team_name": "HAPOEL HAEMEK",
+   "file": "analytics_segev_8.json",
+   "content_hash": "sha256:d98704783941d5937571257612abc019daa84abc282b7537ab66e69c8815b3b6",
+   "games_n": 26,
+   "wins": 15,
+   "losses": 11
+  },
+  {
+   "team_id": "segev:9",
+   "team_name": "NESS ZIONA",
+   "file": "analytics_segev_9.json",
+   "content_hash": "sha256:ce448c5596b3d31cf9ab9d8db6ca4bdba375fbcc16a8ea28e28ffd81b1347e58",
+   "games_n": 26,
+   "wins": 9,
+   "losses": 17
+  }
+ ]
+}

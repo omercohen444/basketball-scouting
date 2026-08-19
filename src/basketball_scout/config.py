@@ -113,6 +113,17 @@ class Settings:
         return self.data_dir / "evidence_packs"
 
     @property
+    def analytics_dir(self) -> Path:
+        """Shipped analytics artifacts for the public site. Tracked in Git for
+        the same reason as ``evidence_packs_dir``.
+
+        Deliberately a separate artifact from the evidence packs: those feed
+        three agents a curated slice and their hashes are the provenance link
+        on every stored report, so a website need must never become a reason to
+        change them."""
+        return self.data_dir / "analytics"
+
+    @property
     def has_supabase(self) -> bool:
         return bool(self.supabase_url and self.supabase_secret_key)
 
