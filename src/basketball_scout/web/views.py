@@ -38,6 +38,7 @@ from ..analytics.views import (
     compare_groups,
     compare_splits,
     consistency_view,
+    display_label,
     dumbbell_bounds,
     explorer_columns,
     explorer_rows,
@@ -109,6 +110,10 @@ templates.env.globals["logo_url"] = logo_url
 templates.env.globals["initials"] = initials
 templates.env.globals["NAV"] = NAV
 templates.env.globals["raise"] = _template_raise
+# One shipped evidence id is mislabelled at source — its bin starts at five
+# behind, not six. The data is left exactly as generated so no stored report
+# is invalidated; the label is corrected here, on the way out.
+templates.env.globals["metric_label"] = display_label
 
 router = APIRouter(tags=["ui"], dependencies=[Depends(enforce_api_rate_limit)])
 

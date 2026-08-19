@@ -686,6 +686,32 @@ ol.pipeline li::marker { color: var(--ink-3); font-variant-numeric: tabular-nums
   .doc-nav a { border-left: 0; border-radius: var(--r); padding: 3px 8px; background: var(--sunken); }
 }
 
+/* ---- scouting report: the three information types ------------------------ */
+
+.report-id { display: flex; align-items: center; gap: 14px; }
+
+.provenance-key {
+  display: flex; flex-wrap: wrap; gap: 6px 20px;
+  padding: 9px 13px; margin-bottom: 16px; font-size: 12px; color: var(--ink-2);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+}
+.provenance-key span { display: inline-flex; align-items: center; gap: 7px; }
+.provenance-key b { color: var(--ink); font-weight: 600; }
+.pk { width: 8px; height: 8px; border-radius: 2px; display: inline-block; flex: none; }
+.pk-measured { background: var(--navy); }
+.pk-interpreted { background: var(--ink-3); }
+.pk-tactical { background: var(--warn); }
+
+.kind {
+  font-size: 9.5px; letter-spacing: 0.07em; text-transform: uppercase; font-weight: 600;
+  border: 1px solid var(--line-2); border-radius: var(--r); padding: 1px 6px;
+  color: var(--ink-3); vertical-align: middle; margin-left: 8px;
+}
+.kind-measured { color: var(--navy); border-color: var(--navy); }
+.kind-interpreted { color: var(--ink-3); }
+.kind-line { font-size: 11.5px; color: var(--ink-3); margin: 10px 0 5px; }
+.kind-line .kind { margin-left: 0; margin-right: 6px; }
+
 /* ---- responsive ---------------------------------------------------------- */
 
 @media (max-width: 1100px) {

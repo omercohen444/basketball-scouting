@@ -31,6 +31,7 @@ from reportlab.platypus import (
     TableStyle,
 )
 
+from ..analytics.views import display_label
 from .contracts import EvidenceCard, PublicReport
 
 # Restrained, print-legible palette. Ink-first: colour carries meaning
@@ -52,6 +53,18 @@ TRUST_NOTE = (
     "Every figure is computed from official play-by-play. Team-level only — "
     "no player, scheme, or video-derived analysis."
 )
+
+
+def _label(card) -> str:
+    """The metric name a reader should see.
+
+    One shipped evidence id is mislabelled at source: its score-state bin
+    starts at five points behind, not six. Correcting the bin would move the
+    value and invalidate every stored report, so the data stays exactly as
+    generated and the label is corrected at every render point — here and in
+    the web template.
+    """
+    return display_label(card.evidence_id, card.metric)
 
 
 def _safe(text: str | None) -> str:
@@ -115,7 +128,7 @@ def _styles() -> dict[str, ParagraphStyle]:
 
 
 def _evidence_line(card: EvidenceCard) -> str:
-    bits = [f"<b>{_safe(card.metric)}</b> {_safe(card.value)}"]
+    bits = [f"<b>{_safe(_label(card))}</b> {_safe(card.value)}"]
     if card.scope and card.scope != "season":
         bits.append(f"scope {_safe(card.scope)}")
     if card.league_rank:
@@ -168,7 +181,7 @@ def _evidence_table(cards: list[EvidenceCard], st: dict[str, ParagraphStyle]) ->
     for card in cards:
         data.append(
             [
-                Paragraph(_safe(card.metric), st["cell"]),
+                Paragraph(_safe(_label(card)), st["cell"]),
                 Paragraph(_safe(card.scope), st["cell"]),
                 Paragraph(_safe(card.value), st["cell"]),
                 Paragraph(_safe(card.league_rank or "—"), st["cell"]),

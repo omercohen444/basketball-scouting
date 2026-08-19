@@ -168,3 +168,21 @@ def test_a_deployment_without_crewai_serves_everything_but_generation(monkeypatc
     assert lean.get(f"/api/reports/{report_id}/pdf").status_code == 200
     for path in ("/", "/teams/segev:4", "/teams/segev:4/splits", "/explore", "/scouting/segev:4"):
         assert lean.get(path).status_code == 200, path
+
+
+def test_the_legacy_trailing_label_never_reaches_a_reader():
+    """Amendment: the stored evidence keeps its id and its value, but a reader
+    must never be shown the overstated label. This asserts the rendered page,
+    not the helper — the helper existed and was wired nowhere for a while."""
+    repo = InMemoryReportRepository()
+    client = TestClient(
+        make_app(PRODUCTION_PACKS_DIR, repository=repo, analytics_dir=PRODUCTION_ANALYTICS_DIR)
+    )
+    client.post(
+        "/api/admin/reports/generate", json={"team_id": "segev:4"}, headers=admin_headers()
+    )
+    body = client.get("/scouting/segev:4").text
+
+    assert "Trailing 6+" not in body, "the overstated legacy label reached the page"
+    if "behind_6_plus" in body or "Trailing 5+" in body:
+        assert "Trailing 5+" in body

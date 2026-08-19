@@ -6,9 +6,12 @@
 {% macro evidence_card(ev) %}
 <li class="ev">
   {#- The metric label already names its situation ("Clutch Effective FG%",
-      "Effective FG% When Trailing 6+"), so repeating the raw scope id here is
-      redundant noise that also wraps the label. Scope stays in the table. -#}
-  <span class="ev-metric">{{ ev.metric }}</span>
+      "Effective FG% When Trailing 5+"), so repeating the raw scope id here is
+      redundant noise that also wraps the label. Scope stays in the table.
+
+      `metric_label` corrects one shipped id whose stored label overstates its
+      own bin — see analytics.views.DISPLAY_LABEL_OVERRIDES. -#}
+  <span class="ev-metric">{{ metric_label(ev.evidence_id, ev.metric) }}</span>
   <span class="ev-value num">{{ ev.value }}</span>
   <span class="ev-rank">
     {%- if ev.league_rank %}{{ ev.league_rank }}{% endif -%}
@@ -45,8 +48,22 @@
 </li>
 {% endmacro %}
 
+{% from "_macros.html" import crest %}
+
 {% block content %}
-{% include "_selector.html" %}
+{#- Plain links, like every other filter on the site: no JavaScript, no new
+    route, and each opponent is its own address. The old selector posted to
+    /teams/, which does not exist — app.js rewrote it, so it only ever worked
+    with scripting enabled. -#}
+<div class="filters">
+  <div class="fgroup">
+    <span class="flabel">Opponent</span>
+    {%- for team in teams %}
+    <a class="fopt{% if team.team_id == team_id %} is-active{% endif %}"
+       href="/scouting/{{ team.team_id }}">{{ team.team_name }}</a>
+    {%- endfor %}
+  </div>
+</div>
 
 {% if storage_error %}
 <div class="banner banner-warn">
@@ -63,24 +80,39 @@
     Reports are produced in advance by an administrator. Visiting this page never triggers
     generation — that is a protected, backend-only operation, so browsing the site is free.
   </p>
-  <p><a class="btn" href="/">Choose another opponent</a></p>
+  <p>
+    <a class="btn" href="/teams/{{ team_id }}">Team analytics →</a>
+    <a class="btn" href="/">League overview</a>
+  </p>
 </section>
 {% else %}
 
 <article class="report">
   <header class="report-head">
-    <div>
-      <p class="eyebrow">Opponent scouting report</p>
-      <h1>{{ report.team_name }}</h1>
-      <p class="report-meta">
-        {{ report.season }} · {{ report.provenance.record }} · {{ report.provenance.games_n }} games{% if report.provenance.date_range %} · {{ report.provenance.date_range_display }}{% endif %}
-      </p>
+    <div class="report-id">
+      {{ crest(team_id, report.team_name, big=true) }}
+      <div>
+        <p class="eyebrow">Opponent scouting report</p>
+        <h1>{{ report.team_name }}</h1>
+        <p class="report-meta">
+          {{ report.season }} · {{ report.provenance.record }} · {{ report.provenance.games_n }} games{% if report.provenance.date_range %} · {{ report.provenance.date_range_display }}{% endif %}
+        </p>
+      </div>
     </div>
     <div class="report-actions">
       <a class="btn btn-primary" href="/api/reports/{{ report.report_id }}/pdf">Download PDF</a>
+      <a class="btn" href="/teams/{{ team_id }}">Team analytics →</a>
       <p class="muted small">Generated {{ report.generated_at }}</p>
     </div>
   </header>
+
+  {#- The distinction the whole product rests on, said once at the top rather
+      than implied by layout. -#}
+  <div class="provenance-key">
+    <span><i class="pk pk-measured"></i><b>Measured</b> — computed from play-by-play</span>
+    <span><i class="pk pk-interpreted"></i><b>Interpreted</b> — an agent's reading of that evidence</span>
+    <span><i class="pk pk-tactical"></i><b>Tactical option</b> — a suggested method, where the evidence points to one</span>
+  </div>
 
   {% if report.provenance.pack_states %}
   <div class="banner">
@@ -95,13 +127,13 @@
       noise. -#}
 
   <section class="block">
-    <h2>Executive summary</h2>
+    <h2>Executive summary <span class="kind kind-interpreted">Interpreted</span></h2>
     <p class="summary">{{ report.executive_summary }}</p>
   </section>
 
   {% if report.recommendations %}
   <section class="block">
-    <h2>Keys to Win</h2>
+    <h2>Keys to Win <span class="kind kind-interpreted">Interpreted</span></h2>
     <p class="muted small keys-note">
       Each key is an evidence-supported objective, with the deterministic evidence behind it.
       A tactical option appears only where the evidence points to that specific method — most
@@ -119,6 +151,8 @@
         <p class="why"><b>Why it matters</b>{{ rec.why_it_matters }}</p>
 
         {% if rec.evidence %}
+        <p class="kind-line"><span class="kind kind-measured">Measured</span>
+           computed from play-by-play, not written by an agent</p>
         <ul class="ev-list">
           {% for ev in rec.evidence[:4] %}{{ evidence_card(ev) }}{% endfor %}
         </ul>
@@ -177,7 +211,7 @@
         <tbody>
           {% for ev in report.key_evidence %}
           <tr>
-            <td>{{ ev.metric }}</td>
+            <td>{{ metric_label(ev.evidence_id, ev.metric) }}</td>
             <td>{{ ev.scope }}</td>
             <td class="num">{{ ev.value }}</td>
             <td class="num">{{ ev.league_rank or "—" }}</td>

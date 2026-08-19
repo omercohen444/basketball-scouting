@@ -106,3 +106,33 @@ def test_pdf_no_longer_builds_audit_or_engineering_sections():
     assert "Keys to Win" in source
     assert "Why it matters" in source
     assert "Tactical option" in source
+
+
+# ---- the mislabelled legacy metric ------------------------------------------
+
+
+def test_the_legacy_trailing_label_is_corrected_in_the_pdf():
+    """One shipped evidence id's bin starts at five points behind, not six.
+    Correcting the bin would move the value and invalidate every stored report,
+    so the data stays and the label is fixed at every render point."""
+    from basketball_scout.reports.contracts import EvidenceCard
+    from basketball_scout.reports.pdf import _label
+
+    card = EvidenceCard.model_construct(
+        evidence_id="EV.behind_6_plus.efg_pct",
+        metric="Effective FG% When Trailing 6+",
+    )
+    assert _label(card) == "Effective FG% When Trailing 5+"
+
+
+def test_no_pdf_render_point_bypasses_the_label_correction():
+    """The PDF is compressed, so a byte search on the output proves nothing in
+    either direction. Assert on the generator instead: every place a metric
+    name reaches the page must go through the helper."""
+    import inspect
+
+    from basketball_scout.reports import pdf
+
+    source = inspect.getsource(pdf)
+    assert "card.metric" not in source.replace("display_label(card.evidence_id, card.metric)", ""),         "a metric name is rendered without the label correction"
+    assert source.count("_label(card)") >= 2
