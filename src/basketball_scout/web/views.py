@@ -32,6 +32,8 @@ from ..analytics.views import (
     SORTABLE,
     TEAM_TABS,
     baseline_label,
+    compare_groups,
+    compare_splits,
     consistency_view,
     dumbbell_bounds,
     explorer_columns,
@@ -46,6 +48,7 @@ from ..analytics.views import (
     normalise_games_filters,
     profile_ranks,
     quarter_bars,
+    resolve_compare_pair,
     runs_view,
     scatter_mean_position,
     scatter_points,
@@ -362,6 +365,61 @@ def games(
             ),
         },
     )
+
+
+@router.get("/compare", response_class=HTMLResponse, summary="Compare two teams")
+def compare(
+    request: Request,
+    a: str = "",
+    b: str = "",
+    ctx: AppContext = Depends(get_context),
+) -> HTMLResponse:
+    if not ctx.analytics.available:
+        raise unavailable(
+            "Analytics artifacts are not present in this deployment.",
+            code="analytics_unavailable",
+        )
+
+    teams = ctx.analytics.load_all()
+    left, right = resolve_compare_pair(teams, a, b)
+    if not left or not right:
+        raise unavailable("Not enough teams to compare.", code="analytics_unavailable")
+
+    team_a, team_b = teams[left], teams[right]
+    splits = compare_splits(team_a, team_b)
+    return templates.TemplateResponse(
+        request,
+        "compare.html",
+        {
+            **_base(request, ctx, active="compare"),
+            "a": team_a,
+            "b": team_b,
+            "groups": compare_groups(team_a, team_b, profile_ranks(teams)),
+            "splits": splits,
+            "splits_note": _compare_splits_note(team_a, team_b),
+            "options": sorted(
+                ((tid, t.team_name) for tid, t in teams.items()), key=lambda kv: kv[1]
+            ),
+        },
+    )
+
+
+def _compare_splits_note(a, b) -> str:
+    """Why the wins-versus-losses table is absent, naming the team responsible.
+
+    A comparison where one half rests on a two-game sample is not a comparison,
+    so the whole table is withheld rather than half-drawn."""
+    for team in (a, b):
+        for outcome, word in (("losses", "loss"), ("wins", "win")):
+            cell = team.cell("full", outcome)
+            if cell is not None and cell.sample_state == "insufficient":
+                return (
+                    f"No win/loss comparison: {team.team_name} has {cell.games} "
+                    f"{word}{'es' if word == 'loss' and cell.games != 1 else 's' if cell.games != 1 else ''}, "
+                    f"below the sample floor. Comparing one team's full season against "
+                    f"another's two games would not be a comparison."
+                )
+    return "No win/loss comparison is available for this pair."
 
 
 @router.get("/scouting/{team_id}", response_class=HTMLResponse, summary="AI scouting report")

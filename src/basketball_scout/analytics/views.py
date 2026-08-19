@@ -1538,3 +1538,194 @@ def normalise_games_filters(
         venue=venue if venue in ("home", "away") else "",
         result=result if result in ("wins", "losses") else "",
     )
+
+
+# ---- compare ----------------------------------------------------------------
+#
+# Two teams, aligned row by row, with the league position beside every value.
+# The rank is what makes the comparison readable: a three-point gap in
+# offensive rating means one thing at the top of the league and another in the
+# middle, and only the rank says which.
+
+
+COMPARE_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("Efficiency", ("offensive_rating", "defensive_rating", "net_rating", "pace")),
+    ("Offensive four factors", ("efg_pct", "tov_pct", "orb_pct", "ft_rate")),
+    ("Defensive four factors", ("opp_efg_pct", "opp_tov_pct", "drb_pct", "opp_ft_rate")),
+    ("Style", ("fg3a_rate", "ast_to_ratio")),
+)
+
+COMPARE_PROFILE_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("Transition", ("fb_rate", "fb_fg_pct", "fb_points_pg", "fb_rate_allowed")),
+    ("Scoring identity", ("share_2pt", "share_3pt", "share_ft", "pot_pg", "second_chance_pg")),
+)
+
+
+@dataclass(frozen=True)
+class ComparisonRow:
+    """One metric, both teams, with a shared axis for the bar."""
+
+    key: str
+    label: str
+    a: MetricCell | None
+    b: MetricCell | None
+    lo: float
+    hi: float
+
+    @property
+    def is_style(self) -> bool:
+        """Style metrics have no better end, so neither side ever 'wins' one."""
+        return (self.a or self.b).is_style if (self.a or self.b) else True
+
+    @property
+    def leader(self) -> str | None:
+        """``"a"``, ``"b"``, or nothing — nothing for a style metric, and
+        nothing when the two are equal or one side is missing."""
+        if self.a is None or self.b is None or self.is_style:
+            return None
+        if self.a.value == self.b.value:
+            return None
+        direction = self.a.direction
+        a_better = (
+            self.a.value > self.b.value if direction == "higher_is_better"
+            else self.a.value < self.b.value
+        )
+        return "a" if a_better else "b"
+
+    def position(self, cell: MetricCell | None) -> float:
+        """Where the value sits on the row's shared axis, 0-100."""
+        if cell is None or cell.value is None:
+            return 0.0
+        span = (self.hi - self.lo) or 1.0
+        return round(max(0.0, min(100.0, (cell.value - self.lo) / span * 100)), 1)
+
+
+def _row(key: str, a: MetricCell | None, b: MetricCell | None, label: str) -> ComparisonRow | None:
+    values = [c.value for c in (a, b) if c is not None and c.value is not None]
+    if not values:
+        return None
+    lo, hi = min(values), max(values)
+    # A shared axis per row, padded so two near-identical values do not render
+    # as one dot at each extreme.
+    pad = (hi - lo) * 0.9 or abs(hi) * 0.08 or 1.0
+    return ComparisonRow(key=key, label=label, a=a, b=b, lo=lo - pad, hi=hi + pad)
+
+
+@dataclass(frozen=True)
+class ComparisonGroup:
+    label: str
+    rows: list[ComparisonRow] = field(default_factory=list)
+
+
+def compare_groups(
+    a: TeamAnalytics,
+    b: TeamAnalytics,
+    ranks: dict[str, dict[str, tuple[int, int]]] | None = None,
+) -> list[ComparisonGroup]:
+    """Every aligned row, grouped. Cell metrics first, then the season profile."""
+    a_cell, b_cell = a.cell("full", "all"), b.cell("full", "all")
+    groups: list[ComparisonGroup] = []
+
+    for label, keys in COMPARE_GROUPS:
+        rows = []
+        for key in keys:
+            meta = CELL_META[key]
+            row = _row(
+                key,
+                metric_cell(key, a_cell) if a_cell else None,
+                metric_cell(key, b_cell) if b_cell else None,
+                meta.label,
+            )
+            if row is not None:
+                rows.append(row)
+        if rows:
+            groups.append(ComparisonGroup(label=label, rows=rows))
+
+    ranks = ranks or {}
+    a_values, b_values = profile_values(a), profile_values(b)
+    for label, keys in COMPARE_PROFILE_GROUPS:
+        rows = []
+        for key in keys:
+            row = _row(
+                key,
+                profile_cell(key, a_values, ranks.get(a.team_id)),
+                profile_cell(key, b_values, ranks.get(b.team_id)),
+                PROFILE_META[key].label,
+            )
+            if row is not None:
+                rows.append(row)
+        if rows:
+            groups.append(ComparisonGroup(label=label, rows=rows))
+
+    return groups
+
+
+@dataclass(frozen=True)
+class ComparisonSplit:
+    """One metric's wins-versus-losses gap, for both teams side by side.
+
+    Only ever built when *both* teams clear the sample floor on both sides —
+    a comparison where one half is a two-game sample is not a comparison.
+    """
+
+    label: str
+    a_delta: str
+    b_delta: str
+    a_favours_wins: bool | None
+    b_favours_wins: bool | None
+
+
+def compare_splits(a: TeamAnalytics, b: TeamAnalytics, limit: int = 6) -> list[ComparisonSplit]:
+    usable = all(
+        (cell := team.cell("full", outcome)) is not None and cell.sample_state != "insufficient"
+        for team in (a, b)
+        for outcome in ("wins", "losses")
+    )
+    if not usable:
+        return []
+
+    a_rows = {r.meta.key: r for r in split_rows(a)}
+    b_rows = {r.meta.key: r for r in split_rows(b)}
+    out: list[ComparisonSplit] = []
+    for key in ("efg_pct", "tov_pct", "orb_pct", "ft_rate", "ast_to_ratio", "fg3a_rate"):
+        left, right = a_rows.get(key), b_rows.get(key)
+        if left is None or right is None or left.delta is None or right.delta is None:
+            continue
+        out.append(ComparisonSplit(
+            label=left.meta.label,
+            a_delta=left.delta_display, b_delta=right.delta_display,
+            a_favours_wins=left.favours_wins, b_favours_wins=right.favours_wins,
+        ))
+    return out[:limit]
+
+
+def default_compare_pair(teams: dict[str, TeamAnalytics]) -> tuple[str, str]:
+    """The top two by net rating, so the page opens on a real comparison rather
+    than an empty pair of selectors."""
+    ranked = sorted(
+        teams.items(),
+        key=lambda kv: (kv[1].cell("full", "all").metrics.get("net_rating", float("-inf"))
+                        if kv[1].cell("full", "all") else float("-inf")),
+        reverse=True,
+    )
+    ids = [tid for tid, _team in ranked]
+    if len(ids) < 2:
+        return (ids[0], ids[0]) if ids else ("", "")
+    return ids[0], ids[1]
+
+
+def resolve_compare_pair(
+    teams: dict[str, TeamAnalytics], a: str, b: str
+) -> tuple[str, str]:
+    """Whatever the URL asked for, or a sensible pair. Never raises: both ids
+    arrive from a query string a user can edit."""
+    default_a, default_b = default_compare_pair(teams)
+    left = a if a in teams else default_a
+    right = b if b in teams else default_b
+    if left == right:
+        # Comparing a team with itself renders, but it says nothing, so nudge
+        # the second selector to anything else.
+        alternatives = [tid for tid in teams if tid != left]
+        if alternatives:
+            right = default_b if default_b != left else alternatives[0]
+    return left, right

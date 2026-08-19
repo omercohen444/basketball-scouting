@@ -118,6 +118,8 @@ PUBLIC_HTML_ROUTES: tuple[str, ...] = (
     "/explore?family=defence",
     "/games",
     "/games?team=segev:4&venue=home&result=wins",
+    "/compare",
+    "/compare?a=segev:4&b=segev:2",
     "/scouting/segev:4",
 )
 

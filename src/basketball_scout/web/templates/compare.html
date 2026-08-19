@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% from "_macros.html" import crest %}
+{% block title %}{{ a.team_name }} vs {{ b.team_name }} — IBPL Analytics{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Compare</p>
+    <h1>{{ a.team_name }} <span class="dim">against</span> {{ b.team_name }}</h1>
+  </div>
+  <a class="btn" href="/compare?a={{ b.team_id }}&b={{ a.team_id }}">Swap sides ⇄</a>
+</div>
+
+<form class="compare-pick" method="get" action="/compare">
+  <label>
+    <span class="flabel">Team</span>
+    <select name="a">
+      {%- for team_id, name in options %}
+      <option value="{{ team_id }}"{% if team_id == a.team_id %} selected{% endif %}>{{ name }}</option>
+      {%- endfor %}
+    </select>
+  </label>
+  <label>
+    <span class="flabel">Against</span>
+    <select name="b">
+      {%- for team_id, name in options %}
+      <option value="{{ team_id }}"{% if team_id == b.team_id %} selected{% endif %}>{{ name }}</option>
+      {%- endfor %}
+    </select>
+  </label>
+  <button class="btn" type="submit">Compare</button>
+</form>
+
+<div class="compare-head">
+  <div class="side side-a">
+    {{ crest(a.team_id, a.team_name, big=true) }}
+    <div>
+      <a href="/teams/{{ a.team_id }}"><strong>{{ a.team_name }}</strong></a>
+      <div class="rec">{{ a.record }} · {{ a.games_n }} games</div>
+    </div>
+  </div>
+  <div class="side-vs">vs</div>
+  <div class="side side-b">
+    <div class="ta-right">
+      <a href="/teams/{{ b.team_id }}"><strong>{{ b.team_name }}</strong></a>
+      <div class="rec">{{ b.record }} · {{ b.games_n }} games</div>
+    </div>
+    {{ crest(b.team_id, b.team_name, big=true) }}
+  </div>
+</div>
+
+{%- for group in groups %}
+<section class="section">
+  <h2>{{ group.label }}</h2>
+  <div class="cmp">
+    {%- for row in group.rows %}
+    <div class="cmp-row{% if row.is_style %} is-style{% endif %}">
+      <span class="cmp-a {% if row.leader == 'a' %}is-lead{% endif %}">
+        {{ row.a.display if row.a else "—" }}
+        <i class="rk">{% if row.a and row.a.rank %}{{ row.a.rank_display }}{% endif %}</i>
+      </span>
+      <span class="cmp-mid">
+        <span class="cmp-label">{{ row.label }}</span>
+        <span class="cmp-track">
+          {%- if row.a %}<i class="dot dot-a" style="left: {{ row.position(row.a) }}%"
+              title="{{ a.team_name }} — {{ row.a.display }}"></i>{% endif %}
+          {%- if row.b %}<i class="dot dot-b" style="left: {{ row.position(row.b) }}%"
+              title="{{ b.team_name }} — {{ row.b.display }}"></i>{% endif %}
+        </span>
+      </span>
+      <span class="cmp-b {% if row.leader == 'b' %}is-lead{% endif %}">
+        <i class="rk">{% if row.b and row.b.rank %}{{ row.b.rank_display }}{% endif %}</i>
+        {{ row.b.display if row.b else "—" }}
+      </span>
+    </div>
+    {%- endfor %}
+  </div>
+</section>
+{%- endfor %}
+
+<section class="section">
+  <h2>What changes between wins and losses</h2>
+  {%- if splits %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th class="sticky">Metric</th>
+          <th class="n">{{ a.team_name }}</th>
+          <th class="n">{{ b.team_name }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {%- for split in splits %}
+        <tr>
+          <td class="sticky">{{ split.label }}</td>
+          <td class="n{% if split.a_favours_wins is true %} is-good{% elif split.a_favours_wins is false %} is-bad{% endif %}">{{ split.a_delta }}</td>
+          <td class="n{% if split.b_favours_wins is true %} is-good{% elif split.b_favours_wins is false %} is-bad{% endif %}">{{ split.b_delta }}</td>
+        </tr>
+        {%- endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="small dim" style="margin-top:8px">
+    Wins minus losses, in the metric's own units. Offensive, defensive and net rating are
+    excluded: a team outscoring its opponent in the games it wins is true by definition.
+  </p>
+  {%- else %}
+  <p class="dim small">{{ splits_note }}</p>
+  {%- endif %}
+</section>
+
+<p class="small dim" style="max-width: 92ch">
+  Superscripts are league position out of 14. A gap means different things at different
+  points in the table, and the rank is what says which. Style metrics — pace, free-throw
+  rate, three-point attempt rate and the scoring shares — are shown without a leader,
+  because neither end of them is better.
+  <a href="/methodology">How these numbers are built →</a>
+</p>
+{% endblock %}
