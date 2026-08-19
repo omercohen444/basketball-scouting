@@ -776,10 +776,10 @@ def test_r14_unsupported_construct_rejected_in_objective(word):
     assert "R14" in _rules(validate_report(pack, triage, tactical, report))
 
 
-def test_r14_construct_terms_are_not_checked_outside_the_objective():
-    """Scoped to Key objectives only, per the guard's purpose: an objective
-    stating a game plan for OUR team is where an unmeasurable construct like
-    "momentum" would otherwise sneak in as a goal to chase."""
+def test_r14_applies_to_why_it_matters_too_not_only_the_objective():
+    """Originally objective-scoped. Widened after a live Strengths claim read
+    "capable of establishing positive momentum early" — the same category
+    error, in a sentence the objective-only rule never looked at."""
     pack = make_pack()
     triage = make_triage(pack, n=8)
     tactical = make_tactical(triage)
@@ -791,7 +791,81 @@ def test_r14_construct_terms_are_not_checked_outside_the_objective():
         implication_refs=[tactical.implications[0].implication_id],
         confidence="moderate",
     )
-    assert "R14" not in _rules(validate_report(pack, triage, tactical, report))
+    assert "R14" in _rules(validate_report(pack, triage, tactical, report))
+
+
+def test_r14_applies_to_a_narrative_claim():
+    """The exact live defect, in the section it actually appeared in."""
+    pack = make_pack(items=[make_item("EV.season.net_rating", metric_name="net_rating")])
+    triage = make_triage(pack, n=8)
+    tactical = make_tactical(triage)
+    report = make_report(tactical)
+    report.strengths = [
+        ReportClaim(
+            text="They are capable of establishing positive momentum early.",
+            implication_refs=[tactical.implications[0].implication_id],
+        )
+    ]
+    rules = _rules(validate_report(pack, triage, tactical, report))
+    assert "R14" in rules, "momentum is unmeasurable wherever it is claimed"
+    assert "R15" in rules, "'early' needs first-half evidence, and net rating is season-scope"
+
+
+def test_r14_applies_at_the_triage_and_tactical_stages():
+    pack = make_pack()
+    triage = TriageOutput(signals=[
+        _signal("S1", [pack.screening.candidate_ids[0]], "They build momentum through the game.")
+    ])
+    assert "R14" in _rules(validate_triage(pack, triage))
+
+    clean = TriageOutput(signals=[_signal("S1", [pack.screening.candidate_ids[0]])])
+    tactical = TacticalOutput(implications=[
+        TacticalImplication(
+            implication_id="T1", tendency="They play with sustained intensity.",
+            proposed_claim_strength="indicated", claim_basis="b",
+            signal_refs=["S1"], supports_refs=[pack.screening.candidate_ids[0]],
+        )
+    ])
+    assert "R14" in _rules(validate_tactical(pack, clean, tactical))
+
+
+def test_r14_r15_match_whole_words_not_substrings():
+    """Caught the moment the temporal rule was applied beyond objectives: the
+    stub backend's own "the cited evidence isolates this tendency" tripped
+    'late', and "clearly"/"nearly" trip 'early'. A rule that rejects valid
+    prose is worse than one that misses a stylistic slip."""
+    pack = make_pack(items=[make_item("EV.season.a")])
+    triage = TriageOutput(signals=[
+        _signal("S1", ["EV.season.a"],
+                "The evidence isolates this clearly and nearly always correlates.")
+    ])
+    rules = _rules(validate_triage(pack, triage))
+    assert "R15" not in rules
+
+    # ...while the real words still register.
+    real = TriageOutput(signals=[
+        _signal("S1", ["EV.season.a"], "They fall away late in close games.")
+    ])
+    assert "R15" in _rules(validate_triage(pack, real))
+
+
+def test_r15_does_not_gate_a_temporal_word_in_a_tactic_method():
+    """"Attack early in the shot clock" is about the clock, not the time of
+    game, so a method cannot be checked against evidence scope. The construct
+    check still applies there."""
+    pack = make_pack(items=[make_item("EV.season.efg_pct", metric_name="efg_pct")])
+    triage = make_triage(pack, n=8)
+    tactical = make_tactical(triage)
+    ref = tactical.implications[0].implication_id
+    report = make_report(tactical)
+    report.recommendations[0] = KeyToWin(
+        recommendation_id="R1", priority=1,
+        objective="Prepare for the cited tendency.",
+        why_it_matters="Supported by the cited deterministic evidence.",
+        implication_refs=[ref], confidence="moderate",
+        tactics=[make_tactic("R1T1", [ref], method="Attack early in the shot clock.")],
+    )
+    assert "R15" not in _rules(validate_report(pack, triage, tactical, report))
 
 
 # ---- R15: a Key's temporal qualifier needs matching scoped evidence --------

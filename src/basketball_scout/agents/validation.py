@@ -149,6 +149,19 @@ def _hits(text: str, terms: Iterable[str]) -> list[str]:
     return [t for t in terms if t in low]
 
 
+def _word_hits(text: str, terms: Iterable[str]) -> list[str]:
+    """Substring matching, but only on whole words.
+
+    ``_hits`` is fine for the multi-word denylists above, where an accidental
+    substring match is implausible. Single common words are a different matter:
+    a plain ``"late" in text`` fires inside "isolates", and ``"early"`` fires
+    inside "clearly" and "nearly". Both were live false positives the moment
+    the temporal rule was applied beyond Key objectives.
+    """
+    low = text.lower()
+    return [t for t in terms if re.search(rf"\b{re.escape(t)}\b", low)]
+
+
 def _finding(rule: str, severity: str, message: str, where: str | None = None) -> Finding:
     return Finding(rule=rule, severity=severity, message=message, where=where)  # type: ignore[arg-type]
 
@@ -564,31 +577,57 @@ def _internal_vocabulary_findings(text: str, where: str | None) -> list[Finding]
     ]
 
 
-def _objective_findings(text: str, items: list[EvidenceItem], where: str | None) -> list[Finding]:
+def _construct_findings(
+    text: str, items: list[EvidenceItem], where: str | None, *, temporal: bool = True
+) -> list[Finding]:
+    """R14/R15 — unmeasurable constructs and unearned timeframes.
+
+    Applied wherever an agent describes the opponent, not only inside a Key's
+    objective. Both defects were first seen in an objective and both then
+    reappeared elsewhere: a live Strengths claim read "capable of establishing
+    positive momentum early, as shown by a positive net rating" — an
+    unmeasurable construct and an unbacked timeframe, in a sentence no
+    objective-scoped rule would ever look at.
+
+    ``temporal=False`` for ``tactic.method``, the one place a temporal word is
+    usually about the shot clock ("attack early in the clock") rather than the
+    time of game, and so cannot be checked against evidence scope.
+    """
     findings: list[Finding] = []
-    if hits := _hits(text, UNSUPPORTED_CONSTRUCT_TERMS):
+    if hits := _word_hits(text, UNSUPPORTED_CONSTRUCT_TERMS):
         findings.append(
             _finding(
                 "R14", "reject",
-                f"objective invokes a construct this dataset cannot measure ({', '.join(hits)}); "
+                f"invokes a construct this dataset cannot measure ({', '.join(hits)}); "
                 f"no metric here quantifies effort, flow, or carry-over between plays",
                 where,
             )
         )
-    low = text.lower()
+    if not temporal:
+        return findings
+
     scopes_present = {i.scope for i in items}
+    present_terms = set(_word_hits(text, TEMPORAL_QUALIFIER_SCOPES))
     for term, allowed_scopes in sorted(TEMPORAL_QUALIFIER_SCOPES.items()):
-        if term not in low or scopes_present & set(allowed_scopes):
+        if term not in present_terms or scopes_present & set(allowed_scopes):
             continue
         findings.append(
             _finding(
                 "R15", "reject",
-                f"{term!r} is a temporal qualifier this Key's cited evidence does not support "
+                f"{term!r} is a temporal qualifier the cited evidence does not support "
                 f"(needs a {'/'.join(allowed_scopes)}-scoped item; cited scopes: "
                 f"{sorted(scopes_present) or ['none']})",
                 where,
             )
         )
+    return findings
+
+
+def _objective_findings(text: str, items: list[EvidenceItem], where: str | None) -> list[Finding]:
+    """R16/R17 — what a Key's objective specifically may say. Deliberately
+    objective-only; R14/R15 live in ``_construct_findings`` and apply broadly."""
+    findings: list[Finding] = []
+    low = text.lower()
 
     # R16 — the objective must be about what its evidence actually measures.
     families_present: set[str] = set()
@@ -673,6 +712,7 @@ def validate_triage(pack: EvidencePack, triage: TriageOutput) -> ValidationResul
         findings.extend(_prose_findings(text, pack, where, allow_scheme=False))
         findings.extend(_intensity_findings(text, items, where))
         findings.extend(_stability_findings(text, items, where))
+        findings.extend(_construct_findings(text, items, where))
 
     n = len(triage.signals)
     if n < MIN_SIGNALS or n > MAX_SIGNALS:
@@ -732,6 +772,7 @@ def validate_tactical(
         findings.extend(_prose_findings(text, pack, where, allow_scheme=False))
         findings.extend(_intensity_findings(text, items, where))
         findings.extend(_stability_findings(text, items, where))
+        findings.extend(_construct_findings(text, items, where))
 
     return ValidationResult(findings=findings)
 
@@ -759,6 +800,7 @@ def validate_report(
         claim_items = _items_for_implications(claim.implication_refs, by_implication, index)
         findings.extend(_intensity_findings(claim.text, claim_items, where))
         findings.extend(_stability_findings(claim.text, claim_items, where))
+        findings.extend(_construct_findings(claim.text, claim_items, where))
 
     n = len(report.recommendations)
     if n < MIN_RECOMMENDATIONS or n > MAX_RECOMMENDATIONS:
@@ -784,6 +826,7 @@ def validate_report(
         # objective" is even allowed to mean given the evidence behind it.
         findings.extend(_prose_findings(rec.objective, pack, where, allow_scheme=True))
         findings.extend(_objective_findings(rec.objective, rec_items, where))
+        findings.extend(_construct_findings(rec.objective, rec_items, where))
         findings.extend(_internal_vocabulary_findings(rec.objective, where))
         findings.extend(_prose_findings(rec.why_it_matters, pack, where, allow_scheme=False))
         findings.extend(_internal_vocabulary_findings(rec.why_it_matters, where))
@@ -793,6 +836,7 @@ def validate_report(
         # scheme vocabulary.
         findings.extend(_intensity_findings(rec.why_it_matters, rec_items, where))
         findings.extend(_stability_findings(rec.why_it_matters, rec_items, where))
+        findings.extend(_construct_findings(rec.why_it_matters, rec_items, where))
 
         rec_ref_set = set(rec.implication_refs)
         for tactic in rec.tactics:
@@ -821,6 +865,8 @@ def validate_report(
             tactic_items = _items_for_implications(tactic.implication_refs, by_implication, index)
             findings.extend(_intensity_findings(tactic.mechanism, tactic_items, twhere))
             findings.extend(_stability_findings(tactic.mechanism, tactic_items, twhere))
+            findings.extend(_construct_findings(tactic.method, tactic_items, twhere, temporal=False))
+            findings.extend(_construct_findings(tactic.mechanism, tactic_items, twhere))
 
         # Confidence may not exceed the reliability of the weakest evidence it
         # transitively rests on. Corrected deterministically (see
@@ -869,6 +915,7 @@ def validate_report(
     summary_items = _items_for_implications(cited, by_implication, index)
     findings.extend(_intensity_findings(report.executive_summary, summary_items, "executive_summary"))
     findings.extend(_stability_findings(report.executive_summary, summary_items, "executive_summary"))
+    findings.extend(_construct_findings(report.executive_summary, summary_items, "executive_summary"))
 
     if re.search(r"\d", report.executive_summary):
         findings.append(
