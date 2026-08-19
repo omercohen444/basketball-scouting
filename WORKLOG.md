@@ -5,6 +5,104 @@ session — not a place for terminal output.
 
 ---
 
+## 2026-08-19 — Run 18: Finish the product — semantics, design, deployment
+
+**Objective:** One long autonomous run to take the project from "advanced but
+unfinished" to a complete, deployed, reviewable product. Preflight established
+the real Git state first: HEAD `c83d7de`, in sync with origin, and *all* of the
+Run 15/16/17 content work still uncommitted (19 files). Nothing was lost.
+
+**Semantic consistency (the two defects that lexical rules kept missing).**
+
+*R16 — an objective must be about what its evidence measures.* A live Key read
+"Focus on defensive execution to lower their offensive efficiency" while citing
+only Defensive Rating and Net Rating. Every id resolved and R12 was satisfied;
+the sentence was still about the wrong side of the ball. The fix pairs two small
+deterministic maps — `metric_name -> families` and an opponent-directed phrase
+(`"their offensive efficiency"`) `-> required family`. Only `their ...` phrasing
+constrains a Key, so "defensive execution" (ours) never demands defensive
+evidence. Not a semantic parser; a lookup.
+
+*R17 — an objective states an outcome, a tactic states a method.* "…to contest
+their clutch shot attempts" put a technique in the objective (and one this
+dataset cannot measure at all). R17 rejects a tight list of physical techniques
+there and **only** there — the same words stay legal inside `tactic.method`,
+which is where they belong. The rule relocates vocabulary rather than banning it.
+
+*R18* — the head scout is told each implication's `claim_strength` so it can
+sound appropriately tentative, and wrote the word into the report: "they possess
+an indicated league-leading capacity". Matching the modifier form only
+("an indicated ") keeps ordinary verb use ("the evidence indicates") legal.
+
+**Cross-team QA found a third, more instructive defect.** A Strengths claim read
+"capable of establishing positive momentum early, as shown by a positive net
+rating" — an unmeasurable construct *and* an unearned timeframe. R14/R15 already
+covered both but only ran on Key objectives, which was an accident of where each
+was first seen rather than a principle. They now run at every stage and on every
+surface where an agent describes the opponent (R16/R17 stay objective-only,
+being genuinely about objectives). A tactic's `method` skips the temporal check
+— "attack early in the shot clock" is about the clock, not the game.
+
+Widening that scope exposed a latent matcher bug and turned 41 tests red at
+once: the denylists are substring-matched, so a bare `"late"` fires inside
+*isolates* (in the stub's own prose) and `"early"` inside *clearly* / *nearly*.
+R14/R15 now match on word boundaries. Shipping that unnoticed would have
+rejected valid reports across the league.
+
+**Design — "Scouting Desk".** Authored as a Stitch design system
+(project `5516054821751354704`, asset `assets/5478120112663780570`); Stitch's
+screen generator timed out repeatedly, so the direction was implemented directly
+in Jinja/CSS, which is where it had to end up anyway. The organising idea is
+that the three information types must not look alike:
+
+| layer | class | treatment |
+|---|---|---|
+| measured | `.ev` | bordered card, tabular figure, rank, W/L split |
+| interpreted | `.why` / `.claim-text` | plain prose, no card, no number |
+| suggested | `.tactic` | inset block, navy rule, explicit label |
+
+W/L differences — the most practically useful and most easily missed content —
+now render as wins value / losses value / gap in SD over a bar scaled to effect
+size. Two rendering bugs found in-browser: the bars were `<span>`s with a height
+(inline boxes ignore it, so they collapsed to nothing), and every evidence label
+carried a redundant raw scope suffix that wrapped the label.
+
+**PDF pagination.** `build_report_pdf` ended the narrative with an unconditional
+`PageBreak`, discarding whatever remained of the page — one real report spent
+196mm (76% of a page) on six lines. Now `CondPageBreak`, with the other bare
+headings guarded and each section heading riding inside its first claim's
+`KeepTogether`. Defective report: 4 pages → 3, worst whitespace 196mm → 38mm,
+extracted text byte-identical, and a 340-variation content sweep finds no
+remaining case.
+
+**Data Limits.** Deduplicated by *topic* rather than exact string (the model's
+"small clutch samples" note and the canonical `unweighted_segment_mean` note say
+the same thing in different words), capped at three, and a caveat that merely
+restates one of the four unavailable groups is dropped — those render as their
+own bullets in the same section.
+
+**Deployed.** Live at **https://web-production-82a60.up.railway.app**;
+`/health` reports `storage: supabase`, `teams_n: 14`. The Railway CLI — and
+therefore the Railway MCP, which is the same binary — had been written off as
+unusable here. The failure was `invalid peer certificate: UnknownIssuer`: Avast
+intercepts HTTPS and the CLI's Rust client trusts only its bundled roots
+(CLAUDE.md quirk 1, hitting a client with no `truststore` escape hatch).
+`SSL_CERT_FILE` pointed at Avast's own root fixes it outright, and the stored
+login was valid all along — the "expired token" was the same TLS failure wearing
+a different hat. `docs/DEPLOYMENT.md` now leads with this.
+
+**The cost model is now a test, not a claim.** The README always said no public
+route calls Gemini and nothing enforced it. A test now rebuilds the app with a
+backend factory that raises on construction and walks every public route, so
+reaching the provider from a read path is a test failure rather than a billing
+surprise.
+
+**Unresolved / next:** see the run's final report. Reports for all 14 teams were
+generated in this run; teams generated before the R14/R15 widening and the
+caveat-echo fix were re-checked and regenerated where the scan found anything.
+
+---
+
 ## 2026-08-19 — Run 17: Two more calibration guards (validation.py only, `no-video-mvp`)
 
 **Objective:** One more targeted guard on top of Run 16, again validation-
