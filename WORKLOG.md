@@ -17,9 +17,10 @@ features, no report regeneration, no Gemini call, no formula touched.
 
 | | |
 |---|---|
-| Final commit | the submission commit this entry ships in — tagged `v1.0.0-mvp` |
-| Last runtime change | `410eb4a` "Record the release" (Run 21) |
-| Branch | `no-video-mvp` |
+| Final commit | whatever `v1.0.0-mvp` resolves to — `git rev-list -n1 v1.0.0-mvp` |
+| Submission commits | three, all documentation: the README rewrite, the evidence pointer, this entry |
+| Last runtime change | `410eb4a` "Record the release" (Run 21) — nothing under `src/`, `tests/`, `scripts/`, `data/` or the deploy config has moved since |
+| Branch | `no-video-mvp` (also the repository's default branch) |
 | Public URL | https://web-production-82a60.up.railway.app |
 | Tests | **1,205** — 1,203 pass, 2 conditionally skip, **none network-marked** |
 | CI | GitHub Actions green |
