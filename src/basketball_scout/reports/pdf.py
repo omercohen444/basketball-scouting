@@ -140,7 +140,7 @@ def _meta_line(report: PublicReport) -> str:
         f"{prov.games_n} games",
     ]
     if prov.date_range:
-        parts.append(_safe(prov.date_range))
+        parts.append(_safe(prov.date_range_display))
     return " &#183; ".join(parts)
 
 

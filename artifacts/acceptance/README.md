@@ -31,7 +31,7 @@ python scripts\ops\generate_reports.py --team-id segev:4 --force --pdf-dir artif
 | Warnings | 1 |
 | Duration | 140.5 s |
 | Persisted | Supabase, `status = published` |
-| PDF | `scouting-report-hapoel-jerusalem-2025-26.pdf`, 11,213 bytes |
+| PDF | `scouting-report-hapoel-jerusalem-2025-26.pdf`, 11,201 bytes |
 | Evidence pack | `segev:4\|2025-26\|agents-v1`, `sha256:cb5c6614c5da8807d…` |
 | Versions | report `report-v1` · evidence `packs-v1` · definitions `agents-v1` |
 
@@ -71,6 +71,12 @@ by `render.py` from the pack.
   row was removed afterwards; its `generation_runs` audit row survives with a
   null `report_id`, which is what the foreign key's `on delete set null` is for.
 - `GET /api/teams` against live Supabase: 14 teams in **one** query, ~420 ms.
+- The committed PDF was regenerated afterwards from the **stored** report alone,
+  with no agent backend configured at all — which is the "a PDF never costs a
+  provider call" property demonstrated rather than asserted.
+- The app was also run under real `uvicorn main:app --host 0.0.0.0 --port $PORT`
+  (the Railway start command) and driven over HTTP, not just through the test
+  client: `/health` 47 ms, `/api/teams` 735 ms, report page 707 ms, PDF 602 ms.
 - `GET /api/reports/latest/segev:4`, `GET /api/reports/{id}`,
   `GET /api/reports/{id}/pdf`, `GET /`, `GET /teams/segev:4` — all 200 against
   the live database.

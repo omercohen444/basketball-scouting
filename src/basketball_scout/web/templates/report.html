@@ -47,7 +47,7 @@
       <h1>{{ report.team_name }}</h1>
       <p class="lede">
         Season {{ report.season }} · {{ report.provenance.record }} · {{ report.provenance.games_n }} games
-        {% if report.provenance.date_range %}· {{ report.provenance.date_range }}{% endif %}
+        {% if report.provenance.date_range %}· {{ report.provenance.date_range_display }}{% endif %}
       </p>
     </div>
     <div class="report-actions">

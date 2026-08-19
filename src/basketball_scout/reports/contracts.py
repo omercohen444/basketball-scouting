@@ -176,6 +176,16 @@ class ReportProvenance(BaseModel):
     evidence_version: str = "unknown"
     pack_states: list[str] = Field(default_factory=list)
 
+    @property
+    def date_range_display(self) -> str:
+        """``date_range`` with the tip-off times dropped.
+
+        The stored value is the deterministic layer's, timestamps and all, and
+        stays that way — this is a presentation concern, so it is a computed
+        property (not serialized, not stored) that the HTML and PDF use.
+        """
+        return " to ".join(part.strip().split("T")[0] for part in self.date_range.split(" to "))
+
 
 class PublicReport(BaseModel):
     """The complete, frontend-safe scouting report."""

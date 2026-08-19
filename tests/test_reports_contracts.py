@@ -134,3 +134,28 @@ def test_report_round_trips_through_json_unchanged():
     original = build()
     revived = PublicReport.model_validate(json.loads(original.model_dump_json()))
     assert revived == original
+
+
+def test_date_range_display_drops_tip_off_times():
+    """The stored value keeps the deterministic layer's full timestamps; only
+    the HTML and PDF shorten it."""
+    report = build()
+    assert report.provenance.date_range == "2025-10-12 to 2026-05-27"
+
+    with_times = report.provenance.model_copy(
+        update={"date_range": "2025-10-12T16:00:00 to 2026-05-27T20:50:00"}
+    )
+    assert with_times.date_range_display == "2025-10-12 to 2026-05-27"
+    assert with_times.date_range == "2025-10-12T16:00:00 to 2026-05-27T20:50:00"
+
+
+def test_date_range_display_is_safe_when_the_range_is_missing_or_odd():
+    from basketball_scout.reports.contracts import ReportProvenance
+
+    assert ReportProvenance(pack_id="p").date_range_display == ""
+    assert ReportProvenance(pack_id="p", date_range="n/a").date_range_display == "n/a"
+
+
+def test_date_range_display_is_not_serialized():
+    """A computed property must not leak into the stored/served payload."""
+    assert "date_range_display" not in build().model_dump(mode="json")["provenance"]
