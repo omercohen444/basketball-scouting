@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import crest, metric_td %}
+{% from "_macros.html" import crest, metric_td, mdef %}
 {% block title %}Games — IBPL Analytics{% endblock %}
 
 {% block content %}
@@ -62,6 +62,7 @@
         {%- for key, label in columns %}
         <th class="n{% if filters.sort == key %} is-sorted{% endif %}">
           <a href="{{ filters.query(sort=key) }}">{{ label }}{% if filters.sort == key %} ▾{% endif %}</a>
+          <a class="mdef-icon" href="{{ methodology_href(key) }}" aria-label="Definition of {{ label }}">?</a>
         </th>
         {%- endfor %}
         {%- for key, label in dynamics_columns %}

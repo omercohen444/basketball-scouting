@@ -1,4 +1,4 @@
-{% from "_macros.html" import factor_card, bar_chart, dumbbell, stat %}
+{% from "_macros.html" import factor_card, bar_chart, dumbbell, stat, mdef %}
 
 <div class="cols-2">
   <div>
@@ -22,7 +22,7 @@
   </div>
 
   <div class="chart-card">
-    <h3>Net rating by quarter</h3>
+    <h3>{{ mdef("Net rating", "net_rating") }} by quarter <span class="unit">per 100 possessions</span></h3>
     {{ bar_chart(quarters) }}
     <p class="small dim" style="margin-top:10px">
       Around 520 possessions per quarter across the season.
@@ -33,7 +33,7 @@
 
 <div class="cols-2">
   <section class="section">
-    <h2>Transition</h2>
+    <h2>{{ mdef("Transition", "transition") }}</h2>
     <div class="stat-row">
       {%- for cell in transition %}{{ stat(cell) }}{% endfor %}
     </div>
@@ -45,11 +45,11 @@
   </section>
 
   <section class="section">
-    <h2>Consistency</h2>
+    <h2>{{ mdef("Consistency", "stability") }}</h2>
     <div class="table-wrap" style="padding: 4px 14px 10px">
       {%- for cell in consistency %}
       <div class="consistency">
-        <span class="metric">{{ cell.label }}</span>
+        <span class="metric">{{ mdef(cell.label, cell.key) }}</span>
         <span class="level{% if cell.level %} is-{{ cell.level | lower }}{% endif %}">
           {{ cell.level or "—" }}
         </span>

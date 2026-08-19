@@ -23,6 +23,7 @@
     <a href="#aggregation">Aggregation</a>
     <a href="#scoring-sources">Scoring sources</a>
     <a href="#transition">Transition</a>
+    <a href="#turnovers">Turnover types</a>
     <a href="#shot-geometry">Shot geometry</a>
     <a href="#pipeline">Pipeline</a>
     <a href="#dataset">Dataset</a>
@@ -299,6 +300,45 @@
         shows. No half-court, set-offence or secondary-transition figure exists anywhere on
         this site, and none can be derived from this flag.
       </div>
+    </section>
+
+    <!-- ================= turnovers ================= -->
+    <section class="doc-sec" id="turnovers">
+      <h2>Turnover types</h2>
+      <p>
+        Turnover rate says how <em>often</em> a team gives the ball away. The turnover types
+        on a team's Profile say <em>what kind</em>. They share no denominator and answer
+        different questions.
+      </p>
+      <p>
+        The categories are the data provider's own, preserved word for word. No scouting
+        taxonomy is invented on top of them: the source field is unusually clean &mdash; ten
+        values, not one null anywhere in the season's 5,205 turnovers &mdash; so it is already
+        the trusted representation.
+      </p>
+      <p>
+        Ten categories is more than a page can read at a glance, so four are displayed and all
+        ten are listed underneath. The four are exhaustive over the ten, which is why they can
+        be drawn as shares of the whole:
+      </p>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th class="sticky">Displayed as</th><th>Provider categories folded in</th></tr></thead>
+          <tbody>
+            <tr><td class="sticky"><strong>Bad pass</strong></td><td class="wrap">bad-pass</td></tr>
+            <tr><td class="sticky"><strong>Ball handling</strong></td><td class="wrap">ball-handling</td></tr>
+            <tr><td class="sticky"><strong>Travelling</strong></td><td class="wrap">travelling</td></tr>
+            <tr><td class="sticky"><strong>Violations &amp; other</strong></td><td class="wrap">
+              other, 24-seconds-violation, out-of-bounds, 8-seconds-violation,
+              5-seconds-violation, backcourt-violation, 3-seconds-violation</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Committed</strong> is this team's own turnovers. <strong>Forced</strong> is the
+        opponents' taxonomy in the same games &mdash; the same events seen from the other
+        bench, and generally the more useful half for scouting.
+      </p>
     </section>
 
     <!-- ================= shot geometry ================= -->

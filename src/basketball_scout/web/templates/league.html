@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import crest, team_link, metric_td %}
+{% from "_macros.html" import crest, team_link, metric_td, mdef %}
 {% block title %}League — IBPL Analytics{% endblock %}
 
 {% block content %}
@@ -101,6 +101,7 @@
           {%- for key, label in columns %}
           <th class="n{% if sort == key %} is-sorted{% endif %}">
             <a href="/?sort={{ key }}">{{ label }}{% if sort == key %} ▾{% endif %}</a>
+            <a class="mdef-icon" href="{{ methodology_href(key) }}" aria-label="Definition of {{ label }}">?</a>
           </th>
           {%- endfor %}
         </tr>

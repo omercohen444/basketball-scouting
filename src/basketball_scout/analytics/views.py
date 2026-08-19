@@ -73,6 +73,47 @@ OPPONENT_META: dict[str, MetricMeta] = {
 # the defensive four in one `metrics` dict, so one lookup resolves both.
 CELL_META: dict[str, MetricMeta] = {**METRIC_META, **OPPONENT_META}
 
+# ---- methodology addresses --------------------------------------------------
+#
+# One place where a metric becomes a Methodology address. The glossary builds
+# its own anchors from the same function, so a link and the definition it
+# points at cannot drift apart — and a metric with no entry gets no link rather
+# than a link to the top of the page.
+
+# Concepts that are a section rather than a single metric. Anything with its
+# own glossary entry is not listed here: a specific anchor always wins.
+METHODOLOGY_SECTIONS: dict[str, str] = {
+    "transition": "transition",
+    "scoring-sources": "scoring-sources",
+    "shot-geometry": "shot-geometry",
+    "turnovers": "turnovers",
+    "samples": "samples",
+    "stability": "stability",
+    "baselines": "baselines",
+    "segments": "segments",
+    "aggregation": "aggregation",
+    "possessions": "possessions",
+}
+
+
+def methodology_anchor(key: str) -> str:
+    """The fragment id for one metric's definition."""
+    return key.replace("_", "-")
+
+
+def methodology_href(key: str) -> str | None:
+    """``/methodology#anchor`` for a metric or a concept, or nothing.
+
+    Nothing rather than ``/methodology`` on purpose: a link that lands a reader
+    at the top of a fourteen-section reference and leaves them to find the term
+    themselves is worse than plain text, because it looks like it worked.
+    """
+    if key in CELL_META or key in PROFILE_META or key in SHOT_META:
+        return "/methodology#" + methodology_anchor(key)
+    section = METHODOLOGY_SECTIONS.get(key)
+    return ("/methodology#" + section) if section else None
+
+
 # One shipped evidence id is mislabelled at source. The score-state bin it uses
 # starts at a margin of -5, not -6, so "Trailing 6+" overstates it. Correcting
 # the *bin* would move the value by up to eight points and invalidate every
@@ -896,26 +937,26 @@ PROFILE_META: dict[str, MetricMeta] = {
     # transition — running more is style, conceding transition is not
     "fb_rate": MetricMeta("fb_rate", "Fast-Break Attempt Rate", "FB rate", "neutral", "pct"),
     "fb_fg_pct": MetricMeta("fb_fg_pct", "Fast-Break FG%", "FB FG%", "higher_is_better", "pct"),
-    "fb_points_pg": MetricMeta("fb_points_pg", "Fast-Break Points / game", "FB pts", "higher_is_better", "count"),
+    "fb_points_pg": MetricMeta("fb_points_pg", "Fast-Break Points / game", "FB pts/g", "higher_is_better", "count"),
     "fb_rate_allowed": MetricMeta("fb_rate_allowed", "Fast-Break Rate Allowed", "FB allowed", "lower_is_better", "pct"),
     "fb_fg_pct_allowed": MetricMeta("fb_fg_pct_allowed", "Opponent Fast-Break FG%", "oFB FG%", "lower_is_better", "pct"),
     # scoring sources — the partition is style, the contextual ones have a direction
     "share_2pt": MetricMeta("share_2pt", "Share of Points from 2PT", "2PT", "neutral", "pct"),
     "share_3pt": MetricMeta("share_3pt", "Share of Points from 3PT", "3PT", "neutral", "pct"),
     "share_ft": MetricMeta("share_ft", "Share of Points from FT", "FT", "neutral", "pct"),
-    "pot_pg": MetricMeta("pot_pg", "Points Off Turnovers / game", "PoT", "higher_is_better", "count"),
+    "pot_pg": MetricMeta("pot_pg", "Points Off Turnovers / game", "PoT/g", "higher_is_better", "count"),
     "points_per_opp_tov": MetricMeta("points_per_opp_tov", "Points per Opponent Turnover", "pts/TO", "higher_is_better", "ratio", 2),
-    "second_chance_pg": MetricMeta("second_chance_pg", "Second-Chance Points / game", "2nd ch.", "higher_is_better", "count"),
+    "second_chance_pg": MetricMeta("second_chance_pg", "Second-Chance Points / game", "2nd ch./g", "higher_is_better", "count"),
     "second_chance_conversion": MetricMeta("second_chance_conversion", "Second-Chance Conversion", "2nd conv.", "higher_is_better", "pct"),
     "assisted_share": MetricMeta("assisted_share", "Assisted Share of Made FG", "AST%", "neutral", "pct"),
     "assisted_3pm_share": MetricMeta("assisted_3pm_share", "Assisted Share of Made 3PT", "AST% 3PT", "neutral", "pct"),
     # scoring rhythm
-    "runs_8_for_pg": MetricMeta("runs_8_for_pg", "8+ Point Runs Made / game", "8+ made", "higher_is_better", "ratio", 2),
-    "runs_8_against_pg": MetricMeta("runs_8_against_pg", "8+ Point Runs Conceded / game", "8+ conceded", "lower_is_better", "ratio", 2),
-    "largest_run_for_pg": MetricMeta("largest_run_for_pg", "Largest Run Made / game", "Best run", "higher_is_better", "count"),
-    "largest_run_against_pg": MetricMeta("largest_run_against_pg", "Largest Run Conceded / game", "Worst run", "lower_is_better", "count"),
-    "scoring_droughts_pg": MetricMeta("scoring_droughts_pg", "Scoring Droughts 3m+ / game", "Droughts", "lower_is_better", "ratio", 2),
-    "fg_droughts_pg": MetricMeta("fg_droughts_pg", "Field-Goal Droughts 3m+ / game", "FG droughts", "lower_is_better", "ratio", 2),
+    "runs_8_for_pg": MetricMeta("runs_8_for_pg", "8+ Point Runs Made / game", "8+ made/g", "higher_is_better", "ratio", 2),
+    "runs_8_against_pg": MetricMeta("runs_8_against_pg", "8+ Point Runs Conceded / game", "8+ conceded/g", "lower_is_better", "ratio", 2),
+    "largest_run_for_pg": MetricMeta("largest_run_for_pg", "Largest Run Made / game", "Best run/g", "higher_is_better", "count"),
+    "largest_run_against_pg": MetricMeta("largest_run_against_pg", "Largest Run Conceded / game", "Worst run/g", "lower_is_better", "count"),
+    "scoring_droughts_pg": MetricMeta("scoring_droughts_pg", "Scoring Droughts 3m+ / game", "Droughts/g", "lower_is_better", "ratio", 2),
+    "fg_droughts_pg": MetricMeta("fg_droughts_pg", "Field-Goal Droughts 3m+ / game", "FG droughts/g", "lower_is_better", "ratio", 2),
     "longest_fg_drought_s": MetricMeta("longest_fg_drought_s", "Longest Field-Goal Drought", "Longest FG drought", "lower_is_better", "seconds"),
 }
 

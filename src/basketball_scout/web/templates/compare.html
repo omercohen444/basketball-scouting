@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import crest %}
+{% from "_macros.html" import crest, mdef %}
 {% block title %}{{ a.team_name }} vs {{ b.team_name }} — IBPL Analytics{% endblock %}
 
 {% block content %}
@@ -60,7 +60,7 @@
         <i class="rk">{% if row.a and row.a.rank %}{{ row.a.rank_display }}{% endif %}</i>
       </span>
       <span class="cmp-mid">
-        <span class="cmp-label">{{ row.label }}</span>
+        <span class="cmp-label">{{ mdef(row.label, row.key) }}</span>
         <span class="cmp-track">
           {%- if row.a %}<i class="dot dot-a" style="left: {{ row.position(row.a) }}%"
               title="{{ a.team_name }} — {{ row.a.display }}"></i>{% endif %}

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import crest, metric_td, sample %}
+{% from "_macros.html" import crest, metric_td, sample, mdef %}
 {% block title %}Explorer — IBPL Analytics{% endblock %}
 
 {% block content %}
@@ -41,8 +41,8 @@
       <tr>
         <th class="n">#</th>
         <th class="sticky">Team</th>
-        {%- for _key, label in columns %}<th class="n">{{ label }}</th>{% endfor %}
-        <th class="n" title="{{ baseline_tooltip }}">{{ baseline_label }}</th>
+        {%- for key, label in columns %}<th class="n">{{ mdef(label, key) }}</th>{% endfor %}
+        <th class="n" title="{{ baseline_tooltip }}">{{ mdef(baseline_label, "baselines") }}</th>
         <th class="n">Games</th><th class="n">Poss</th><th></th>
       </tr>
     </thead>

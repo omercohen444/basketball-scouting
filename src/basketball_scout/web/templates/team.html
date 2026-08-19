@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import crest %}
+{% from "_macros.html" import crest, mdef %}
 {% block title %}{{ team.team_name }} — IBPL Analytics{% endblock %}
 
 {% block subnav %}
@@ -27,7 +27,7 @@
   <div class="headline-metrics">
     {%- for cell in headline %}
     <div class="headline{% if cell.is_style %} is-style{% endif %}">
-      <span class="k">{{ cell.short }}</span>
+      <span class="k">{{ mdef(cell.short, cell.key) }}</span>
       <span class="v">{{ cell.display }}</span>
       <span class="r">{{ cell.rank_display or '—' }}</span>
     </div>

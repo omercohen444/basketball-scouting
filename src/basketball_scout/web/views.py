@@ -46,6 +46,7 @@ from ..analytics.views import (
     game_log,
     headline_metrics,
     largest_differences,
+    methodology_href,
     league_game_rows,
     league_leaders,
     league_rows,
@@ -114,6 +115,9 @@ templates.env.globals["raise"] = _template_raise
 # behind, not six. The data is left exactly as generated so no stored report
 # is invalidated; the label is corrected here, on the way out.
 templates.env.globals["metric_label"] = display_label
+# A metric name is a term with a definition. The macro turns it into a link
+# to that definition, or leaves it as plain text when there is none.
+templates.env.globals["methodology_href"] = methodology_href
 
 router = APIRouter(tags=["ui"], dependencies=[Depends(enforce_api_rate_limit)])
 

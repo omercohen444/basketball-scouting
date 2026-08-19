@@ -19,6 +19,15 @@
   </a>
 {%- endmacro %}
 
+{#- A metric name, linked to its own definition. Plain text when there is no
+    entry: a link that drops a reader at the top of a fourteen-section reference
+    and leaves them to find the term is worse than no link, because it looks
+    like it worked. -#}
+{% macro mdef(label, key) -%}
+  {%- set href = methodology_href(key) -%}
+  {%- if href -%}<a class="mdef" href="{{ href }}">{{ label }}</a>{%- else -%}{{ label }}{%- endif -%}
+{%- endmacro %}
+
 {#- One metric in a table cell: value, rank superscript, and a tint that is
     always zero for style metrics. -#}
 {% macro metric_td(cell) -%}
@@ -42,7 +51,7 @@
 {% macro factor_card(cell) -%}
   {%- if cell %}
   <div class="factor{% if cell.is_style %} is-style{% endif %}">
-    <div class="k">{{ cell.short }}</div>
+    <div class="k">{{ mdef(cell.short, cell.key) }}</div>
     <div class="v">{{ cell.display }}</div>
     <div class="r">{% if cell.rank %}{{ cell.rank_display }}{% else %}—{% endif %}</div>
     {%- if cell.percentile is not none and not cell.is_style %}
@@ -75,7 +84,7 @@
 {% macro dumbbell(row, lo, hi) -%}
   {%- set span = (hi - lo) or 1 -%}
   <div class="dumbbell{% if row.meta.direction == 'neutral' %} is-style{% endif %}">
-    <span class="metric">{{ row.meta.label }}</span>
+    <span class="metric">{{ mdef(row.meta.label, row.meta.key) }}</span>
     {%- if row.wins is not none and row.losses is not none %}
     {%- set wpos = ((row.wins - lo) / span * 100) | round(1) -%}
     {%- set lpos = ((row.losses - lo) / span * 100) | round(1) -%}
@@ -98,7 +107,7 @@
 {% macro stat(cell, wide=false) -%}
   {%- if cell %}
   <div class="stat{% if cell.is_style %} is-style{% endif %}{% if wide %} is-wide{% endif %}">
-    <span class="k">{{ cell.short }}</span>
+    <span class="k">{{ mdef(cell.short, cell.key) }}</span>
     <span class="v">{{ cell.display }}</span>
     <span class="r">{% if cell.rank %}{{ cell.rank_display }}{% else %}&nbsp;{% endif %}</span>
   </div>
@@ -158,7 +167,7 @@
       <thead>
         <tr>
           <th class="sticky">{{ 'Situation' if show_definition else 'Period' }}</th>
-          {%- for _key, label in cols %}<th class="n">{{ label }}</th>{% endfor %}
+          {%- for key, label in cols %}<th class="n">{{ mdef(label, key) }}</th>{% endfor %}
           <th class="n">Games</th><th class="n">Poss</th><th></th>
         </tr>
       </thead>

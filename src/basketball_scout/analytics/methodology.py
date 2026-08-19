@@ -34,6 +34,7 @@ from .schema import (
 )
 from .views import (
     CELL_META,
+    methodology_anchor,
     OUTCOME_LABELS,
     PROFILE_META,
     SEGMENT_DEFINITIONS,
@@ -145,7 +146,9 @@ class GlossaryEntry:
 
     @property
     def anchor(self) -> str:
-        return self.key.replace("_", "-")
+        """The same function the links use, so a target cannot drift from the
+        address that points at it."""
+        return methodology_anchor(self.key)
 
 
 def _entry(key: str, meta_source: dict[str, MetricMeta], expr: str,
