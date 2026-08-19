@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+{% block title %}Methodology — IBPL Analytics{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Reference</p>
+    <h1>How these numbers are built</h1>
+  </div>
+  <span class="small dim">{{ season }} · 182 games · 364 team-games · 14 teams</span>
+</div>
+
+<div class="doc">
+  <nav class="doc-nav" aria-label="Contents">
+    <span class="flabel">Contents</span>
+    <a href="#glossary">Metric glossary</a>
+    <a href="#possessions">Possessions</a>
+    <a href="#outcomes">Outcomes</a>
+    <a href="#segments">Segments</a>
+    <a href="#baselines">Baselines</a>
+    <a href="#samples">Sample &amp; reliability</a>
+    <a href="#stability">Consistency</a>
+    <a href="#aggregation">Aggregation</a>
+    <a href="#scoring-sources">Scoring sources</a>
+    <a href="#transition">Transition</a>
+    <a href="#shot-geometry">Shot geometry</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#dataset">Dataset</a>
+    <a href="#limitations">Limitations</a>
+  </nav>
+
+  <div class="doc-body">
+
+    <section class="doc-sec">
+      <p class="lede">
+        Every figure on this site is computed deterministically from official play-by-play.
+        No number anywhere was produced by a language model. The scouting reports are the
+        one place a model appears, and there it selects, prioritises and interprets evidence
+        that was already computed — it never calculates.
+      </p>
+      <p>
+        This page is the reference for everything the site displays. If a metric, badge,
+        filter or abbreviation appears anywhere else, it is defined here.
+      </p>
+    </section>
+
+    <!-- ================= glossary ================= -->
+    <section class="doc-sec" id="glossary">
+      <h2>Metric glossary</h2>
+      <p>
+        Formulas are written as the code computes them, in the units the data is stored in.
+        Percentages are fractions until they are displayed.
+      </p>
+
+      {%- for label, blurb, entries in groups %}
+      <h3 class="doc-h3">{{ label }}</h3>
+      <p class="small dim">{{ blurb }}</p>
+      <div class="table-wrap">
+        <table class="data glossary">
+          <thead>
+            <tr>
+              <th class="sticky">Metric</th>
+              <th>Formula</th>
+              <th>Reading</th>
+              <th>Direction</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%- for entry in entries %}
+            <tr id="{{ entry.anchor }}">
+              <td class="sticky">
+                <strong>{{ entry.label }}</strong>
+                <div class="dim small">{{ entry.short }} · {{ entry.unit }}</div>
+              </td>
+              <td class="formula">{{ entry.formula }}</td>
+              <td class="wrap">
+                {{ entry.reading }}
+                {%- if entry.note %}<div class="dim small">{{ entry.note }}</div>{% endif %}
+              </td>
+              <td class="wrap small{% if entry.is_style %} dim{% endif %}">{{ entry.direction }}</td>
+            </tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+      </div>
+      {%- endfor %}
+
+      <h3 class="doc-h3" id="zone-efg">Zone efficiency</h3>
+      <p>
+        Each shot zone also carries an effective field-goal percentage:
+        <code>{{ zone_efg_formula }}</code>. {{ zone_efg_note }}
+        It is shown with its attempt count and is never ranked.
+      </p>
+    </section>
+
+    <!-- ================= possessions ================= -->
+    <section class="doc-sec" id="possessions">
+      <h2>Possessions</h2>
+      <p>Every rate on this site rests on one estimate:</p>
+      <p class="formula-block">{{ possession_formula }}</p>
+      <p>{{ possession_note }}</p>
+      <p>
+        A possession starts when a team gains control of a live ball and ends on a turnover,
+        a made field goal, a final made free throw, or a miss followed by a
+        <em>defensive</em> rebound. An offensive rebound continues the same possession — it
+        never starts a new one. A made basket followed immediately by a qualifying and-one
+        foul also continues the possession, so the free throw attaches to the shot that
+        earned it; that pattern occurs in 729 sequences across 180 of the 182 games.
+      </p>
+    </section>
+
+    <!-- ================= outcomes ================= -->
+    <section class="doc-sec" id="outcomes">
+      <h2>Outcomes</h2>
+      <p>An outcome filters whole <em>games</em>. It is a property of the result, not of a possession.</p>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th class="sticky">Filter</th><th>Definition</th></tr></thead>
+          <tbody>
+            {%- for key, label, definition in outcomes %}
+            <tr><td class="sticky"><strong>{{ label }}</strong></td><td class="wrap">{{ definition }}</td></tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= segments ================= -->
+    <section class="doc-sec" id="segments">
+      <h2>Segments</h2>
+      <p>
+        A segment filters <em>possessions</em> inside a game. Crossing an outcome with a
+        segment is therefore not a possession query: the games are filtered by result first,
+        and the segment aggregates that subset.
+      </p>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th class="sticky">Segment</th><th>Deterministic definition</th></tr></thead>
+          <tbody>
+            {%- for key, label, definition in segments %}
+            <tr id="segment-{{ key }}">
+              <td class="sticky"><strong>{{ label }}</strong></td>
+              <td class="wrap">{{ definition }}</td>
+            </tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+      </div>
+      <ul class="doc-list">
+        {%- for note in segment_notes %}<li>{{ note }}</li>{% endfor %}
+      </ul>
+    </section>
+
+    <!-- ================= baselines ================= -->
+    <section class="doc-sec" id="baselines">
+      <h2>Baselines</h2>
+      <p>
+        The Explorer's rightmost column compares a segment against a baseline. The column
+        header names which baseline is in use.
+      </p>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th class="sticky">Column</th><th>What it compares against</th></tr></thead>
+          <tbody>
+            {%- for label, definition in baselines %}
+            <tr><td class="sticky"><strong>{{ label }}</strong></td><td class="wrap">{{ definition }}</td></tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p>{{ baseline_note }}</p>
+    </section>
+
+    <!-- ================= samples ================= -->
+    <section class="doc-sec" id="samples">
+      <h2>Sample and reliability</h2>
+      <p>
+        Every filtered number on this site shows how much data is behind it. Sample size is
+        a first-class part of the display, never a footnote.
+      </p>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th class="sticky">State</th><th>How it renders</th><th>Threshold</th></tr></thead>
+          <tbody>
+            {%- for state, rendering, threshold in samples %}
+            <tr>
+              <td class="sticky"><strong>{{ state }}</strong></td>
+              <td class="wrap">{{ rendering }}</td>
+              <td class="wrap">{{ threshold }}</td>
+            </tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+      </div>
+      <ul class="doc-list">
+        {%- for note in sample_notes %}<li>{{ note }}</li>{% endfor %}
+      </ul>
+    </section>
+
+    <!-- ================= stability ================= -->
+    <section class="doc-sec" id="stability">
+      <h2>Consistency</h2>
+      <p>
+        The team page shows how steady each headline metric was from game to game. That is a
+        question about typical nights, so it uses the unweighted per-game distribution rather
+        than the season value: a ten-shot game and a ninety-shot game genuinely do count
+        equally when asking what a typical game looks like.
+      </p>
+      <p>
+        Computed per metric across the season: games, mean, median, standard deviation
+        (sample, needing at least two games), interquartile range (needing at least four),
+        minimum, maximum, and the coefficient of variation.
+      </p>
+      <div class="callout callout-warn">
+        <strong>Why net rating carries no consistency label.</strong>
+        The coefficient of variation is the standard deviation divided by the absolute mean.
+        That only means something on a scale that stays clear of zero. Net rating is a
+        difference and sits near zero by construction, so its coefficient of variation
+        inflates without bound and would mislabel a perfectly solid season as volatile. The
+        metric declares that the measure does not apply and the site shows no label at all
+        for it — only the real game-to-game range. The same declaration is used by the
+        evidence-pack builder, so the site and the scouting reports agree on which metrics
+        have a meaningful consistency figure.
+      </div>
+    </section>
+
+    <!-- ================= aggregation ================= -->
+    <section class="doc-sec" id="aggregation">
+      <h2>Aggregation</h2>
+      <p>
+        <strong>Every value on this site is volume-weighted.</strong> Raw components are
+        summed across the games in scope first, and the formula runs once on the totals. A
+        season effective field-goal percentage is the sum of makes over the sum of attempts,
+        never the average of each night's percentage.
+      </p>
+      <p>
+        The alternative — averaging each game's own ratio — is a different and legitimate
+        statistic, but a distributional one. It answers "what does a typical night look
+        like", which is why the consistency block above uses it and the displayed values do
+        not.
+      </p>
+      <div class="callout">
+        <strong>Why a saved scouting report can differ.</strong>
+        The scouting reports were generated against the older convention, where a segment
+        value was the unweighted mean of each game's segment value. On thin segments that
+        matters: clutch play runs at roughly seven possessions a game, so the older mean let
+        a two-possession night count as much as a fifteen-possession one. On clutch shooting
+        the two conventions differ by up to twelve points, and eleven of the fourteen teams
+        change league position between them.
+        <br><br>
+        The evidence-pack mathematics is <strong>deliberately frozen</strong> for this
+        release and is not being silently rewritten. The stored reports remain exactly as
+        generated, with their provenance intact; the analytics on this site use the
+        volume-weighted convention its season metrics already used. Both numbers are
+        retained in the artifact so any figure can be reconciled against a report.
+      </div>
+    </section>
+
+    <!-- ================= scoring sources ================= -->
+    <section class="doc-sec" id="scoring-sources">
+      <h2>Scoring sources</h2>
+      <p>Two different kinds of measure sit under this heading and must not be read the same way.</p>
+      <h3 class="doc-h3">Partitioning</h3>
+      <p>
+        Two-point, three-point and free-throw scoring <strong>partition</strong> the total.
+        Every point belongs to exactly one of them, and the three shares sum to 100%. This is
+        the only scoring breakdown on the site drawn as a part-to-whole, and the code that
+        draws it refuses any set of shares that does not sum to one.
+      </p>
+      <h3 class="doc-h3">Contextual</h3>
+      <p>
+        Points off turnovers, second-chance points and fast-break points <strong>overlap</strong>
+        each other and overlap the partition above. A fast-break lay-up off a steal is points
+        off turnovers, fast-break points and two-point scoring simultaneously. There is no
+        residual category and inventing one would be a fabrication, so these are shown as
+        independent per-game figures, never stacked and never summed.
+      </p>
+    </section>
+
+    <!-- ================= transition ================= -->
+    <section class="doc-sec" id="transition">
+      <h2>Transition</h2>
+      <p>
+        Transition on this site means one thing: the data provider flagged that attempt as a
+        fast break. The flag is present on every one of the season's 24,432 shot attempts,
+        and 11.1% of them carry it.
+      </p>
+      <p>
+        Independent checks against play-by-play timing the flag was not built from: 95.5% of
+        flagged attempts are the first live-ball attempt of their possession, 94.4% happen
+        within eight seconds of a change of possession, and 88.6% follow a defensive rebound
+        or a live-ball turnover — the two canonical origins.
+      </p>
+      <div class="callout callout-warn">
+        <strong>A false flag never means half-court.</strong>
+        It means only that the provider did not classify that attempt as a fast break. This
+        is measured, not cautious: <strong>5.7% of unflagged first attempts happen within
+        four seconds of a change of possession</strong> — exactly the timing a genuine break
+        shows. No half-court, set-offence or secondary-transition figure exists anywhere on
+        this site, and none can be derived from this flag.
+      </div>
+    </section>
+
+    <!-- ================= shot geometry ================= -->
+    <section class="doc-sec" id="shot-geometry">
+      <h2>Shot geometry <span class="badge-exp">Experimental</span></h2>
+      <p>
+        The provider records a coordinate for every shot. All 24,432 shots in the season have
+        one, and every one of them classifies into a zone — there are no unclassified
+        attempts anywhere in the league.
+      </p>
+      <h3 class="doc-h3">The taxonomy</h3>
+      <p>
+        Four zones: <strong>lane</strong>, <strong>mid-range</strong>,
+        <strong>corner three</strong> and <strong>above the break three</strong>. There is
+        <strong>no restricted-area split</strong> and <strong>no left-versus-right corner
+        split</strong>; both are deliberately deferred. Rim attempts are a separate flag taken
+        from the play-by-play shot type — dunk, lay-up or alley-oop — and do not depend on
+        coordinates at all.
+      </p>
+      <p>
+        <strong>The official two- or three-point value of every attempt is authoritative and
+        is never overridden by geometry.</strong> Coordinates only decide which zone inside
+        the family the box score already recorded.
+      </p>
+      <h3 class="doc-h3">Validation status</h3>
+      <p>
+        Four structural checks pass across 1,104 shots from eight games and five arenas:
+        distance by shot type is basketball-plausible, orientation is consistent between
+        teams and quarters, and the coordinate-implied two-or-three family agrees with
+        official scoring on 92.2% of attempts outside a small ambiguity band.
+      </p>
+      <div class="callout callout-warn">
+        <strong>The human check is twenty shots from one game.</strong>
+        Twenty labelled attempts from a single arena. The untuned rule scored 19 of 20; one
+        mismatch was diagnosed as coordinate-grid quantisation and fixed with a general
+        allowance derived from the provider's own measured grid pitch, after which the set
+        scored 20 of 20 — but the <em>same</em> twenty events both diagnosed and confirmed
+        that fix, so it cannot be reported as unbiased held-out accuracy. A fresh blind
+        sample, spanning several games and testing the corner and mid-range boundaries, is
+        still outstanding.
+      </div>
+      <p>
+        That is enough to describe where a team shoots from. It is not enough to plot a shot,
+        quote a distance, or place a team in a league order on efficiency inside a zone —
+        so the site does none of those. Zone figures carry no rank and no colour, and are
+        marked experimental wherever they appear.
+      </p>
+      <p class="small dim">
+        Shot distance in metres is computed but never displayed. It carries roughly a metre of
+        uncertainty and remains only partially validated.
+      </p>
+    </section>
+
+    <!-- ================= pipeline ================= -->
+    <section class="doc-sec" id="pipeline">
+      <h2>The pipeline</h2>
+      <ol class="pipeline">
+        <li><strong>Play-by-play</strong> — the provider's raw action stream, cached locally.</li>
+        <li><strong>Canonical events</strong> — actions parsed into shots, rebounds, turnovers, fouls and free throws.</li>
+        <li><strong>Possessions</strong> — a state machine over that stream, ordered by quarter and action id, never by wall-clock timestamps.</li>
+        <li><strong>Deterministic analytics</strong> — the formulas above, over possession subsets.</li>
+        <li><strong>League context, splits and segments</strong> — ranks, wins-versus-losses, the segment grid.</li>
+        <li><strong>Evidence pack</strong> — a fixed, hash-verified bundle of facts per team.</li>
+        <li><strong>Evidence Triage agent</strong> — chooses which facts matter, from a pre-ranked candidate list.</li>
+        <li><strong>Tactical Scout agent</strong> — turns chosen facts into tactical implications.</li>
+        <li><strong>Head Scout agent</strong> — writes the report.</li>
+        <li><strong>Deterministic validation and rendering</strong> — eighteen rules reject unsupported claims before anything is saved.</li>
+        <li><strong>Saved report</strong> — stored once, with the hash of the pack it came from.</li>
+        <li><strong>This website and the PDF</strong>.</li>
+      </ol>
+      <div class="callout">
+        <strong>Three things worth being explicit about.</strong>
+        Agents never calculate a statistic — every number they see was computed at step 4 and
+        frozen at step 6. Browsing this site never invokes a language model; report generation
+        is the only operation that does, and it is not reachable from any public page.
+        And a report is a snapshot taken when it was generated, not text that updates itself.
+      </div>
+    </section>
+
+    <!-- ================= dataset ================= -->
+    <section class="doc-sec" id="dataset">
+      <h2>The dataset</h2>
+      <p>
+        The 2025-26 regular season: <strong>182 games, 364 team-game records, 14 teams,
+        26 games each</strong>. The build refuses to publish unless all of that is present,
+        so a partial cache fails loudly rather than shipping a league that looks complete.
+      </p>
+      <p>
+        The local cache also holds 115 games from other competitions — cup, playoffs,
+        preseason, second division, youth and women's fixtures. Those are deliberately
+        excluded from every figure on this site. As a guard against ever loading the wrong
+        population, the build pins the season turnover total at
+        <strong>{{ league_turnovers }}</strong> and refuses to write if it moves; the full
+        cache would give 8,041.
+      </p>
+    </section>
+
+    <!-- ================= limitations ================= -->
+    <section class="doc-sec" id="limitations">
+      <h2>What this cannot show</h2>
+      <p>
+        The list below is not a disclaimer. It is the boundary of what the evidence supports,
+        and it is enforced in the code rather than left to good intentions.
+      </p>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th class="sticky">Not available</th><th>Why</th></tr></thead>
+          <tbody>
+            {%- for item in unavailable %}
+            <tr>
+              <td class="sticky"><strong>{{ item.label }}</strong></td>
+              <td class="wrap">{{ item.reason }}</td>
+            </tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="doc-h3">Also worth knowing</h3>
+      <ul class="doc-list">
+        <li>
+          <strong>One legacy label.</strong> A metric in the saved scouting reports is stored
+          under a key that reads "trailing by six or more". The underlying bin actually starts
+          at five behind. Correcting the bin would move the value by up to eight points and
+          invalidate every stored report, so the data is left exactly as generated and the
+          label is corrected on the way out — it displays as <strong>Trailing 5+</strong>
+          everywhere a user can see it.
+        </li>
+        <li>
+          <strong>Website and reports can differ on thin segments.</strong> See
+          <a href="#aggregation">aggregation</a>.
+        </li>
+        <li>
+          <strong>Clutch is thin by nature.</strong> About seven possessions a game. Crossed
+          with wins or losses, no team in the league clears the reliability line, and the site
+          says so on every affected cell rather than in a footnote.
+        </li>
+        <li>
+          <strong>Nothing here is a significance test.</strong> No p-value is computed
+          anywhere in this project. Effect sizes and league positions are descriptive.
+        </li>
+      </ul>
+    </section>
+
+  </div>
+</div>
+{% endblock %}

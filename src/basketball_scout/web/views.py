@@ -18,6 +18,9 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
+from ..agents.evidence_pack import UNAVAILABLE
+from ..analytics import methodology
+from ..analytics.build import EXPECTED_LEAGUE_TURNOVERS
 from ..analytics.schema import OUTCOMES, SEGMENTS
 from ..analytics.views import (
     BASELINE_TOOLTIP,
@@ -420,6 +423,37 @@ def _compare_splits_note(a, b) -> str:
                     f"another's two games would not be a comparison."
                 )
     return "No win/loss comparison is available for this pair."
+
+
+@router.get("/methodology", response_class=HTMLResponse, summary="Methodology reference")
+def methodology_page(request: Request, ctx: AppContext = Depends(get_context)) -> HTMLResponse:
+    """The authoritative reference for everything the site displays.
+
+    Renders unavailable-evidence declarations straight out of the evidence-pack
+    builder rather than restating them, so the boundary the packs already
+    declare and the boundary a reader is shown cannot drift apart.
+    """
+    return templates.TemplateResponse(
+        request,
+        "methodology.html",
+        {
+            **_base(request, ctx, active="methodology"),
+            "groups": methodology.glossary_groups(),
+            "outcomes": methodology.outcome_rows(),
+            "segments": methodology.segment_rows(),
+            "segment_notes": methodology.SEGMENT_NOTES,
+            "samples": methodology.SAMPLE_ROWS,
+            "sample_notes": methodology.SAMPLE_NOTES,
+            "baselines": methodology.BASELINE_ROWS,
+            "baseline_note": methodology.BASELINE_NOTE,
+            "possession_formula": methodology.POSSESSION_FORMULA,
+            "possession_note": methodology.POSSESSION_NOTE,
+            "zone_efg_formula": methodology.ZONE_EFG_FORMULA,
+            "zone_efg_note": methodology.ZONE_EFG_NOTE,
+            "league_turnovers": f"{EXPECTED_LEAGUE_TURNOVERS:,}",
+            "unavailable": UNAVAILABLE,
+        },
+    )
 
 
 @router.get("/scouting/{team_id}", response_class=HTMLResponse, summary="AI scouting report")

@@ -374,6 +374,7 @@ def test_openapi_documents_the_whole_surface_and_nothing_more(client):
         "/explore",
         "/games",
         "/compare",
+        "/methodology",
         "/scouting/{team_id}",
         "/reports/{report_id}",
     }
