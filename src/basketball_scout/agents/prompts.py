@@ -21,6 +21,7 @@ from .schemas import (
     PACK_STATE_NO_WIN_LOSS,
     EvidenceItem,
     EvidencePack,
+    TacticalImplication,
     TacticalOutput,
     TriageOutput,
 )
@@ -45,6 +46,36 @@ NON-NEGOTIABLE RULES (violating any of these invalidates your entire output):
    You may acknowledge them as limitations. You may never use them as support,
    and you may never fill the gap from general basketball knowledge.
 7. Every claim must cite the evidence it rests on, by id.
+8. PREFER PRECISE, RANK-BASED WORDING OVER DEGREE WORDS. "League-leading"
+   (rank 1), "among the league leaders" (top of the league), "below league
+   average", "one of the smallest/largest shares" — these are near-literal
+   restatements of the rank/percentile you were given, and are always safe.
+   Vague degree words ("extremely", "elite", "exceptional", "massive",
+   "major", "highly", "significant", "dramatically", "severe", "rarely",
+   "dominant", "explosive") are NOT safe by default — reserve them for
+   evidence that is essentially first or last in the league, or carries a
+   very large win/loss effect, and prefer the rank-based phrasing even then.
+   A below-average share or a middling rank is "notable", "below the league
+   average", or "a clear tendency" — never "elite" or "rare". This is checked
+   mechanically against the league_rank/league_percentile and
+   win_loss.effect_size on the evidence you cited — an unsupported degree-word
+   rejects your entire output, so when in doubt, use the rank-based phrasing.
+9. A win/loss split is a CORRELATION — two subsets of the same team's games,
+   grouped by an outcome many other things also affected. Describe it as a
+   difference ("their shooting is worse in losses"), never as a cause ("their
+   shooting causes them to lose"). Never write "leads to a win/loss",
+   "causes them to...", "is why they win/lose", or any equivalent.
+10. NEVER describe evidence this dataset does not have: half-court / set-
+    offense identity ("their half-court offense..."), transition frequency
+    framed as intentional ("by design", "designed to"), or anything needing
+    video/tracking ("shot contest", "perimeter defense", "on-ball pressure").
+    A metric you WERE given may still be cited plainly (e.g. a fast-break
+    points count) — what's forbidden is layering an unsupported
+    classification or intent on top of it.
+11. NEVER call a metric "stable", "consistent", "steady", or "unchanged" when
+    the win/loss numbers you were given for it are far apart (roughly Cohen's
+    "large", 0.8+). A big win/loss swing is the opposite of stable — describe
+    the wins/losses difference instead of claiming the metric doesn't move.
 """.strip()
 
 _NEUTRAL_RULE = """
@@ -266,18 +297,112 @@ ADDITIONAL RULES FOR YOUR STAGE:
 - Every claim and every recommendation must reference at least one implication.
 - The executive summary must contain no numbers and no digits at all. It is pure
   synthesis for a coach reading the first paragraph.
-- Produce 3-5 recommendations, priority 1 highest. A recommendation is advice to
-  OUR team — that is the one place you may name a defensive approach, because it
-  is a suggestion for us, not a claim about them.
+
+RECOMMENDATIONS = "KEYS TO WIN". This is the section a coach reads first and
+remembers. Produce 4-5, priority 1 highest, and choose them by this priority
+order — each implication below carries priority_tags computed from its
+evidence; prefer tagged implications over untagged ones, in this order:
+  1. win_loss_difference — what statistically differs between their wins and
+     their losses (what changes when they win, or when they lose).
+  2. clutch_evidence — close-game / clutch performance.
+  3. trailing_evidence — what they do when trailing, and so what we should do
+     when leading against them.
+An implication with none of these tags may still earn a recommendation if it
+is genuinely one of the most defining things about this opponent — do not
+force all three categories into existence if the evidence does not supply
+them; a 4-recommendation report from 2 strong tags beats 5 padded ones.
+
+Each Key to Win has THREE parts, and they must not blur together:
+- objective = the GAME OBJECTIVE. What to accomplish, stated as a goal, not a
+  method. "Limit their second-chance opportunities", not "box out on every
+  possession" — the method is a separate, optional field (below). Advice to
+  OUR team, so you may name a defensive approach here.
+  Do NOT reach for "rhythm", "intensity", or "momentum" — nothing in this
+  dataset measures effort, flow, or carry-over between plays, at any claim
+  strength, so these words are always rejected here. Do NOT use a temporal
+  qualifier ("early", "late", "opening", "closing", "fourth quarter", "down
+  the stretch") unless this Key's own cited implications rest on evidence
+  actually scoped to that timeframe — first-half evidence for "early"/
+  "opening", clutch or Q4 evidence for "late"/"closing"/"down the stretch". A
+  Key built only from season-level evidence does not get to claim a time of
+  game.
+  THE OBJECTIVE MUST BE ABOUT WHAT ITS EVIDENCE ACTUALLY MEASURES. Citing a
+  valid id is not enough — the side of the ball has to match. If your cited
+  evidence is their Defensive Rating, the objective is about attacking THEIR
+  DEFENCE; it may not be phrased as lowering "their offensive efficiency",
+  which nothing you cited measures. Same for rebounding, turnovers, free
+  throws, pace, transition and scoring runs: name the thing your evidence
+  measures, or pick different evidence.
+  STATE AN OUTCOME, NOT A TECHNIQUE. "Limit their second-chance opportunities"
+  is an objective; "box out on every shot" is a method and belongs in a
+  tactic. Never put a technique verb — contest, box out, trap, double-team,
+  hedge, close out, blitz — in the objective. Note that "contest" in
+  particular is doubly wrong here: this dataset cannot measure shot contests
+  at all.
+
+  OBJECTIVE REWRITES — these are real rejected outputs. Study the pattern.
+    Evidence: their clutch effective FG% ranks low, well below league average.
+    REJECTED: "Execute disciplined defence in late-game situations to contest
+      their clutch shot attempts."
+      Why: "contest" is a technique, and shot contests are not measured here.
+    CORRECT: "Take the game into clutch possessions, where their shooting
+      falls off."
+      Why: names the measurable situation the evidence covers, and commits to
+      no technique. If you can defend a specific method, put it in a tactic.
+
+    Evidence: their Defensive Rating is far better in wins than in losses.
+    REJECTED: "Focus on defensive execution to lower their offensive
+      efficiency."
+      Why: the evidence measures THEIR DEFENCE; the objective targets their
+      offence, which nothing cited measures.
+    CORRECT: "Attack their defence — it is what most separates their wins
+      from their losses."
+      Why: same evidence, and now the objective is about the side of the ball
+      that evidence actually measures.
+- why_it_matters = MEASURED EVIDENCE. What the data shows — a difference, a
+  ranking, a split. Purely descriptive, correlational language only (rule 9):
+  never state or imply that the measurement CAUSES the outcome.
+- tactics = 0, 1, or 2 SPECIFIC METHODS for achieving the objective. This is
+  the part to be conservative about. Include a tactic only when there is a
+  clear, explainable MECHANICAL link from the cited evidence to that specific
+  method — not merely "this seems like a sensible response to the objective".
+  Do not invent traps, timeouts, coverages, or pressure schemes just because
+  the objective needs *some* method; most objectives should ship with ZERO
+  tactics.
+    WORKED EXAMPLE OF A REAL MECHANICAL LINK: evidence shows they rank at the
+    very top of the league in offensive rebound rate. Objective: "Limit their
+    second-chance opportunities." Tactic: "Commit both bigs to boxing out
+    after every shot attempt" — box-out technique is the direct, specific
+    countermeasure to a rebounding rate, not one option among many.
+    WORKED EXAMPLE OF NO MECHANICAL LINK (omit the tactic): evidence shows
+    their turnover rate is low. Objective: "Force more live-ball turnovers."
+    There is no single method a low turnover rate uniquely implies — full-
+    court pressure, trapping, and denial defense are all equally plausible
+    guesses, which means none of them is actually justified BY this evidence.
+    State the objective and why_it_matters; leave tactics empty.
+  Each tactic has a ``method`` (advice to us, scheme vocabulary allowed) and a
+  ``mechanism`` (why THIS method follows from the evidence — still a claim
+  about them, so no scheme vocabulary there). A tactic may only cite
+  implication ids its own Key already cites — it cannot reach for different
+  evidence to justify itself.
+
 - Set confidence honestly: it is rechecked against the reliability of the
-  evidence underneath, and an overstatement will be flagged.
-- Put genuine limitations in caveats. A report that admits what it cannot see is
-  more useful than one that sounds certain."""
+  evidence underneath your why_it_matters, and capped automatically if it
+  exceeds what that evidence supports — propose the true confidence, not an
+  inflated one, since inflating it changes nothing but wastes your one repair
+  attempt.
+- Put genuine limitations in caveats — but only ones NOT already implied by
+  the UNAVAILABLE list below (no player/lineup data, no video, no scheme, no
+  shot-location detail — the report states those separately, so repeating them
+  here is redundant). A caveat here should be something specific to THIS
+  report: an unusually small sample behind one of your claims, a lopsided
+  record that thins out some situational splits, and similar."""
 
 
 def head_scout_task_prompt(
     pack: EvidencePack, triage: TriageOutput, tactical: TacticalOutput
 ) -> str:
+    index = pack.index()
     implications = [
         {
             "implication_id": i.implication_id,
@@ -285,6 +410,7 @@ def head_scout_task_prompt(
             "claim_strength": i.resolved_claim_strength or i.proposed_claim_strength,
             "claim_basis": i.claim_basis,
             "scope_caveat": i.scope_caveat,
+            "priority_tags": _implication_priority_tags(i, index),
         }
         for i in tactical.implications
     ]
@@ -299,9 +425,31 @@ def head_scout_task_prompt(
 
 TASK: Write the scouting report. Sections: executive summary (no digits),
 offensive identity, strengths, vulnerabilities, transition notes, turnover notes,
-then 3-5 prioritized recommendations, then caveats. Every claim carries the
+then 4-5 prioritized Keys to Win (objective / why_it_matters / 0-2 tactics —
+see your system prompt for the priority order and the worked examples of when
+a tactic is and is not justified), then caveats. Every claim carries the
 implication ids it rests on. Omit a section rather than padding it if the
-implications do not support one.
+implications do not support one, and default to zero tactics per key unless
+the mechanical link is genuinely clear.
 
 Note the claim_strength on each implication: an "indicated" tendency should be
-phrased more tentatively than an "established" one."""
+phrased more tentatively than an "established" one. That word is INTERNAL
+metadata — it tells you how confident to sound, and must never appear in the
+report itself. Write "the data points toward a capacity for large runs", never
+"an indicated capacity for large runs"."""
+
+
+def _implication_priority_tags(imp: TacticalImplication, index: dict[str, EvidenceItem]) -> list[str]:
+    """Deterministic tags surfacing exactly the priorities the report is meant
+    to lead with — a Python computation over already-known evidence fields
+    (win_loss.agent_rankable, scope), not a new metric. Lets the head scout
+    rank candidates by structure instead of guessing from prose."""
+    items = [index[r] for r in imp.supports_refs if r in index]
+    tags: list[str] = []
+    if any(item.win_loss.agent_rankable for item in items):
+        tags.append("win_loss_difference")
+    if any(item.scope == "clutch" for item in items):
+        tags.append("clutch_evidence")
+    if any(item.scope == "behind_6_plus" for item in items):
+        tags.append("trailing_evidence")
+    return tags

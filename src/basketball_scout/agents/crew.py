@@ -93,8 +93,10 @@ _EXPECTED_TACTICAL = (
 _EXPECTED_REPORT = (
     "A JSON scouting report: report_id, team_id, team_name, scope_note, "
     "executive_summary, offensive_identity, strengths, vulnerabilities, "
-    "transition_notes, turnover_notes, recommendations (3-5), caveats. Every claim "
-    "and recommendation carries implication_refs."
+    "transition_notes, turnover_notes, recommendations (4-5 Keys to Win, each "
+    "with objective, why_it_matters, confidence, implication_refs and 0-2 "
+    "tactics — a tactic has method, mechanism and implication_refs), caveats. "
+    "Every claim and recommendation carries implication_refs."
 )
 
 

@@ -36,7 +36,19 @@ def test_chain_produces_all_three_artifacts():
     result = run_pipeline(_pack(), StubBackend())
     assert 8 <= len(result.triage.signals) <= 12
     assert result.tactical.implications
-    assert 3 <= len(result.report.recommendations) <= 5
+    assert 4 <= len(result.report.recommendations) <= 5
+
+
+def test_stub_keys_to_win_alternate_zero_and_one_tactic():
+    """Exercises both code paths (a Key with no tactic, and one with exactly
+    one) through the real pipeline — including R12's subset constraint,
+    which the stub satisfies by citing the same implication as its Key."""
+    result = run_pipeline(_pack(), StubBackend())
+    tactic_counts = [len(rec.tactics) for rec in result.report.recommendations]
+    assert set(tactic_counts) == {0, 1}
+    for rec in result.report.recommendations:
+        for tactic in rec.tactics:
+            assert set(tactic.implication_refs) <= set(rec.implication_refs)
 
 
 def test_every_implication_gets_a_resolved_strength_before_rendering():

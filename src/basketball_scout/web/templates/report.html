@@ -72,18 +72,33 @@
 
   {% if report.recommendations %}
   <section class="block">
-    <h2>Game-plan priorities</h2>
+    <h2>Keys to Win</h2>
+    <p class="muted small">
+      Each key is an evidence-supported objective. A tactical option is included only
+      when the evidence points to that specific method — most keys have none, and that
+      is expected, not a gap.
+    </p>
     <ol class="recs">
       {% for rec in report.recommendations | sort(attribute="priority") %}
       <li class="rec">
         <div class="rec-head">
-          <h3>{{ rec.directive }}</h3>
+          <h3>{{ rec.objective }}</h3>
           <span class="tag tag-{{ rec.confidence }}">{{ rec.confidence }} confidence</span>
         </div>
-        <p>{{ rec.rationale }}</p>
+        <p><strong class="small">Why it matters:</strong> {{ rec.why_it_matters }}</p>
         {% if rec.evidence %}
         <ul class="ev-list">
           {% for ev in rec.evidence[:4] %}{{ evidence_card(ev) }}{% endfor %}
+        </ul>
+        {% endif %}
+        {% if rec.tactics %}
+        <ul class="plain small">
+          {% for tactic in rec.tactics %}
+          <li>
+            <strong class="small">Tactical option:</strong> {{ tactic.method }}
+            <span class="muted small">— {{ tactic.mechanism }}</span>
+          </li>
+          {% endfor %}
         </ul>
         {% endif %}
       </li>
@@ -98,7 +113,7 @@
     <ul class="claims">
       {% for claim in claims %}
       <li class="claim">
-        <p class="claim-text">{{ claim.text }} <span class="tag tag-{{ claim.claim_strength }}">{{ claim.claim_strength }}</span></p>
+        <p class="claim-text">{{ claim.text }}</p>
         {% if claim.evidence %}
         <ul class="ev-list">
           {% for ev in claim.evidence[:4] %}{{ evidence_card(ev) }}{% endfor %}
@@ -140,51 +155,19 @@
   </section>
   {% endif %}
 
-  {% if report.caveats %}
+  {% if report.caveats or report.unavailable_evidence %}
   <section class="block">
-    <h2>Caveats</h2>
-    <ul class="plain">{% for caveat in report.caveats %}<li>{{ caveat }}</li>{% endfor %}</ul>
-  </section>
-  {% endif %}
-
-  {% if report.unavailable_evidence %}
-  <section class="block">
-    <h2>Not available in this data</h2>
-    <p class="muted small">Declared explicitly, so an absence is never mistaken for a finding.</p>
+    <h2>Data Limits</h2>
+    <p class="muted small">What materially affects how to read this report.</p>
     <ul class="plain">
+      {% for caveat in report.caveats %}<li>{{ caveat }}</li>{% endfor %}
       {% for item in report.unavailable_evidence %}
-      <li><strong>{{ item.label }}</strong> — {{ item.reason }}</li>
+      <li><strong>{{ item.label }}:</strong> {{ item.reason }}</li>
       {% endfor %}
     </ul>
   </section>
   {% endif %}
 
-  <section class="block">
-    <h2>Automated validation</h2>
-    <p>
-      Hard rejections: <strong>{{ report.validation.rejects_n }}</strong> ·
-      warnings: <strong>{{ report.validation.warnings_n }}</strong>
-    </p>
-    {% if report.validation.warnings %}
-    <ul class="plain small">
-      {% for note in report.validation.warnings %}
-      <li><code>{{ note.rule }}</code> {{ note.message }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-  </section>
-
-  <section class="block provenance">
-    <h2>Provenance</h2>
-    <dl>
-      <dt>Report</dt><dd>{{ report.report_id }} ({{ report.report_version }})</dd>
-      <dt>Evidence pack</dt><dd>{{ report.provenance.pack_id }} ({{ report.provenance.evidence_version }})</dd>
-      {% if report.provenance.pack_hash %}<dt>Pack hash</dt><dd><code>{{ report.provenance.pack_hash[:23] }}…</code></dd>{% endif %}
-      <dt>Definitions</dt><dd>{{ report.provenance.definition_version }}</dd>
-      <dt>Source</dt><dd>{{ report.provenance.source }} play-by-play</dd>
-      <dt>Interpretation</dt><dd>{{ report.backend }}{% if report.model_name %} · {{ report.model_name }}{% endif %}</dd>
-    </dl>
-  </section>
 </article>
 {% endif %}
 {% endblock %}

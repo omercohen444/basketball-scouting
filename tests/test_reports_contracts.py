@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 
 import pytest
-from agents_factories import make_pack, make_report, make_tactical, make_triage
+from agents_factories import make_item, make_pack, make_report, make_tactical, make_triage
 
 from basketball_scout.agents.render import render_report
 from basketball_scout.agents.schemas import Finding, ValidationResult
@@ -40,6 +40,33 @@ def build(**overrides) -> PublicReport:
     }
     kwargs.update(overrides)
     return build_public_report(rendered, **kwargs)
+
+
+def test_recommendation_view_carries_objective_why_it_matters_and_tactics():
+    """End to end through the real pipeline (StubBackend alternates 0/1
+    tactics), not the synthetic factory — proves render.py -> contracts.py
+    actually plumbs the new shape, not just that the Pydantic model accepts it."""
+    from basketball_scout.agents.pipeline import StubBackend, run_pipeline
+
+    pack = make_pack(items=[make_item(f"EV.season.m{i}") for i in range(12)])
+    result = run_pipeline(pack, StubBackend())
+    report = build_public_report(
+        result.rendered, report_id="x", generated_at="2026-08-19T00:00:00Z",
+        backend="stub", pack_hash="sha256:deadbeef",
+    )
+
+    assert all(rec.objective for rec in report.recommendations)
+    assert all(rec.why_it_matters for rec in report.recommendations)
+    with_tactics = [rec for rec in report.recommendations if rec.tactics]
+    without_tactics = [rec for rec in report.recommendations if not rec.tactics]
+    assert with_tactics and without_tactics, "the stub must exercise both code paths"
+    for rec in with_tactics:
+        for tactic in rec.tactics:
+            assert tactic.method
+            assert tactic.mechanism
+            # The public contract exposes a tactic's EVIDENCE, not raw
+            # implication ids — the coach reads the evidence card, not an id.
+            assert tactic.evidence, "a tactic's mechanism must carry its own evidence cards"
 
 
 def test_projection_preserves_the_reader_facing_substance():
@@ -159,3 +186,84 @@ def test_date_range_display_is_safe_when_the_range_is_missing_or_odd():
 def test_date_range_display_is_not_serialized():
     """A computed property must not leak into the stored/served payload."""
     assert "date_range_display" not in build().model_dump(mode="json")["provenance"]
+
+
+# ---- coach-facing curation ---------------------------------------------------
+#
+# The report is for a coach, not an instructor auditing the pipeline: detailed
+# validation, hashes, model info, and long analyst-facing "why we don't have
+# this" explanations must not appear in what these two functions produce.
+
+
+def test_verbose_limitation_legend_text_is_stripped_from_caveats():
+    """The full legend text — as render.py attaches it for the audit
+    artifact — must never survive into the coach-facing caveats verbatim."""
+    from basketball_scout.agents.evidence_pack import LIMITATION_LEGEND
+    from basketball_scout.reports.contracts import _coach_caveats
+
+    legend_text = LIMITATION_LEGEND["neutral_direction"]
+    out = _coach_caveats([legend_text, "Small sample in the final stretch of the season."], [])
+    assert legend_text not in out
+    assert "Small sample in the final stretch of the season." in out
+
+
+def test_short_coach_note_appears_only_for_codes_actually_cited():
+    from basketball_scout.reports.contracts import COACH_LIMITATION_NOTES, _coach_caveats
+
+    card_with_code = build().key_evidence[0].model_copy(update={"limitations": ["neutral_direction"]})
+    card_without = build().key_evidence[0].model_copy(update={"limitations": []})
+
+    with_note = _coach_caveats([], [card_with_code])
+    without_note = _coach_caveats([], [card_without])
+
+    assert COACH_LIMITATION_NOTES["neutral_direction"] in with_note
+    assert COACH_LIMITATION_NOTES["neutral_direction"] not in without_note
+
+
+def test_caveats_have_no_duplicates_across_model_and_coach_notes():
+    from basketball_scout.reports.contracts import _coach_caveats
+
+    card = build().key_evidence[0].model_copy(update={"limitations": ["neutral_direction"]})
+    out = _coach_caveats(["Same note.", "Same note."], [card, card])
+    assert out.count("Same note.") == 1
+
+
+def test_unavailable_evidence_is_grouped_into_a_handful_of_short_bullets():
+    """The real product ships 7 unavailable_evidence entries with paragraph-
+    length reasons; a coach should see a handful of one-sentence bullets."""
+    report = build()
+    assert 1 <= len(report.unavailable_evidence) <= 4
+    for item in report.unavailable_evidence:
+        assert len(item.reason) < 160, f"{item.label!r} reason reads like analyst material: {item.reason!r}"
+        # None of the raw evidence_pack.py jargon should survive.
+        for jargon in ("provisional_deterministic", "validation_state", "+/-1m", "38/62"):
+            assert jargon not in item.reason
+
+
+def test_unavailable_evidence_grouping_covers_every_known_id():
+    from basketball_scout.reports.contracts import _UNAVAILABLE_GROUPS
+
+    grouped_ids = {gid for _label, _reason, ids in _UNAVAILABLE_GROUPS for gid in ids}
+    assert grouped_ids == {
+        "NA.shot_zone_share", "NA.shot_distance", "NA.possession_type_half_court",
+        "NA.player_level", "NA.last_passer", "NA.video", "NA.scheme",
+    }
+
+
+def test_ungrouped_unavailable_id_falls_back_rather_than_vanishing():
+    from basketball_scout.reports.contracts import _coach_unavailable
+
+    out = _coach_unavailable([{"id": "NA.brand_new_thing", "label": "Brand new thing", "reason": "Not built yet."}])
+    assert len(out) == 1
+    assert out[0].label == "Brand new thing"
+
+
+def test_no_validation_or_provenance_jargon_reaches_the_full_report_caveats():
+    """Belt and braces on the whole pipeline: build a report the way the real
+    service does and confirm none of the four legend strings survive."""
+    from basketball_scout.agents.evidence_pack import LIMITATION_LEGEND
+
+    report = build()
+    full_text = " ".join(report.caveats)
+    for legend_text in LIMITATION_LEGEND.values():
+        assert legend_text not in full_text

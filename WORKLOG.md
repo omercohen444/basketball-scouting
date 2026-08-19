@@ -5,6 +5,271 @@ session — not a place for terminal output.
 
 ---
 
+## 2026-08-19 — Run 17: Two more calibration guards (validation.py only, `no-video-mvp`)
+
+**Objective:** One more targeted guard on top of Run 16, again validation-
+layer only. Two asks: reject "stable"/"consistent"/"unchanged"-type language
+when the cited win/loss effect size is materially large; stop Key objectives
+from introducing unmeasurable constructs ("rhythm", "intensity", "momentum")
+or a temporal qualifier ("early", "late", ...) the cited evidence doesn't
+actually carry.
+
+**New rule R13 — stability language vs a materially large W/L split.** Mirror
+image of R9: instead of gating strong words behind extreme evidence, gates
+STABILITY words (`stable`, `constant`, `steady`, `unchanged`, `little/minimal
+difference`, `no significant/meaningful difference`) behind evidence that is
+NOT stable — mean `|effect_size|` across the claim's non-low-reliability
+cited items (same `_intensity_support` helper R9 already uses) must clear
+0.8 (Cohen's "large") for the term to be rejected. This is the exact defect
+the `W-dual-framing` warning's docstring already named as a real prior
+incident ("offensive efficiency is highly stable" cited against an effect
+size of ~1.0) — now a hard rejection, not just a warning that happens to
+correlate with it. Deliberately excludes "consistent"/"constant"-as-agreement
+— that word is load-bearing filler elsewhere ("consistent direction across
+cited measures" in both `StubBackend` and the shared test factory, meaning
+cross-signal agreement, not win/loss stability) and would have false-
+positived constantly if included.
+
+**New rules R14/R15 — a Key objective may not invent a construct or an
+unearned timeframe.** R14 is an unconditional denylist (`rhythm`, `intensity`,
+`momentum`) — nothing in this pipeline measures effort, flow, or carry-over
+between plays, at any claim strength, so there is no "unless supported"
+branch to write; same category as the R11 unsupported-evidence terms. R15
+requires a temporal qualifier (`early`/`opening`/`first half` → needs a
+`1H`-scoped cited item; `late`/`closing`/`down the stretch` → needs `clutch`
+or `Q4`) to actually be backed by a matching-scope item among the Key's own
+`implication_refs` — a season-only Key does not get to claim a time of game.
+Both apply only to `objective` (advice to us), not `why_it_matters` — same
+split as scheme vocabulary and R9/R13.
+
+**Tests:** 16 new cases across the R13/R14/R15 sections in
+`test_agents_validation.py`, plus two existing fixtures fixed where they
+incidentally used now-denylisted words as innocent filler (`test_agents_
+validation.py`'s R9-objective-exemption test used "intensity" as filler;
+the dual-framing test used "Stable and elite." as filler, which is now
+itself an R13 violation — split into a clean dual-framing-only case plus a
+new dedicated R13 hard-reject test). Full suite: **807 passed**.
+
+**Regenerated Jerusalem** (`segev:4`, real Gemini call, `--force`) — checked
+first that the *previously stored* report actually violated the new guards
+(it did: exec summary said "remains stable" against evidence carrying a ~1.0
+effect size; Key 4's objective said "...early and disrupt their defensive
+rhythm" citing only season-scope evidence; Key 5's said "...intensity...
+momentum" — three separate real violations), confirming regeneration was
+necessary rather than optional. New report `d75569b5-e0b7-4e77-b981-
+49f6edde0388`: 3 provider calls, **0 rejects** (passed clean on the first
+attempt — the updated prompt guidance was enough, no repair loop needed), 1
+expected warning (R8 auto-cap). Verified in browser: no rhythm/intensity/
+momentum anywhere, all temporal qualifiers ("late-game", "when leading")
+check out against matching-scope evidence, "major" appears once and is
+legitimately tier-3 (backed by Net Rating's d=2.64).
+
+**Housekeeping:** the acceptance PDF was open in Adobe Acrobat again
+(reopened after the Run 16 fix), so the regenerated PDF is at
+`artifacts/acceptance/new_scouting-report-hapoel-jerusalem-2025-26.pdf`
+pending the same close-and-overwrite as last time.
+
+**Not done:** no commit, no Stitch/design work, no regeneration of the other
+13 teams.
+
+---
+
+## 2026-08-19 — Run 16: Final coach-facing content patch (report layer only, `no-video-mvp`)
+
+**Objective:** A final targeted content patch on top of Run 15, per explicit
+review feedback — again content-layer only, no changes to trusted analytics or
+pipeline architecture. Five asks: tighten R9's language calibration further;
+hard-reject descriptive claims needing evidence the dataset doesn't have
+(half-court/set offense, transition "by design", shot contests/perimeter
+defense, scheme/coverage/personnel/coaching intent); restructure
+recommendations into Key/Why-it-matters/0-2-optional-tactics with a mechanical-
+link requirement; drop internal claim-strength tags from the coach view; merge
+Caveats + Not Available into one Data Limits section. Confidence auto-capping
+and W/L + clutch prioritization kept unchanged.
+
+**R9 tightened.** Thresholds raised (tier 2 percentile-extremity 25→30, effect
+0.5→0.6; tier 3 percentile-extremity 40→45, effect 0.8→1.0) and `"major"`
+added to the tier-3 lexicon. Verified against the motivating case: the
+previously-passing rank-2-of-14 offensive-rebounding claim (extremity 42.3)
+now clears only the tier-2 bar, not tier-3 — "exceptional" is rejected,
+"highly effective … ranking near the top of the league" is accepted. Locked in
+by `test_r9_tier3_bar_is_tightened_past_rank_two_of_fourteen`.
+
+**New rule R11 — unsupported-evidence descriptive claims.** Hard-rejects
+half-court/set-offense framing, transition "by design"/intentionality
+language, and shot-contest/perimeter-defense claims, anywhere the dataset
+cannot support them — same exemption pattern already used for scheme terms
+(legal in advice-to-us text, since that's a proposed method, not a claim about
+the opponent).
+
+**Recommendations restructured: `Recommendation` → `KeyToWin` + `TacticalOption`.**
+A Key is now `objective` (evidence-supported game goal) + `why_it_matters`
+(deterministic evidence) + `tactics: list[TacticalOption]` capped at
+`max_length=2` by the schema itself — structural impossibility, not a
+detection rule. **New rule R12**: a tactic's `implication_refs` must be a
+subset of its parent Key's own `implication_refs`, so a tactic can't smuggle
+in fresh evidence to justify itself — this is the mechanism that enforces "no
+arbitrarily choosing traps/timeouts/coverages from outcome correlations":
+if the evidence can't justify a tactic, the model has nothing else to cite and
+omits it. `head_scout_system_prompt()` gained two worked examples (mechanical
+link present: ORB rate → box-out; mechanical link absent: low TOV → no invented
+pressure/trap tactic). Regenerated Jerusalem produced 5 Keys, 2 with exactly
+one tactic and 3 with none — confirms both paths fire on real evidence, not
+just the stub.
+
+**Coach view: claim-strength tags removed, Caveats + Not Available merged into
+"Data Limits".** `(established)`/`(indicated)`/`(speculative)` no longer
+render in `report.html`/`pdf.py` (still in the stored `PublicReport` JSON for
+audit — `ClaimView.claim_strength` unchanged). The two sections are now one
+`<h2>Data Limits</h2>` combining `caveats` + `unavailable_evidence` under a
+single list.
+
+**Tests:** full suite green — **791 passed, 1 warning** (pre-existing
+`StarletteDeprecationWarning`, unrelated).
+
+**Regenerated Jerusalem for real** (`segev:4`, real Gemini call, `--force`):
+report `9792c0ed-1a2c-45b2-a736-1a5f744c35ae`, 4 provider calls, 0 rejects, 2
+warnings (`R8` auto-cap fired on one Key as expected; pre-existing
+`W-dual-framing` note). Verified in browser: Keys to Win render with the new
+objective/why-it-matters/optional-tactic structure, Data Limits is a single
+section, no claim-strength tags visible, no unsupported degree words ("highly"
+appears once, legitimately, on a claim that clears the tier-2 bar). PDF was
+regenerated to `artifacts/acceptance/new_scouting-report-hapoel-jerusalem-2025-26.pdf`
+(the non-prefixed filename was locked by an open Acrobat Reader window from an
+earlier session — the report itself generated and persisted fine; only the
+local PDF write needed the new filename. Whoever picks this up next should
+close that Acrobat window and overwrite the original filename, or just delete
+the `new_` copy once confirmed).
+
+**Not done, per instruction — stopped here for review:** no commit, no Stitch/
+design work, no regeneration of the other 13 teams.
+
+---
+
+## 2026-08-19 — Run 15: Coach-facing content patch (report layer only, `no-video-mvp`)
+
+**Objective:** Targeted content-layer patch to the Hapoel Jerusalem scouting
+report per explicit review feedback — no UI redesign, no changes to trusted
+analytics. Four asks: strip audit/methodology material from the coach-facing
+report; lead with actionable "Keys to Win"; stop exaggerated qualitative
+language that outruns the evidence; auto-cap displayed confidence instead of
+surfacing an R8 warning to the coach.
+
+**All four implemented as general, deterministic mechanisms — nothing hand-
+edited in Jerusalem's prose specifically.**
+
+**Calibrated intensity language (new rule R9, `validation.py`).** A fixed
+lexicon of degree-words (tier 2: "highly", "significant", "substantial",
+"excellent"…; tier 3: "extremely", "elite", "exceptional", "massive",
+"dramatically", "rarely", "dominant"…) each require the claim's cited evidence
+to clear a numeric bar on one of two axes already computed by the deterministic
+layer: league-relative extremity (`|percentile-50|`, top/bottom quartile for
+tier 2, top/bottom decile for tier 3) or win/loss effect size (Cohen's
+"medium"/"large" — 0.5/0.8). Aggregated as a **mean** across a claim's cited
+evidence, not a max, so one strong item cited alongside two middling ones can't
+license bold language about the bundle — deliberately conservative when a claim
+combines evidence. Low-reliability items are excluded from the average
+entirely. A violation is a hard reject, feeding the existing one-repair-attempt
+loop with the specific term and the actual vs. required numbers — same
+mechanism R1/R3/R4 already use, not a new one. Explicitly **not** an "does this
+adjective correctly describe this effect size" heuristic — that kind of
+semantic matching was already tried and reverted for W-dual-framing (see its
+docstring); this is coarse and mechanical by design. Applied at all three
+stages (triage headline/why_kept, tactical tendency/claim_basis, report
+claims/executive-summary/recommendation-rationale — never the directive, which
+is advice to us, not a claim about them).
+
+**Causal-language guard (new rule R10).** A win/loss split is a correlation;
+"causes them to lose", "leads to a win", "is why they lose" etc. are now hard
+rejected everywhere, independent of the existing R6 (which only blocks outcome
+framing for teams with no rankable W/L evidence at all). Bare "in wins"/"in
+losses" stays legal — it's exactly the phrasing Keys to Win needs.
+
+**"Keys to Win" (recommendations retitled, reprioritized, split).** Minimum
+recommendation count raised 3→4 (still max 5) — a coach reading 2-3 bullets was
+under-served. `prompts.py` now computes deterministic `priority_tags` per
+tactical implication (`win_loss_difference`, `clutch_evidence`,
+`trailing_evidence` — from already-known `win_loss.agent_rankable`/`scope`
+fields, no new metric) and instructs the head scout to prefer tagged
+implications in that order when choosing its 4-5. Every recommendation is now
+explicitly split into `rationale` = "What we see" (measured evidence,
+correlational only) vs `directive` = "What to do" (tactical, ours) — both in
+the prompt and visually in report.html/pdf.py.
+
+**Confidence auto-cap (goal 4).** `Recommendation` gained
+`resolved_confidence`/`confidence_downgrade_reason`, mirroring the existing
+`resolved_claim_strength` pattern exactly. New `resolve_recommendation_
+confidence()` caps confidence at the reliability of the weakest supporting
+evidence (same 3-value rank space, direct `min()`); `apply_resolved_confidence()`
+stamps it after the head-scout stage, before rendering.
+`render.py`/`_render_recommendation` now serves `resolved_confidence or
+confidence` — never the raw proposal. R8 still fires as an audit-only warning
+("confidence auto-capped…") but the coach never sees a confidence the evidence
+doesn't support, and never sees the warning at all.
+
+**Coach-facing curation (`reports/contracts.py`, `report.html`, `pdf.py`).**
+`build_public_report()` gained `_coach_caveats()` and `_coach_unavailable()`:
+the verbose analyst-facing limitation-legend text (4 fixed strings from
+`evidence_pack.LIMITATION_LEGEND`) is stripped and replaced with one-sentence
+substitutes only for codes actually cited by the report; the 7-item
+`unavailable_evidence` list (identical for every team — a hardcoded product
+constant) is grouped into 4 short bullets. Both mappings are keyed by fixed
+codes/ids, general by construction, never re-tuned per team. `report.html` and
+`pdf.py` dropped the "Automated Validation" and "Provenance" sections entirely
+(hashes, model/backend identifiers, report/evidence version ids) — that detail
+stays in the stored/served `PublicReport` JSON for audit, just isn't rendered
+for a coach. PDF's 5-sentence "Methodology" paragraph became a one-line
+`TRUST_NOTE`.
+
+**Tests: 769 passed** (740 baseline + 29 new — R9/R10/confidence-cap unit
+tests, coach-caveat/unavailable-grouping tests, PDF source-inspection tests
+since the output is FlateDecode-compressed and byte-search on it proved
+unreliable in both directions — verified empirically before writing those
+tests). All 14 real production packs still clear the whole chain end to end
+via `test_production_end_to_end.py` (stub backend, zero cost) with the new
+MIN_RECOMMENDATIONS=4 floor and the R9/R10 rules wired in — nothing about the
+real evidence trips them by construction.
+
+**Live regeneration, real Gemini.** Rehearsed offline with the stub backend
+first (zero cost) to confirm the new pipeline produces a structurally valid
+report before spending anything. Then `segev:4` regenerated for real:
+**5 provider calls (one stage needed its one repair attempt), 0 final rejects,
+2 audit warnings** (a claim-strength downgrade and a confidence auto-cap — both
+exactly the deterministic correction working as intended, invisible to the
+coach), persisted to Supabase as report `7669ff72-…`. Confirmed by direct
+comparison against the pre-patch report: "extremely slow" → "a clear,
+established tendency toward a slower… tempo" (pace's league extremity is 34.6,
+below the tier-3 bar of 40); "exceptional ball security" → "an established
+ability to protect the ball" (turnover rate similarly under the bar); "rarely
+score from two-point range" is gone entirely; "elite"/"exceptional" **did**
+survive for offensive rebounding, correctly, because its extremity (42.3) genuinely
+clears the tier-3 bar. Verified visually in a browser against the live
+Supabase-backed app: "Keys to Win" leads with clutch → trailing-resilience →
+two win/loss differentiators (exactly the requested priority order), each
+bullet split into "What we see" / directive, confidence correctly reads
+`moderate` on the recommendation the model proposed `high` for (clutch
+evidence, moderate reliability) and correctly stays `high` on the one backed by
+high-reliability evidence (offensive rebounding) — the cap only fires when it
+should. No "Automated Validation" or "Provenance" section renders.
+
+**Not committed.** Working-tree changes only, per standing instruction not to
+commit without being asked. `git diff --stat`: 15 files, +853/-127, none of
+them under `stats/`, `pbp/`, or `evidence_pack.py` — trusted analytics
+untouched, confirmed by inspection.
+
+**Deliberately not touched:** the model's own agent-authored `caveats` field
+still lists the unavailable-data categories in prose (mild redundancy with the
+now-separate `unavailable_evidence` block) — both are short now, and tightening
+that further wasn't asked for.
+
+**Next recommended technical action:** review the regenerated report (report
+id `7669ff72-a186-4e85-ae04-6e5bbd369995`, live at `/teams/segev:4` against the
+Supabase-backed app) and decide whether to commit. If accepted, the remaining
+13 teams' reports still reflect the OLD prose/format until regenerated with
+`scripts/ops/generate_reports.py --team-id <id> --force` (or `--all --yes`).
+
+---
+
 ## 2026-08-19 — Run 14: Product foundation — FastAPI, Supabase, PDF, frontend (`no-video-mvp`)
 
 **Objective:** Turn the proven agent layer into a deployable product: portable

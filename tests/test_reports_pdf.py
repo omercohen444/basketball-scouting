@@ -81,3 +81,28 @@ def test_filename_survives_an_awkward_team_name():
     name = pdf_filename(report)
     assert "/" not in name and ":" not in name
     assert name.endswith(".pdf")
+
+
+def test_pdf_no_longer_builds_audit_or_engineering_sections():
+    """The PDF is FlateDecode-compressed — verified empirically that neither a
+    known-present string ("Executive Summary") nor a known-absent one survives
+    a naive byte search either way, so byte-level checks on the output are
+    unreliable in both directions. Assert on the generator's own source
+    instead: it must not build story elements for validation detail, pack
+    hashes, or model/backend identifiers — the coach-facing report shouldn't
+    have them, full stop, regardless of what any one report contains."""
+    import inspect
+
+    from basketball_scout.reports import pdf as pdf_module
+
+    source = inspect.getsource(pdf_module.build_report_pdf)
+    for removed in (
+        "Automated Validation", "Methodology",
+        "pack_hash", "model_name", "report.report_id", "report.report_version",
+        "Game-Plan Priorities",
+    ):
+        assert removed not in source, f"{removed!r} still appears in build_report_pdf"
+
+    assert "Keys to Win" in source
+    assert "Why it matters" in source
+    assert "Tactical option" in source

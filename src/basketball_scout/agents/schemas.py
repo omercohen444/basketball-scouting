@@ -10,7 +10,7 @@ Two families:
   by ``evidence_pack.py`` before any agent runs. This is the single source of
   every number in the final report.
 * **Agent output** — :class:`DataSignal`, :class:`TacticalImplication`,
-  :class:`Recommendation`, :class:`ScoutingReport`. Deliberately small, and
+  :class:`KeyToWin`, :class:`ScoutingReport`. Deliberately small, and
   deliberately *number-free*: agents carry ``evidence_refs``, and ``render.py``
   attaches the canonical values afterwards.
 """
@@ -283,18 +283,59 @@ class TacticalOutput(BaseModel):
     implications: list[TacticalImplication] = Field(default_factory=list)
 
 
-class Recommendation(BaseModel):
-    """Advice to *our* team. Distinct from a factual claim about the opponent —
-    which is why scheme vocabulary is permitted here and nowhere else."""
+class TacticalOption(BaseModel):
+    """One optional, specific method for achieving a :class:`KeyToWin`'s
+    objective. 0-2 per key — a tactic requires a genuine mechanical link from
+    the cited evidence to THIS method over the many others that could plausibly
+    address the same objective, and most objectives do not have one.
+
+    ``mechanism`` is the load-bearing field: it must explain *why this specific
+    method* follows from the evidence, not just restate that the objective
+    matters. ``implication_refs`` is structurally constrained by
+    ``validation.py`` to be a subset of the parent key's own refs — a tactic
+    can never smuggle in evidence the objective itself does not already rest
+    on. Scheme vocabulary is permitted in ``method`` (advice to us), not in
+    ``mechanism`` (still explaining something about them)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    tactic_id: str
+    method: str
+    mechanism: str
+    implication_refs: list[str] = Field(min_length=1)
+
+
+class KeyToWin(BaseModel):
+    """One evidence-supported game objective — what the report used to call a
+    "recommendation". Deliberately three parts, and they must not blur:
+
+    * ``objective`` — what to accomplish. Advice to *our* team, so scheme
+      vocabulary is permitted here, same as the old ``directive``.
+    * ``why_it_matters`` — the measured, correlational evidence behind it. A
+      claim about *them*; scheme vocabulary is not permitted.
+    * ``tactics`` — 0-2 optional, specific methods for achieving the
+      objective. Most objectives will have none, because a single correct
+      method rarely follows uniquely from a correlation — see
+      :class:`TacticalOption`.
+
+    ``confidence`` is exactly that — a proposal. Python recomputes the final
+    confidence and may only lower it (``validation.resolve_recommendation_
+    confidence``), the same discipline already applied to claim strength."""
 
     model_config = ConfigDict(extra="forbid")
 
     recommendation_id: str
     priority: int
-    directive: str
-    rationale: str
+    objective: str
+    why_it_matters: str
     implication_refs: list[str] = Field(min_length=1)
     confidence: Confidence
+    tactics: list[TacticalOption] = Field(default_factory=list, max_length=2)
+
+    # Filled in by validation.resolve_recommendation_confidence(); never
+    # model-authored. render.py displays this, never the raw proposal.
+    resolved_confidence: Confidence | None = None
+    confidence_downgrade_reason: str | None = None
 
 
 class ReportClaim(BaseModel):
@@ -324,7 +365,7 @@ class ScoutingReport(BaseModel):
     vulnerabilities: list[ReportClaim] = Field(default_factory=list)
     transition_notes: list[ReportClaim] = Field(default_factory=list)
     turnover_notes: list[ReportClaim] = Field(default_factory=list)
-    recommendations: list[Recommendation] = Field(default_factory=list)
+    recommendations: list[KeyToWin] = Field(default_factory=list)
     caveats: list[str] = Field(default_factory=list)
 
     def all_claims(self) -> list[ReportClaim]:

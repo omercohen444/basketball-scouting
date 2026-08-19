@@ -17,9 +17,10 @@ from .evidence_pack import format_rank
 from .schemas import (
     EvidenceItem,
     EvidencePack,
-    Recommendation,
+    KeyToWin,
     ReportClaim,
     ScoutingReport,
+    TacticalOption,
     TacticalOutput,
     TriageOutput,
     ValidationResult,
@@ -95,18 +96,33 @@ def _strength_rank(strength: str) -> int:
     return {"speculative": 0, "indicated": 1, "established": 2}.get(strength, 0)
 
 
+def _render_tactic(tactic: TacticalOption, pack: EvidencePack, tactical: TacticalOutput) -> dict[str, Any]:
+    evidence, _ = _expand(tactic.implication_refs, pack, tactical)
+    return {
+        "tactic_id": tactic.tactic_id,
+        "method": tactic.method,
+        "mechanism": tactic.mechanism,
+        "implication_refs": tactic.implication_refs,
+        "evidence": evidence,
+    }
+
+
 def _render_recommendation(
-    rec: Recommendation, pack: EvidencePack, tactical: TacticalOutput
+    rec: KeyToWin, pack: EvidencePack, tactical: TacticalOutput
 ) -> dict[str, Any]:
     evidence, _ = _expand(rec.implication_refs, pack, tactical)
     return {
         "recommendation_id": rec.recommendation_id,
         "priority": rec.priority,
-        "directive": rec.directive,
-        "rationale": rec.rationale,
-        "confidence": rec.confidence,
+        "objective": rec.objective,
+        "why_it_matters": rec.why_it_matters,
+        # Always the Python-resolved value — never the model's raw proposal,
+        # which validation.py may have capped (falls back to the proposal only
+        # if apply_resolved_confidence() was never called on this report).
+        "confidence": rec.resolved_confidence or rec.confidence,
         "implication_refs": rec.implication_refs,
         "evidence": evidence,
+        "tactics": [_render_tactic(t, pack, tactical) for t in rec.tactics],
     }
 
 
@@ -227,16 +243,18 @@ def render_markdown(rendered: dict[str, Any]) -> str:
                 out.append(f"    - {_evidence_line(ev)}")
         out.append("")
 
-    out += ["## Game-Plan Priorities", ""]
+    out += ["## Keys to Win", ""]
     for rec in sorted(rendered["recommendations"], key=lambda r: r["priority"]):
         out += [
-            f"**{rec['priority']}. {rec['directive']}**  _(confidence: {rec['confidence']})_",
+            f"**{rec['priority']}. {rec['objective']}**  _(confidence: {rec['confidence']})_",
             "",
-            f"{rec['rationale']}",
+            f"{rec['why_it_matters']}",
             "",
         ]
         for ev in rec["evidence"]:
             out.append(f"- {_evidence_line(ev)}")
+        for tactic in rec.get("tactics") or []:
+            out.append(f"    - Tactic: {tactic['method']} — {tactic['mechanism']}")
         out.append("")
 
     out += ["## Key Evidence", "", "| Metric | Scope | Value | League Rank | Sample | Reliability |", "|---|---|---|---|---|---|"]

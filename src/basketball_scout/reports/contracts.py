@@ -22,6 +22,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from ..agents.evidence_pack import LIMITATION_LEGEND
+
 # Bump when this contract changes shape in a way a consumer would notice.
 REPORT_CONTRACT_VERSION = "report-v1"
 
@@ -97,18 +99,33 @@ class ClaimView(BaseModel):
     evidence: list[EvidenceCard] = Field(default_factory=list)
 
 
+class TacticalOptionView(BaseModel):
+    """One optional, specific method for achieving a Key to Win's objective.
+    0-2 per key — present only when the agent layer found a clear mechanical
+    link from the cited evidence to this specific method."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    tactic_id: str
+    method: str
+    mechanism: str
+    evidence: list[EvidenceCard] = Field(default_factory=list)
+
+
 class RecommendationView(BaseModel):
-    """One game-plan priority — advice to *our* team."""
+    """One "Key to Win": an evidence-supported game objective, why it matters,
+    and 0-2 optional tactics for achieving it."""
 
     model_config = ConfigDict(extra="forbid")
 
     recommendation_id: str
     priority: int
-    directive: str
-    rationale: str
+    objective: str
+    why_it_matters: str
     confidence: Literal["high", "moderate", "low"] = "moderate"
     implication_refs: list[str] = Field(default_factory=list)
     evidence: list[EvidenceCard] = Field(default_factory=list)
+    tactics: list[TacticalOptionView] = Field(default_factory=list)
 
 
 class ReportSections(BaseModel):
@@ -290,16 +307,121 @@ def _claim_view(raw: dict[str, Any]) -> ClaimView:
     )
 
 
+def _tactic_view(raw: dict[str, Any]) -> TacticalOptionView:
+    return TacticalOptionView(
+        tactic_id=raw["tactic_id"],
+        method=raw["method"],
+        mechanism=raw.get("mechanism") or "",
+        evidence=[_evidence_card(e) for e in raw.get("evidence") or []],
+    )
+
+
 def _recommendation_view(raw: dict[str, Any]) -> RecommendationView:
     return RecommendationView(
         recommendation_id=raw["recommendation_id"],
         priority=raw.get("priority") or 0,
-        directive=raw["directive"],
-        rationale=raw.get("rationale") or "",
+        objective=raw["objective"],
+        why_it_matters=raw.get("why_it_matters") or "",
         confidence=raw.get("confidence") or "moderate",
         implication_refs=list(raw.get("implication_refs") or []),
         evidence=[_evidence_card(e) for e in raw.get("evidence") or []],
+        tactics=[_tactic_view(t) for t in raw.get("tactics") or []],
     )
+
+
+# ---- coach-facing curation ---------------------------------------------------
+#
+# The scouting report is for a coach reading it before a game, not for an
+# instructor auditing the pipeline. Detailed validation, hashes, model/backend
+# identifiers and long analyst-facing "why we don't have this" explanations
+# stay in the full stored/served PublicReport (audit still needs them — see
+# ReportProvenance/ValidationSummary) but are curated down to short, concrete
+# notes for the two coach-facing surfaces (report.html, pdf.py). Both mappings
+# below are keyed by the FIXED codes/ids evidence_pack.py already emits —
+# identical for every team, never re-tuned per team.
+
+COACH_LIMITATION_NOTES: dict[str, str] = {
+    "neutral_direction": (
+        "Some metrics (pace, shot mix, free-throw rate) describe style, not quality — "
+        "no direction is inherently good or bad."
+    ),
+    "unweighted_segment_mean": (
+        "Situational splits (clutch, trailing, etc.) are small-sample averages — "
+        "read them as directional, not precise."
+    ),
+    "small_segment_sample": "Some situational evidence rests on a small number of possessions.",
+    "fast_break_one_directional": "Transition frequency may be undercounted.",
+}
+
+# The verbose analyst-facing form of the same 4 codes, for exact-match removal
+# from the caveats render.py already assembled for the full/audit artifact.
+_LEGEND_TEXTS: set[str] = set(LIMITATION_LEGEND.values())
+
+# (short label, one-sentence coach reason, the fixed NA.* ids it covers).
+# evidence_pack.UNAVAILABLE is a hardcoded, product-wide list — identical for
+# all 14 teams — so this grouping is general by construction.
+_UNAVAILABLE_GROUPS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
+    (
+        "Shot location & possession type",
+        "No shot-zone, shot-distance, or half-court/transition breakdown beyond what's shown above.",
+        ("NA.shot_zone_share", "NA.shot_distance", "NA.possession_type_half_court"),
+    ),
+    (
+        "Player & lineup detail",
+        "Team-level only — no player, lineup, or pass-tracking data.",
+        ("NA.player_level", "NA.last_passer"),
+    ),
+    (
+        "Video-derived metrics",
+        "No shot contest, shot creation, or on-ball pressure data — no video was analyzed.",
+        ("NA.video",),
+    ),
+    (
+        "Defensive scheme",
+        "No coverage, personnel, or play-calling data — play-by-play doesn't capture it.",
+        ("NA.scheme",),
+    ),
+)
+
+
+def _coach_caveats(rendered_caveats: list[str], key_evidence: list[EvidenceCard]) -> list[str]:
+    """Genuinely agent-authored notes, plus a short substitute for whichever
+    limitation codes are actually present on evidence THIS report cites —
+    never the verbose legend text render.py attaches for the full artifact."""
+    model_caveats = [c for c in rendered_caveats if c not in _LEGEND_TEXTS]
+    cited_codes = {code for card in key_evidence for code in card.limitations}
+    coach_notes = [COACH_LIMITATION_NOTES[code] for code in sorted(cited_codes) if code in COACH_LIMITATION_NOTES]
+
+    seen: set[str] = set()
+    out: list[str] = []
+    for caveat in (*model_caveats, *coach_notes):
+        if caveat not in seen:
+            seen.add(caveat)
+            out.append(caveat)
+    return out
+
+
+def _coach_unavailable(raw_items: list[dict[str, Any]]) -> list[UnavailableEvidenceView]:
+    """Collapse the fixed, product-wide unavailable-evidence list (7 items,
+    each with a paragraph explaining a validation state) into a handful of
+    short notes a coach can read in seconds. Anything not covered by a group
+    — e.g. a future NA.* id — falls back to its own label/reason verbatim
+    rather than being silently dropped."""
+    present_ids = {item["id"] for item in raw_items}
+    grouped_ids: set[str] = set()
+    out: list[UnavailableEvidenceView] = []
+
+    for label, reason, group_ids in _UNAVAILABLE_GROUPS:
+        matched = [gid for gid in group_ids if gid in present_ids]
+        if not matched:
+            continue
+        grouped_ids.update(matched)
+        out.append(UnavailableEvidenceView(id="+".join(matched), label=label, reason=reason))
+
+    for item in raw_items:
+        if item["id"] not in grouped_ids:
+            out.append(UnavailableEvidenceView(id=item["id"], label=item["label"], reason=item["reason"]))
+    return out
 
 
 def build_public_report(
@@ -331,6 +453,7 @@ def build_public_report(
             for key in SECTION_KEYS
         }
     )
+    key_evidence = [_evidence_card(e) for e in rendered.get("key_evidence") or []]
 
     return PublicReport(
         report_id=report_id,
@@ -347,12 +470,9 @@ def build_public_report(
         recommendations=[
             _recommendation_view(r) for r in rendered.get("recommendations") or []
         ],
-        key_evidence=[_evidence_card(e) for e in rendered.get("key_evidence") or []],
-        caveats=list(rendered.get("caveats") or []),
-        unavailable_evidence=[
-            UnavailableEvidenceView(id=u["id"], label=u["label"], reason=u["reason"])
-            for u in rendered.get("unavailable_evidence") or []
-        ],
+        key_evidence=key_evidence,
+        caveats=_coach_caveats(list(rendered.get("caveats") or []), key_evidence),
+        unavailable_evidence=_coach_unavailable(list(rendered.get("unavailable_evidence") or [])),
         provenance=ReportProvenance(
             pack_id=src.get("pack_id") or "unknown",
             pack_hash=pack_hash,

@@ -43,14 +43,14 @@ BAND = colors.HexColor("#F3F4F6")
 
 PAGE_MARGIN = 18 * mm
 
-METHODOLOGY_NOTE = (
-    "Every figure in this report is computed deterministically from official "
-    "play-by-play data. Language models selected, prioritized and interpreted that "
-    "evidence; they did not compute any number in it, and every claim is attached to "
-    "the specific deterministic measures shown beneath it. Claim strength and "
-    "reliability are resolved in code from data provenance and sample size, and may "
-    "only be lowered — never raised — by the interpretation step. This report is "
-    "team-level and contains no player-level, scheme, or video-derived analysis."
+# One sentence of trust context for the cover, not a methodology essay — this
+# is a coach-facing document. Validation detail, hashes, model/backend
+# identifiers and report/evidence version ids stay in the API contract for
+# audit but are deliberately absent here; see reports/contracts.py's
+# "coach-facing curation" section for the full reasoning.
+TRUST_NOTE = (
+    "Every figure is computed from official play-by-play. Team-level only — "
+    "no player, scheme, or video-derived analysis."
 )
 
 
@@ -219,13 +219,7 @@ def build_report_pdf(report: PublicReport) -> bytes:
     story.append(Paragraph("Opponent Scouting Report", st["subtitle"]))
     story.append(Paragraph(_safe(report.team_name), st["title"]))
     story.append(Paragraph(_meta_line(report), st["subtitle"]))
-    story.append(
-        Paragraph(
-            f"Generated {_safe(report.generated_at)} &#183; report {_safe(report.report_id)} "
-            f"&#183; {_safe(report.report_version)} &#183; evidence {_safe(report.provenance.evidence_version)}",
-            st["small"],
-        )
-    )
+    story.append(Paragraph(f"Generated {_safe(report.generated_at)}", st["small"]))
     story.append(Spacer(1, 4))
     if report.scope_note:
         story.append(Paragraph(f"<i>{_safe(report.scope_note)}</i>", st["small"]))
@@ -243,20 +237,37 @@ def build_report_pdf(report: PublicReport) -> bytes:
     story.append(Paragraph("Executive Summary", st["h2"]))
     story.append(Paragraph(_safe(report.executive_summary), st["body"]))
 
-    # -- game-plan priorities (most actionable content goes early) -----------
+    # -- Keys to Win (most actionable content goes early) --------------------
     if report.recommendations:
-        story.append(Paragraph("Game-Plan Priorities", st["h2"]))
+        story.append(Paragraph("Keys to Win", st["h2"]))
+        story.append(
+            Paragraph(
+                "Each key is an evidence-supported objective. A tactical option is "
+                "included only when the evidence points to that specific method — most "
+                "keys have none, and that is expected, not a gap.",
+                st["small"],
+            )
+        )
+        story.append(Spacer(1, 3))
         for rec in sorted(report.recommendations, key=lambda r: r.priority):
             block: list = [
                 Paragraph(
-                    f"<b>{rec.priority}. {_safe(rec.directive)}</b> "
+                    f"<b>{rec.priority}. {_safe(rec.objective)}</b> "
                     f'<font color="#6B7280">(confidence: {_safe(rec.confidence)})</font>',
                     st["claim"],
                 ),
-                Paragraph(_safe(rec.rationale), st["body"]),
+                Paragraph(f"<b>Why it matters:</b> {_safe(rec.why_it_matters)}", st["body"]),
             ]
             for card in rec.evidence[:4]:
                 block.append(Paragraph(_evidence_line(card), st["evidence"]))
+            for tactic in rec.tactics:
+                block.append(
+                    Paragraph(
+                        f"<b>Tactical option:</b> {_safe(tactic.method)} "
+                        f"&#8212; {_safe(tactic.mechanism)}",
+                        st["evidence"],
+                    )
+                )
             block.append(Spacer(1, 6))
             story.append(KeepTogether(block))
 
@@ -264,13 +275,7 @@ def build_report_pdf(report: PublicReport) -> bytes:
     for _key, title, claims in report.sections.items():
         story.append(Paragraph(title, st["h2"]))
         for claim in claims:
-            block = [
-                Paragraph(
-                    f"{_safe(claim.text)} "
-                    f'<font color="#6B7280">({_safe(claim.claim_strength)})</font>',
-                    st["claim"],
-                )
-            ]
+            block = [Paragraph(_safe(claim.text), st["claim"])]
             for card in claim.evidence[:4]:
                 block.append(Paragraph(_evidence_line(card), st["evidence"]))
             block.append(Spacer(1, 4))
@@ -289,55 +294,22 @@ def build_report_pdf(report: PublicReport) -> bytes:
         story.append(Spacer(1, 4))
         story.append(_evidence_table(report.key_evidence, st))
 
-    # -- caveats -------------------------------------------------------------
-    if report.caveats:
-        story.append(Paragraph("Caveats", st["h2"]))
+    # -- data limits -----------------------------------------------------------
+    # Caveats and declared-unavailable evidence collapsed into one short
+    # section — a coach needs "what to watch out for", not two headings that
+    # say overlapping things.
+    if report.caveats or report.unavailable_evidence:
+        story.append(Paragraph("Data Limits", st["h2"]))
         for caveat in report.caveats:
             story.append(Paragraph(f"&#183; {_safe(caveat)}", st["body"]))
-
-    # -- declared gaps -------------------------------------------------------
-    if report.unavailable_evidence:
-        story.append(Paragraph("Not Available In This Data", st["h2"]))
         for item in report.unavailable_evidence:
             story.append(
-                Paragraph(f"<b>{_safe(item.label)}</b> — {_safe(item.reason)}", st["small"])
+                Paragraph(f"&#183; <b>{_safe(item.label)}:</b> {_safe(item.reason)}", st["body"])
             )
-            story.append(Spacer(1, 2))
 
-    # -- validation ----------------------------------------------------------
-    story.append(Paragraph("Automated Validation", st["h2"]))
-    story.append(
-        Paragraph(
-            f"Hard rejections: <b>{report.validation.rejects_n}</b> &#183; "
-            f"warnings: <b>{report.validation.warnings_n}</b>",
-            st["body"],
-        )
-    )
-    for note in report.validation.warnings:
-        story.append(Paragraph(f"&#183; {_safe(note.rule)}: {_safe(note.message)}", st["small"]))
-
-    # -- methodology ---------------------------------------------------------
-    story.append(Paragraph("Methodology", st["h2"]))
-    story.append(Paragraph(METHODOLOGY_NOTE, st["small"]))
-    story.append(Spacer(1, 4))
-    story.append(
-        Paragraph(
-            f"Source: {_safe(report.provenance.source)} play-by-play &#183; "
-            f"pack {_safe(report.provenance.pack_id)} &#183; "
-            f"definitions {_safe(report.provenance.definition_version)}"
-            + (
-                f" &#183; pack hash {_safe(report.provenance.pack_hash[:19])}"
-                if report.provenance.pack_hash
-                else ""
-            )
-            + (
-                f" &#183; interpretation model {_safe(report.model_name)}"
-                if report.model_name
-                else ""
-            ),
-            st["small"],
-        )
-    )
+    # -- trust note ------------------------------------------------------------
+    # One sentence, not a methodology essay or an audit log — see TRUST_NOTE.
+    story.append(Paragraph(TRUST_NOTE, st["small"]))
 
     draw = _header_footer(report)
     doc.build(story, onFirstPage=draw, onLaterPages=draw)

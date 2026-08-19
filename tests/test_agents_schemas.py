@@ -15,10 +15,11 @@ from basketball_scout.agents.schemas import (
     RELIABILITY_RANK,
     DataSignal,
     EvidencePack,
-    Recommendation,
+    KeyToWin,
     ReportClaim,
     ScoutingReport,
     TacticalImplication,
+    TacticalOption,
     ValidationResult,
     Finding,
 )
@@ -64,12 +65,49 @@ def test_report_claim_requires_an_implication_ref():
         ReportClaim(text="they are good", implication_refs=[])
 
 
-def test_recommendation_requires_an_implication_ref():
+def test_key_to_win_requires_an_implication_ref():
     with pytest.raises(ValidationError):
-        Recommendation(
-            recommendation_id="R1", priority=1, directive="d", rationale="r",
+        KeyToWin(
+            recommendation_id="R1", priority=1, objective="d", why_it_matters="r",
             implication_refs=[], confidence="moderate",
         )
+
+
+def test_key_to_win_defaults_to_zero_tactics():
+    key = KeyToWin(
+        recommendation_id="R1", priority=1, objective="d", why_it_matters="r",
+        implication_refs=["T1"], confidence="moderate",
+    )
+    assert key.tactics == []
+
+
+def test_key_to_win_rejects_more_than_two_tactics():
+    tactic = lambda i: TacticalOption(  # noqa: E731
+        tactic_id=f"T{i}", method="m", mechanism="w", implication_refs=["T1"]
+    )
+    with pytest.raises(ValidationError):
+        KeyToWin(
+            recommendation_id="R1", priority=1, objective="d", why_it_matters="r",
+            implication_refs=["T1"], confidence="moderate",
+            tactics=[tactic(1), tactic(2), tactic(3)],
+        )
+
+
+def test_key_to_win_allows_up_to_two_tactics():
+    tactic = lambda i: TacticalOption(  # noqa: E731
+        tactic_id=f"T{i}", method="m", mechanism="w", implication_refs=["T1"]
+    )
+    key = KeyToWin(
+        recommendation_id="R1", priority=1, objective="d", why_it_matters="r",
+        implication_refs=["T1"], confidence="moderate",
+        tactics=[tactic(1), tactic(2)],
+    )
+    assert len(key.tactics) == 2
+
+
+def test_tactical_option_requires_an_implication_ref():
+    with pytest.raises(ValidationError):
+        TacticalOption(tactic_id="T1", method="m", mechanism="w", implication_refs=[])
 
 
 def test_unknown_field_is_rejected_not_silently_kept():

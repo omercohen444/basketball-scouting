@@ -15,13 +15,14 @@ from basketball_scout.agents.schemas import (
     EvidenceItem,
     EvidencePack,
     FlagsBlock,
-    Recommendation,
+    KeyToWin,
     RecentBlock,
     ReportClaim,
     ScoutingReport,
     Screening,
     StabilityBlock,
     TacticalImplication,
+    TacticalOption,
     TacticalOutput,
     TriageOutput,
     UnavailableEvidence,
@@ -38,6 +39,7 @@ def make_item(
     effect_size: float | None = 1.2,
     agent_rankable: bool = True,
     league_extreme: bool | None = True,
+    league_percentile: float | None = 84.6,
     sample_games: int = 26,
     sample_possessions: int | None = None,
     sample_sufficient: bool = True,
@@ -55,7 +57,7 @@ def make_item(
         unit="pct",
         direction=direction,  # type: ignore[arg-type]
         league_rank=3,
-        league_percentile=84.6,
+        league_percentile=league_percentile,
         eligible_teams=14,
         league_mean_display="49.0%",
         sample_games=sample_games,
@@ -146,7 +148,19 @@ def make_tactical(triage: TriageOutput, *, supports_per: int = 2) -> TacticalOut
     return TacticalOutput(implications=implications)
 
 
-def make_report(tactical: TacticalOutput, *, recommendations: int = 3, summary: str = "A synthesis without figures.") -> ScoutingReport:
+def make_tactic(
+    tactic_id: str,
+    implication_refs: list[str],
+    *,
+    method: str = "Assign a specific defender to own this matchup possession by possession.",
+    mechanism: str = "The cited evidence isolates this tendency closely enough to prepare a direct counter.",
+) -> TacticalOption:
+    return TacticalOption(
+        tactic_id=tactic_id, method=method, mechanism=mechanism, implication_refs=implication_refs
+    )
+
+
+def make_report(tactical: TacticalOutput, *, recommendations: int = 4, summary: str = "A synthesis without figures.") -> ScoutingReport:
     ids = [i.implication_id for i in tactical.implications]
     return ScoutingReport(
         report_id="RPT.test",
@@ -160,10 +174,10 @@ def make_report(tactical: TacticalOutput, *, recommendations: int = 3, summary: 
         transition_notes=[],
         turnover_notes=[],
         recommendations=[
-            Recommendation(
+            KeyToWin(
                 recommendation_id=f"R{n + 1}", priority=n + 1,
-                directive="Prepare for the cited tendency.",
-                rationale="Supported by the cited deterministic evidence.",
+                objective="Prepare for the cited tendency.",
+                why_it_matters="Supported by the cited deterministic evidence.",
                 implication_refs=[ids[n % len(ids)]],
                 confidence="moderate",
             )

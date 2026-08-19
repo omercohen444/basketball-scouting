@@ -7,7 +7,11 @@ from __future__ import annotations
 
 from basketball_scout.agents.render import evidence_summary, render_markdown, render_report
 from basketball_scout.agents.schemas import ValidationResult
-from basketball_scout.agents.validation import apply_resolved_strengths, validate_report
+from basketball_scout.agents.validation import (
+    apply_resolved_confidence,
+    apply_resolved_strengths,
+    validate_report,
+)
 
 from agents_factories import make_item, make_pack, make_report, make_tactical, make_triage
 
@@ -68,6 +72,36 @@ def test_claim_strength_shown_is_the_resolved_one_not_the_proposal():
     rendered = render_report(pack, triage, tactical, report, ValidationResult())
     shown = {c["claim_strength"] for c in rendered["sections"]["strengths"]}
     assert "established" not in shown
+
+
+def test_confidence_shown_is_the_resolved_one_not_the_proposal():
+    """Mirrors test_claim_strength_shown_is_the_resolved_one_not_the_proposal:
+    a coach must never see a confidence the evidence cannot support, and the
+    correction must be silent (deterministic capping), not an R8 warning
+    surfaced to them."""
+    pack = make_pack(items=[make_item("EV.season.a", reliability_tier="low")])
+    triage = make_triage(pack, n=8)
+    tactical = apply_resolved_strengths(pack, make_tactical(triage))
+    report = make_report(tactical)
+    for rec in report.recommendations:
+        rec.confidence = "high"
+    report = apply_resolved_confidence(pack, tactical, report)
+
+    rendered = render_report(pack, triage, tactical, report, ValidationResult())
+    shown = {r["confidence"] for r in rendered["recommendations"]}
+    assert shown == {"low"}, f"a low-reliability recommendation must render as low confidence, got {shown}"
+
+
+def test_confidence_falls_back_to_the_proposal_when_never_resolved():
+    """render.py must degrade gracefully if apply_resolved_confidence() was
+    never called — the fallback exists so a report is never left with no
+    confidence at all, not so a report can skip resolution in production."""
+    pack, triage, tactical, report, validation = _chain()
+    for rec in report.recommendations:
+        rec.confidence = "moderate"
+        rec.resolved_confidence = None
+    rendered = render_report(pack, triage, tactical, report, validation)
+    assert {r["confidence"] for r in rendered["recommendations"]} == {"moderate"}
 
 
 def test_rendered_report_is_json_safe():

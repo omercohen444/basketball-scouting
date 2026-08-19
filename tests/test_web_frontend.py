@@ -62,13 +62,49 @@ def test_team_page_renders_a_generated_report(client):
     body = client.get("/teams/segev:4").text
 
     assert "Executive summary" in body
-    assert "Game-plan priorities" in body
+    assert "Keys to Win" in body
+    assert "Why it matters:" in body
     assert "Key deterministic evidence" in body
-    assert "Automated validation" in body
-    assert "Provenance" in body
-    assert "Not available in this data" in body
+    assert "Data Limits" in body
     assert f"/api/reports/{report_id}/pdf" in body
     assert "Download PDF" in body
+    # The stub backend alternates 0/1 tactics per Key — with the synthetic
+    # pack's 12 evidence items it always produces at least one, so this locks
+    # in that a present tactic actually renders.
+    assert "Tactical option:" in body
+
+
+def test_team_page_hides_validation_and_provenance_detail(client):
+    """The report is for a coach, not an instructor auditing the pipeline —
+    detailed validation, hashes, model/backend identifiers must not appear."""
+    generate(client)
+    body = client.get("/teams/segev:4").text
+    assert "Automated validation" not in body
+    assert "Hard rejections" not in body
+    assert "Pack hash" not in body
+    assert "sha256" not in body
+    assert "report-v1" not in body
+    assert "packs-v1" not in body
+    assert "agents-v1" not in body
+
+
+def test_team_page_shows_no_internal_claim_strength_labels(client):
+    """(established)/(indicated)/(speculative) are audit vocabulary — they
+    stay in the JSON contract but must never render for a coach."""
+    generate(client)
+    body = client.get("/teams/segev:4").text
+    for label in ("(established)", "(indicated)", "(speculative)"):
+        assert label not in body
+
+
+def test_team_page_merges_caveats_and_unavailable_into_one_section(client):
+    """Goal 5: one short "Data Limits" section, not two separate headings
+    that say overlapping things."""
+    generate(client)
+    body = client.get("/teams/segev:4").text
+    assert "Caveats</h2>" not in body
+    assert "Not available in this data" not in body
+    assert body.count("Data Limits") == 1
 
 
 def test_report_permalink_renders(client):

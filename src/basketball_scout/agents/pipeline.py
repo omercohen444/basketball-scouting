@@ -18,16 +18,18 @@ from typing import Any, Protocol
 from .schemas import (
     DataSignal,
     EvidencePack,
-    Recommendation,
+    KeyToWin,
     ReportClaim,
     ScoutingReport,
     TacticalImplication,
+    TacticalOption,
     TacticalOutput,
     TriageOutput,
     ValidationResult,
 )
 from .render import render_markdown, render_report
 from .validation import (
+    apply_resolved_confidence,
     apply_resolved_strengths,
     validate_report,
     validate_tactical,
@@ -122,6 +124,7 @@ def run_pipeline(pack: EvidencePack, backend: AgentBackend) -> PipelineResult:
         lambda out: validate_report(pack, triage, tactical, out),
         attempts,
     )
+    report = apply_resolved_confidence(pack, tactical, report)
 
     validation = triage_result.merged(tactical_result).merged(report_result)
     rendered = render_report(pack, triage, tactical, report, validation)
@@ -230,16 +233,35 @@ class StubBackend:
         def claim(text: str, idx: int) -> ReportClaim:
             return ReportClaim(text=text, implication_refs=[ids[idx % len(ids)]])
 
+        # Cycles through `ids` via modulo, so it always reaches recommendations_n
+        # regardless of how many implications exist (duplicate citation across
+        # recommendations is fine — the stub only needs to be structurally
+        # valid, not varied). Alternates 0 and 1 tactics so both code paths
+        # (a Key with no mechanically-linked tactic, and one that has exactly
+        # one) are exercised offline without any custom test fixtures.
+        def _tactics(n: int, ref: str) -> list[TacticalOption]:
+            if n % 2:
+                return []
+            return [
+                TacticalOption(
+                    tactic_id=f"R{n + 1}T1",
+                    method="Assign a specific defender to own this matchup possession by possession.",
+                    mechanism="The cited evidence isolates this tendency closely enough to prepare a direct counter.",
+                    implication_refs=[ref],
+                )
+            ]
+
         recommendations = [
-            Recommendation(
+            KeyToWin(
                 recommendation_id=f"R{n + 1}",
                 priority=n + 1,
-                directive=f"Prepare specifically for the tendency described in {ids[n % len(ids)]}.",
-                rationale="The supporting deterministic evidence separates this team from the league norm.",
+                objective=f"Prepare specifically for the tendency described in {ids[n % len(ids)]}.",
+                why_it_matters="The supporting deterministic evidence separates this team from the league norm.",
                 implication_refs=[ids[n % len(ids)]],
                 confidence="moderate",
+                tactics=_tactics(n, ids[n % len(ids)]),
             )
-            for n in range(min(self.recommendations_n, max(3, len(ids))))
+            for n in range(self.recommendations_n if ids else 0)
         ]
 
         return ScoutingReport(
