@@ -94,7 +94,11 @@ def cmd_emit_seed(settings) -> int:
     )
     SEED_PATH.parent.mkdir(parents=True, exist_ok=True)
     SEED_PATH.write_text(sql, encoding="utf-8")
-    print(f"wrote {SEED_PATH.relative_to(REPO_ROOT)} ({len(teams)} teams)")
+    try:
+        shown = SEED_PATH.relative_to(REPO_ROOT)
+    except ValueError:  # a caller (or a test) redirected the output elsewhere
+        shown = SEED_PATH
+    print(f"wrote {shown} ({len(teams)} teams)")
     return 0
 
 
