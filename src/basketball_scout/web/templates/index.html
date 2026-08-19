@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Opponent Scouting — {{ season }}{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Choose an opponent</h1>
+  <p class="lede">
+    Season {{ season }} · {{ teams | length }} teams · {{ reports_n }} with a saved scouting report.
+    Reports combine full-season deterministic play-by-play analytics with a constrained
+    three-agent interpretation layer, and are generated in advance — opening one costs nothing.
+  </p>
+  {% include "_selector.html" %}
+</section>
+
+<section class="team-grid" aria-label="Supported opponents">
+  {% for team in teams %}
+  <a class="team-card {% if not team.has_report %}team-card-empty{% endif %}" href="/teams/{{ team.team_id }}">
+    <span class="team-name">{{ team.team_name }}</span>
+    <span class="team-meta">{{ team.record }} · {{ team.games_n }} games</span>
+    {% if team.has_report %}
+      <span class="pill pill-ok">Report ready</span>
+    {% else %}
+      <span class="pill pill-muted">No report yet</span>
+    {% endif %}
+  </a>
+  {% endfor %}
+</section>
+{% endblock %}

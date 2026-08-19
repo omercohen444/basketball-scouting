@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>{% block title %}Opponent Scouting{% endblock %}</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🏀</text></svg>">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">🏀</span>
+        <span>
+          <strong>Opponent Scouting</strong>
+          <em>Israeli Basketball Premier League · {{ season }}</em>
+        </span>
+      </a>
+      {% block topbar_extra %}{% endblock %}
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="wrap footer">
+    <p>
+      Every figure is computed deterministically from official play-by-play.
+      Agents select, prioritize and interpret that evidence — they do not compute it.
+      Team-level only: no player, scheme, or video-derived analysis.
+    </p>
+    <p class="muted">
+      Build {{ app_version }} · This interface is a functional placeholder; the final design is produced separately.
+    </p>
+  </footer>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

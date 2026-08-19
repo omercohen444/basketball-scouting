@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ status_code }} — Opponent Scouting{% endblock %}
+
+{% block content %}
+<section class="empty">
+  <p class="status-code">{{ status_code }}</p>
+  <h1>
+    {% if status_code == 404 %}Nothing here
+    {% elif status_code == 429 %}Slow down a moment
+    {% elif status_code >= 500 %}Something went wrong
+    {% else %}That request could not be completed
+    {% endif %}
+  </h1>
+  <p class="lede">{{ message }}</p>
+  <p><a class="btn" href="/">Back to the opponent list</a></p>
+  <p class="muted small">Reference: {{ code }}</p>
+</section>
+{% endblock %}

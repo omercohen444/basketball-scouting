@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}{{ report.team_name if report else (selected.team_name if selected else "Report") }} — Opponent Scouting{% endblock %}
+
+{% macro evidence_card(ev) %}
+<li class="ev">
+  <span class="ev-metric">{{ ev.metric }}</span>
+  <span class="ev-value">{{ ev.value }}</span>
+  <span class="ev-facts">
+    {% if ev.scope and ev.scope != "season" %}<span class="tag">{{ ev.scope }}</span>{% endif %}
+    {% if ev.league_rank %}rank {{ ev.league_rank }}{% endif %}
+    {% if ev.league_average %} · league avg {{ ev.league_average }}{% endif %}
+    {% if ev.win_loss.available and ev.win_loss.in_wins %}
+      · W {{ ev.win_loss.in_wins }} / L {{ ev.win_loss.in_losses }}{% if ev.win_loss.effect_size is not none %} (d={{ ev.win_loss.effect_size }}){% endif %}
+    {% endif %}
+    · n={{ ev.sample_games }}g
+    <span class="tag tag-{{ ev.reliability }}">{{ ev.reliability }} reliability</span>
+  </span>
+</li>
+{% endmacro %}
+
+{% block content %}
+{% include "_selector.html" %}
+
+{% if storage_error %}
+<div class="banner banner-warn">
+  Report storage is unreachable right now, so saved reports cannot be shown. The team list and
+  deterministic evidence are unaffected.
+</div>
+{% endif %}
+
+{% if not report %}
+<section class="empty">
+  <h1>{{ selected.team_name if selected else team_id }}</h1>
+  <p class="lede">No scouting report has been generated for this opponent yet.</p>
+  <p class="muted">
+    Reports are produced in advance by an administrator. Visiting this page never triggers
+    generation — that is a protected, backend-only operation, so browsing the site is free.
+  </p>
+  <p><a class="btn" href="/">Choose another opponent</a></p>
+</section>
+{% else %}
+
+<article class="report">
+  <header class="report-head">
+    <div>
+      <p class="eyebrow">Opponent scouting report</p>
+      <h1>{{ report.team_name }}</h1>
+      <p class="lede">
+        Season {{ report.season }} · {{ report.provenance.record }} · {{ report.provenance.games_n }} games
+        {% if report.provenance.date_range %}· {{ report.provenance.date_range }}{% endif %}
+      </p>
+    </div>
+    <div class="report-actions">
+      <a class="btn btn-primary" href="/api/reports/{{ report.report_id }}/pdf">Download PDF</a>
+      <p class="muted small">Generated {{ report.generated_at }}</p>
+    </div>
+  </header>
+
+  {% if report.provenance.pack_states %}
+  <div class="banner banner-info">
+    <strong>Data state:</strong> {{ report.provenance.pack_states | join(", ") }} —
+    win/loss comparisons are unavailable for this team and are deliberately absent below.
+  </div>
+  {% endif %}
+
+  {% if report.scope_note %}<p class="scope">{{ report.scope_note }}</p>{% endif %}
+
+  <section class="block">
+    <h2>Executive summary</h2>
+    <p class="summary">{{ report.executive_summary }}</p>
+  </section>
+
+  {% if report.recommendations %}
+  <section class="block">
+    <h2>Game-plan priorities</h2>
+    <ol class="recs">
+      {% for rec in report.recommendations | sort(attribute="priority") %}
+      <li class="rec">
+        <div class="rec-head">
+          <h3>{{ rec.directive }}</h3>
+          <span class="tag tag-{{ rec.confidence }}">{{ rec.confidence }} confidence</span>
+        </div>
+        <p>{{ rec.rationale }}</p>
+        {% if rec.evidence %}
+        <ul class="ev-list">
+          {% for ev in rec.evidence[:4] %}{{ evidence_card(ev) }}{% endfor %}
+        </ul>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+  {% endif %}
+
+  {% for key, title, claims in report.sections.items() %}
+  <section class="block">
+    <h2>{{ title }}</h2>
+    <ul class="claims">
+      {% for claim in claims %}
+      <li class="claim">
+        <p class="claim-text">{{ claim.text }} <span class="tag tag-{{ claim.claim_strength }}">{{ claim.claim_strength }}</span></p>
+        {% if claim.evidence %}
+        <ul class="ev-list">
+          {% for ev in claim.evidence[:4] %}{{ evidence_card(ev) }}{% endfor %}
+        </ul>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endfor %}
+
+  {% if report.key_evidence %}
+  <section class="block">
+    <h2>Key deterministic evidence</h2>
+    <p class="muted small">Computed from play-by-play. No value on this page was written by a model.</p>
+    <div class="table-scroll">
+      <table class="evidence-table">
+        <thead>
+          <tr>
+            <th>Metric</th><th>Scope</th><th>Value</th><th>League rank</th>
+            <th>League avg</th><th>Sample</th><th>Reliability</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ev in report.key_evidence %}
+          <tr>
+            <td>{{ ev.metric }}</td>
+            <td>{{ ev.scope }}</td>
+            <td class="num">{{ ev.value }}</td>
+            <td class="num">{{ ev.league_rank or "—" }}</td>
+            <td class="num">{{ ev.league_average or "—" }}</td>
+            <td class="num">{{ ev.sample_games }}g</td>
+            <td><span class="tag tag-{{ ev.reliability }}">{{ ev.reliability }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if report.caveats %}
+  <section class="block">
+    <h2>Caveats</h2>
+    <ul class="plain">{% for caveat in report.caveats %}<li>{{ caveat }}</li>{% endfor %}</ul>
+  </section>
+  {% endif %}
+
+  {% if report.unavailable_evidence %}
+  <section class="block">
+    <h2>Not available in this data</h2>
+    <p class="muted small">Declared explicitly, so an absence is never mistaken for a finding.</p>
+    <ul class="plain">
+      {% for item in report.unavailable_evidence %}
+      <li><strong>{{ item.label }}</strong> — {{ item.reason }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <section class="block">
+    <h2>Automated validation</h2>
+    <p>
+      Hard rejections: <strong>{{ report.validation.rejects_n }}</strong> ·
+      warnings: <strong>{{ report.validation.warnings_n }}</strong>
+    </p>
+    {% if report.validation.warnings %}
+    <ul class="plain small">
+      {% for note in report.validation.warnings %}
+      <li><code>{{ note.rule }}</code> {{ note.message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+
+  <section class="block provenance">
+    <h2>Provenance</h2>
+    <dl>
+      <dt>Report</dt><dd>{{ report.report_id }} ({{ report.report_version }})</dd>
+      <dt>Evidence pack</dt><dd>{{ report.provenance.pack_id }} ({{ report.provenance.evidence_version }})</dd>
+      {% if report.provenance.pack_hash %}<dt>Pack hash</dt><dd><code>{{ report.provenance.pack_hash[:23] }}…</code></dd>{% endif %}
+      <dt>Definitions</dt><dd>{{ report.provenance.definition_version }}</dd>
+      <dt>Source</dt><dd>{{ report.provenance.source }} play-by-play</dd>
+      <dt>Interpretation</dt><dd>{{ report.backend }}{% if report.model_name %} · {{ report.model_name }}{% endif %}</dd>
+    </dl>
+  </section>
+</article>
+{% endif %}
+{% endblock %}
