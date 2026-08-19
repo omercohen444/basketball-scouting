@@ -97,9 +97,38 @@ backend factory that raises on construction and walks every public route, so
 reaching the provider from a read path is a test failure rather than a billing
 surprise.
 
-**Unresolved / next:** see the run's final report. Reports for all 14 teams were
-generated in this run; teams generated before the R14/R15 widening and the
-caveat-echo fix were re-checked and regenerated where the scan found anything.
+**League generation — 14/14.** Roughly 63 provider calls in total, including the
+Jerusalem content-lock runs and two targeted regenerations. Exact per-team
+counts for the first batch were lost: it was launched with buffered stdout, so
+its per-team lines never flushed, and progress had to be read from storage
+instead. Two operational notes worth carrying forward:
+
+* The first `--all --force` batch was still alive after appearing to have
+  exited (a transient `Get-Process` check returned nothing). It ran alongside a
+  second job for a few minutes. It was killed deliberately once identified —
+  it was running pre-widening validators and would have redone finished teams.
+* Launch batch jobs with `python -u`. Without it there is no way to watch a
+  40-minute run.
+
+**Cross-team QA — 14/14 scanned, 0 genuine defects.** Three findings survived
+the final sweep and all three are scanner false positives, which is the point
+of the tool being over-broad:
+
+| flagged | verdict |
+|---|---|
+| Maccabi Tel Aviv, "elite ball security" | earned — mean league extremity 49.2/50, rank 1 of 14 in most cited metrics |
+| Maccabi Raanana, "severe difficulties in the final quarter" | earned — Q4 Net Rating rank 14 of 14, extremity 50.0/50, and the timeframe has Q4-scoped evidence |
+| Hapoel Tel Aviv, "extremely small sample of defeats" | describes the sample, not the team; caveats are deliberately not R9-gated |
+
+The two genuine defects the sweep found earlier (the caveat echoing the
+unavailable list, and "positive momentum early") were fixed in code and those
+two teams regenerated; both are clean now. The other twelve were left alone
+rather than regenerated for uniformity — §21's "do not repeatedly regenerate
+successful teams".
+
+**Final state:** 843 tests pass (from 807 at the start of the run). CI green on
+every pushed commit. Live site serves all 14 reports; every PDF is 3 pages with
+worst mid-document whitespace of 70 mm.
 
 ---
 
