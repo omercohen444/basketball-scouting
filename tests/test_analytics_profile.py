@@ -14,7 +14,9 @@ from __future__ import annotations
 import json
 
 import pytest
-from analytics_factories import make_bundle, make_league, make_possession
+from analytics_factories import make_bundle, make_facts, make_league, make_possession
+
+from basketball_scout.analytics import views
 
 from basketball_scout.analytics.build import (
     EXPECTED_LEAGUE_TURNOVERS,
@@ -280,6 +282,145 @@ def test_the_same_bundles_rebuild_to_the_same_hash():
     second, _ = build_from_bundles(make_league(), {}, "2025-26")
     assert ([a.content_hash for a in first.values()]
             == [a.content_hash for a in second.values()])
+
+
+# ---- the view layer ----------------------------------------------------------
+
+
+def _league(n: int = 4):
+    """A small league whose teams differ, so ranking has something to do."""
+    teams = {}
+    for i in range(2, 2 + n):
+        bundles = [
+            make_bundle(
+                team_id=f"segev:{i}", win=(g % 2 == 0),
+                facts=make_facts(fb_fga=4 + i, fb_fgm=2 + i, fb_points=5 + 2 * i),
+            )
+            for g in range(6)
+        ]
+        teams[f"segev:{i}"] = build_team_analytics(f"segev:{i}", bundles, f"TEAM {i}", "2025-26")
+    return teams
+
+
+def test_a_rate_with_no_denominator_is_absent_rather_than_zero():
+    team = build_team_analytics("segev:2", [], "TEST", "2025-26")
+    values = views.profile_values(team)
+    assert values["fb_rate"] is None
+    assert views.profile_cell("fb_rate", values) is None
+
+
+def test_the_transition_attempt_rate_is_style_and_the_rate_allowed_is_not():
+    """Running more is not being better. Conceding transition is."""
+    teams = _league()
+    cells = {c.key: c for c in views.transition_view(teams["segev:2"], views.profile_ranks(teams)["segev:2"])}
+    assert cells["fb_rate"].is_style is True
+    assert cells["fb_rate"].tint == 0
+    assert cells["fb_rate_allowed"].is_style is False
+
+
+def test_transition_offers_no_half_court_counterpart():
+    """A false provider flag means only that the provider did not call the play
+    a fast break. There is no complement to render, so none exists."""
+    view = views.transition_view(_league()["segev:2"])
+    keys = {c.key for c in view}
+    assert not any("half" in k or "court" in k or "set" in k for k in keys)
+
+
+def test_scoring_sources_separate_the_partition_from_the_context():
+    sources = views.scoring_sources_view(_league()["segev:2"])
+    assert {c.key for c in sources.partition} == {"share_2pt", "share_3pt", "share_ft"}
+    assert sources.partition_reconciles is True
+    # Contextual sources overlap each other and must never be summed.
+    assert {c.key for c in sources.context} >= {"pot_pg", "second_chance_pg", "fb_points_pg"}
+    # The two lists are disjoint, so nothing can be drawn as both.
+    assert not ({c.key for c in sources.partition} & {c.key for c in sources.context})
+
+
+def test_every_partition_share_is_style_so_no_scoring_split_gets_coloured():
+    """A team scoring more from three is not better at scoring."""
+    for cell in views.scoring_sources_view(_league()["segev:2"]).partition:
+        assert cell.is_style is True
+        assert cell.tint == 0
+
+
+def test_shot_profile_is_never_ranked_and_never_tinted():
+    """Twenty labelled shots from one arena is enough to say where a team
+    shoots from. It is not enough to place them in a league order."""
+    profile = views.shot_profile_view(_league()["segev:2"])
+    assert profile.is_experimental is True
+    for zone in profile.zones:
+        assert zone.share.rank is None
+        assert zone.share.tint == 0
+        assert zone.share.is_style is True
+        assert zone.attempts > 0  # the count always accompanies the efficiency
+    assert profile.rim.tint == 0
+
+
+def test_zone_efficiency_is_points_over_two_over_attempts():
+    """eFG% reduces to that in every zone: inside the arc a make is worth two,
+    beyond it three, and (FGM + 0.5*3PM)/FGA gives the same answer for both."""
+    profile = views.shot_profile_view(_league()["segev:2"])
+    lane = next(z for z in profile.zones if z.key == "lane_2pt")
+    # make_facts: 26 lane attempts, 30 lane points per game.
+    assert lane.efg_value == pytest.approx((30 / 2) / 26, abs=1e-4)
+
+
+def test_the_four_turnover_buckets_partition_the_ten_provider_types():
+    view = views.turnover_view(_league()["segev:2"])
+    assert sum(b.count for b in view.buckets) == view.total
+    assert sum(b.share for b in view.buckets) == pytest.approx(1.0, abs=1e-9)
+
+
+def test_the_raw_provider_categories_survive_into_the_detail():
+    """No scouting taxonomy is invented on top of a clean provider field."""
+    view = views.turnover_view(_league()["segev:2"])
+    assert dict((name, count) for name, count, _ in view.detail)["bad-pass"] > 0
+    assert view.detail == sorted(view.detail, key=lambda row: (-row[1], row[0]))
+
+
+def test_consistency_says_nothing_at_all_where_cv_does_not_apply():
+    """Net rating sits near zero, so std over |mean| inflates without bound.
+    There is no consistency claim to make there and none is made."""
+    team = _league()["segev:2"]
+    cells = {c.key: c for c in views.consistency_view(team, ("net_rating", "efg_pct", "pace"))}
+    assert cells["net_rating"].level is None
+    assert cells["net_rating"].cv is None
+    assert cells["efg_pct"].level is not None
+    assert cells["pace"].level is not None
+
+
+def test_consistency_always_shows_the_range_even_without_a_level():
+    """A metric with no valid coefficient of variation still has a real
+    game-to-game spread, and that is worth seeing."""
+    cells = {c.key: c for c in views.consistency_view(_league()["segev:2"], ("net_rating",))}
+    assert cells["net_rating"].spread != "—"
+
+
+def test_comeback_reads_as_counts_not_a_percentage():
+    """Four from five and nine from twenty are not the same claim, and a bare
+    rate would present them as though they were."""
+    view = views.comeback_view(_league()["segev:2"])
+    assert " of " in view.comeback_display
+    assert "%" not in view.comeback_display + view.blown_display
+
+
+def test_profile_ranks_order_lower_is_better_metrics_from_the_other_end():
+    teams = _league(n=4)
+    ranks = views.profile_ranks(teams)
+    values = {tid: views.profile_values(t)["fb_points_pg"] for tid, t in teams.items()}
+    best = max(values, key=lambda tid: values[tid])
+    assert ranks[best]["fb_points_pg"][0] == 1
+
+
+def test_both_halves_of_the_four_factors_come_from_one_cell():
+    """They used to be computed two different ways — a two to three point gap
+    on the opponent turnover rate, in the same table."""
+    team = build_team_analytics(
+        "segev:2", [_rebounding_bundle(team_id="segev:2") for _ in range(6)], "T", "2025-26"
+    )
+    factors = views.team_four_factors(team)
+    assert [c.key for c in factors.offense] == ["efg_pct", "tov_pct", "orb_pct", "ft_rate"]
+    assert [c.key for c in factors.defense] == ["opp_efg_pct", "opp_tov_pct", "drb_pct", "opp_ft_rate"]
 
 
 # ---- the real, committed artifacts -------------------------------------------

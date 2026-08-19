@@ -15,21 +15,21 @@ from analytics_factories import make_bundle
 from basketball_scout.analytics.build import build_team_analytics
 from basketball_scout.analytics.schema import SegmentCell
 from basketball_scout.analytics.views import (
+    CELL_META,
     DISPLAY_LABEL_OVERRIDES,
+    METRIC_FAMILIES,
     METRIC_META,
     OPPONENT_META,
     SEGMENT_DEFINITIONS,
     SEGMENT_LABELS,
-    SampleView,
-    METRIC_FAMILIES,
     ExplorerRow,
+    SampleView,
     display_label,
     explorer_columns,
     explorer_rows,
     format_value,
     largest_differences,
     metric_cell,
-    opponent_factors,
     sample_view,
     split_rows,
 )
@@ -157,13 +157,6 @@ def test_no_override_silently_renames_something_unrelated():
 # ---- defensive four factors -------------------------------------------------
 
 
-def test_opponent_factors_are_derived_from_the_opponent_box_score():
-    team = _team()
-    factors = opponent_factors(team.games)
-    assert set(factors) == {"opp_efg_pct", "opp_tov_pct", "drb_pct", "opp_ft_rate"}
-    assert all(0 <= v <= 2 for v in factors.values())
-
-
 def test_opponent_factors_have_the_right_directions():
     """Letting the opponent shoot well is bad; forcing turnovers is good. A
     naive copy of the offensive directions would colour half of these
@@ -174,8 +167,12 @@ def test_opponent_factors_have_the_right_directions():
     assert OPPONENT_META["drb_pct"].direction == "higher_is_better"
 
 
-def test_no_games_yields_no_factors_rather_than_a_division_error():
-    assert opponent_factors([]) == {}
+def test_one_lookup_resolves_both_halves_of_a_cell():
+    """The builder stores the offensive ten and the defensive four in one
+    metrics dict, so metric_cell has to find either without being told which."""
+    assert set(CELL_META) == set(METRIC_META) | set(OPPONENT_META)
+    for key in OPPONENT_META:
+        assert CELL_META[key] is OPPONENT_META[key]
 
 
 # ---- win / loss -------------------------------------------------------------

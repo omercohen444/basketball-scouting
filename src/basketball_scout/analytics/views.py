@@ -69,6 +69,10 @@ OPPONENT_META: dict[str, MetricMeta] = {
     "opp_ft_rate": MetricMeta("opp_ft_rate", "Opponent Free Throw Rate", "oFTr", "lower_is_better", "ratio", 2),
 }
 
+# Every key a segment cell can carry. The builder stores the offensive ten and
+# the defensive four in one `metrics` dict, so one lookup resolves both.
+CELL_META: dict[str, MetricMeta] = {**METRIC_META, **OPPONENT_META}
+
 # One shipped evidence id is mislabelled at source. The score-state bin it uses
 # starts at a margin of -5, not -6, so "Trailing 6+" overstates it. Correcting
 # the *bin* would move the value by up to eight points and invalidate every
@@ -158,7 +162,7 @@ class MetricCell:
 def metric_cell(key: str, cell: SegmentCell, meta: MetricMeta | None = None) -> MetricCell | None:
     """One metric out of a segment cell, or ``None`` when the cell does not
     carry it — an absent metric is never rendered as a zero or a dash-with-tint."""
-    meta = meta or METRIC_META.get(key)
+    meta = meta or CELL_META.get(key)
     if meta is None or key not in cell.metrics:
         return None
     return MetricCell(
@@ -243,33 +247,12 @@ class FourFactors:
     defense: list[MetricCell] = field(default_factory=list)
 
 
-def opponent_factors(games: list[GameRow]) -> dict[str, float]:
-    """The defensive four factors, summed across games then divided once.
-
-    A pure derivation from ``components_against`` — the opponent's own box
-    score is already in every game row, so this needs no new analytics and no
-    play-by-play. Volume-weighted, matching every other aggregate here.
-    """
-    if not games:
-        return {}
-    fgm = sum(g.components_against.fgm for g in games)
-    fga = sum(g.components_against.fga for g in games)
-    fg3m = sum(g.components_against.fg3m for g in games)
-    fta = sum(g.components_against.fta for g in games)
-    tov = sum(g.components_against.tov for g in games)
-    opp_orb = sum(g.components_against.orb for g in games)
-    own_drb = sum(g.components_for.drb for g in games)
-    opp_poss = sum(g.possessions_against for g in games)
-
-    out: dict[str, float] = {}
-    if fga:
-        out["opp_efg_pct"] = (fgm + 0.5 * fg3m) / fga
-        out["opp_ft_rate"] = fta / fga
-    if opp_poss:
-        out["opp_tov_pct"] = tov / opp_poss
-    if own_drb + opp_orb:
-        out["drb_pct"] = own_drb / (own_drb + opp_orb)
-    return out
+# The defensive four factors used to be derived here from the game rows. They
+# now arrive on every segment cell, computed by the builder through the same
+# four functions in `formulas.py` the offensive half uses — see
+# `analytics.build.opponent_metrics`. Deriving them twice was how the opponent
+# turnover rate ended up on a possession denominator while the team's own sat
+# on a plays denominator, two to three points apart in the same table.
 
 
 # ---- win / loss -------------------------------------------------------------
@@ -392,47 +375,24 @@ class LeagueRow:
 
 
 def league_rows(teams: dict[str, TeamAnalytics], *, sort: str = "net_rating") -> list[LeagueRow]:
-    """One row per team at season scope, with the defensive four factors joined.
+    """One row per team at season scope, both halves out of the same cell.
 
-    Opponent metrics are derived per team from its own game rows and ranked
-    across the league here rather than living in the artifact's cells: they are
-    a property of the season aggregate, not of a segment.
+    The defensive four used to be recomputed here from the game rows, with a
+    possession denominator for the opponent turnover rate while the team's own
+    turnover rate came from the cell with a plays denominator — a two to three
+    point gap on every team, in adjacent columns of one table. Both now come
+    from the artifact, where the builder ran all fourteen metrics through the
+    same functions, and the ranks come with them.
     """
-    opponent_values: dict[str, dict[str, float]] = {
-        tid: opponent_factors(team.games) for tid, team in teams.items()
-    }
-
-    opponent_ranks: dict[str, dict[str, tuple[int, float]]] = {tid: {} for tid in teams}
-    for key in LEAGUE_OPPONENT_COLUMNS:
-        meta = OPPONENT_META[key]
-        pairs = [(tid, v[key]) for tid, v in opponent_values.items() if key in v]
-        if len(pairs) < 2:
-            continue
-        pairs.sort(key=lambda kv: kv[1], reverse=meta.direction != "lower_is_better")
-        n = len(pairs)
-        for position, (tid, _value) in enumerate(pairs, start=1):
-            opponent_ranks[tid][key] = (position, round(100.0 * (n - position) / (n - 1), 1))
-
     rows: list[LeagueRow] = []
     for tid, team in teams.items():
         cell = team.cell("full", "all")
         metrics: dict[str, MetricCell] = {}
         if cell is not None:
-            for key in LEAGUE_COLUMNS:
+            for key in (*LEAGUE_COLUMNS, *LEAGUE_OPPONENT_COLUMNS):
                 built = metric_cell(key, cell)
                 if built:
                     metrics[key] = built
-        for key in LEAGUE_OPPONENT_COLUMNS:
-            value = opponent_values[tid].get(key)
-            if value is None:
-                continue
-            meta = OPPONENT_META[key]
-            rank, percentile = opponent_ranks[tid].get(key, (None, None))
-            metrics[key] = MetricCell(
-                key=key, label=meta.label, short=meta.short, value=value,
-                display=format_value(meta, value), direction=meta.direction,
-                rank=rank, percentile=percentile, eligible_teams=len(opponent_values),
-            )
         rows.append(
             LeagueRow(team_id=tid, team_name=team.team_name, record=team.record,
                       wins=team.wins, losses=team.losses, metrics=metrics)
@@ -680,27 +640,23 @@ def headline_metrics(team: TeamAnalytics) -> list[MetricCell]:
     return [c for key in HEADLINE_KEYS if (c := metric_cell(key, cell))]
 
 
-def team_four_factors(team: TeamAnalytics) -> FourFactors:
-    """Offense from the season cell; defense derived from the opponent's box.
+def team_four_factors(team: TeamAnalytics, segment: str = "full") -> FourFactors:
+    """Both halves out of the same cell, so they are the same statistic.
 
-    The defensive side is not ranked here — league ranks for opponent metrics
-    are computed across all teams on the league page, and a rank needs the
-    whole league in scope.
+    The defensive four used to be recomputed here from the game rows with a
+    possession denominator, while the offensive turnover rate came from the
+    cell with a plays denominator — a two to three point gap on every team, in
+    the same table, on what reads as one measure. Both sides now come from the
+    cell, where the builder ran all eight through the same functions in
+    ``formulas.py``. Ranks arrive with them.
     """
-    cell = team.cell("full", "all")
-    offense = [c for key in OFFENSIVE_FACTORS if cell and (c := metric_cell(key, cell))]
-
-    values = opponent_factors(team.games)
-    defense: list[MetricCell] = []
-    for key in DEFENSIVE_FACTORS:
-        if key not in values:
-            continue
-        meta = OPPONENT_META[key]
-        defense.append(
-            MetricCell(key=key, label=meta.label, short=meta.short, value=values[key],
-                       display=format_value(meta, values[key]), direction=meta.direction)
-        )
-    return FourFactors(offense=offense, defense=defense)
+    cell = team.cell(segment, "all")
+    if cell is None:
+        return FourFactors()
+    return FourFactors(
+        offense=[c for key in OFFENSIVE_FACTORS if (c := metric_cell(key, cell))],
+        defense=[c for key in DEFENSIVE_FACTORS if (c := metric_cell(key, cell))],
+    )
 
 
 @dataclass(frozen=True)
@@ -891,3 +847,472 @@ def explorer_rows(
 def explorer_columns(family: str) -> list[tuple[str, str]]:
     _label, keys = METRIC_FAMILIES.get(family, METRIC_FAMILIES["efficiency"])
     return [(k, METRIC_META[k].short) for k in keys]
+
+
+# ---- season identity profile ------------------------------------------------
+#
+# The artifact stores counts. Everything below turns them into rates once, in
+# one place, and attaches a league rank where a rank is meaningful. Two rules
+# are enforced structurally rather than by convention:
+#
+#   * the experimental shot metrics are forced `neutral` and never ranked, so
+#     `MetricCell.tint` is zero and no template can shade them;
+#   * a scoring source declares whether it PARTITIONS the total or merely
+#     describes part of it, and only a partition may be drawn as one.
+
+
+PROFILE_META: dict[str, MetricMeta] = {
+    # transition — running more is style, conceding transition is not
+    "fb_rate": MetricMeta("fb_rate", "Fast-Break Attempt Rate", "FB rate", "neutral", "pct"),
+    "fb_fg_pct": MetricMeta("fb_fg_pct", "Fast-Break FG%", "FB FG%", "higher_is_better", "pct"),
+    "fb_points_pg": MetricMeta("fb_points_pg", "Fast-Break Points / game", "FB pts", "higher_is_better", "count"),
+    "fb_rate_allowed": MetricMeta("fb_rate_allowed", "Fast-Break Rate Allowed", "FB allowed", "lower_is_better", "pct"),
+    "fb_fg_pct_allowed": MetricMeta("fb_fg_pct_allowed", "Opponent Fast-Break FG%", "oFB FG%", "lower_is_better", "pct"),
+    # scoring sources — the partition is style, the contextual ones have a direction
+    "share_2pt": MetricMeta("share_2pt", "Share of Points from 2PT", "2PT", "neutral", "pct"),
+    "share_3pt": MetricMeta("share_3pt", "Share of Points from 3PT", "3PT", "neutral", "pct"),
+    "share_ft": MetricMeta("share_ft", "Share of Points from FT", "FT", "neutral", "pct"),
+    "pot_pg": MetricMeta("pot_pg", "Points Off Turnovers / game", "PoT", "higher_is_better", "count"),
+    "points_per_opp_tov": MetricMeta("points_per_opp_tov", "Points per Opponent Turnover", "pts/TO", "higher_is_better", "ratio", 2),
+    "second_chance_pg": MetricMeta("second_chance_pg", "Second-Chance Points / game", "2nd ch.", "higher_is_better", "count"),
+    "second_chance_conversion": MetricMeta("second_chance_conversion", "Second-Chance Conversion", "2nd conv.", "higher_is_better", "pct"),
+    "assisted_share": MetricMeta("assisted_share", "Assisted Share of Made FG", "AST%", "neutral", "pct"),
+    "assisted_3pm_share": MetricMeta("assisted_3pm_share", "Assisted Share of Made 3PT", "AST% 3PT", "neutral", "pct"),
+    # scoring rhythm
+    "runs_8_for_pg": MetricMeta("runs_8_for_pg", "8+ Point Runs Made / game", "8+ made", "higher_is_better", "ratio", 2),
+    "runs_8_against_pg": MetricMeta("runs_8_against_pg", "8+ Point Runs Conceded / game", "8+ conceded", "lower_is_better", "ratio", 2),
+    "largest_run_for_pg": MetricMeta("largest_run_for_pg", "Largest Run Made / game", "Best run", "higher_is_better", "count"),
+    "largest_run_against_pg": MetricMeta("largest_run_against_pg", "Largest Run Conceded / game", "Worst run", "lower_is_better", "count"),
+    "scoring_droughts_pg": MetricMeta("scoring_droughts_pg", "Scoring Droughts 3m+ / game", "Droughts", "lower_is_better", "ratio", 2),
+    "fg_droughts_pg": MetricMeta("fg_droughts_pg", "Field-Goal Droughts 3m+ / game", "FG droughts", "lower_is_better", "ratio", 2),
+    "longest_fg_drought_s": MetricMeta("longest_fg_drought_s", "Longest Field-Goal Drought", "Longest FG drought", "lower_is_better", "seconds"),
+}
+
+# Shot location is style, exactly like Pace: a team that shoots more threes is
+# not a better team. Held apart from PROFILE_META because these are never
+# ranked either — the geometry is provisional and a league position would imply
+# a confidence the validation does not support.
+SHOT_META: dict[str, MetricMeta] = {
+    "zone_share_lane_2pt": MetricMeta("zone_share_lane_2pt", "Lane share", "Lane", "neutral", "pct"),
+    "zone_share_midrange_2pt": MetricMeta("zone_share_midrange_2pt", "Mid-range share", "Mid", "neutral", "pct"),
+    "zone_share_corner_3": MetricMeta("zone_share_corner_3", "Corner three share", "Corner 3", "neutral", "pct"),
+    "zone_share_atb_3": MetricMeta("zone_share_atb_3", "Above-the-break three share", "ATB 3", "neutral", "pct"),
+    "rim_share": MetricMeta("rim_share", "Rim attempt share", "Rim", "neutral", "pct"),
+}
+
+TRANSITION_KEYS: tuple[str, ...] = (
+    "fb_rate", "fb_fg_pct", "fb_points_pg", "fb_rate_allowed", "fb_fg_pct_allowed",
+)
+SCORING_CONTEXT_KEYS: tuple[str, ...] = (
+    "pot_pg", "points_per_opp_tov", "second_chance_pg", "second_chance_conversion",
+    "fb_points_pg", "assisted_share", "assisted_3pm_share",
+)
+SCORING_PARTITION_KEYS: tuple[str, ...] = ("share_2pt", "share_3pt", "share_ft")
+RUNS_KEYS: tuple[str, ...] = (
+    "runs_8_for_pg", "runs_8_against_pg", "largest_run_for_pg", "largest_run_against_pg",
+    "scoring_droughts_pg", "fg_droughts_pg", "longest_fg_drought_s",
+)
+
+# Ten provider turnover categories collapse to four for display. The three
+# named ones carry most of the volume and mean something distinct to a coach;
+# the seven violations are each under three per cent and are more legible
+# pooled. The raw ten are still rendered underneath, untouched.
+TURNOVER_BUCKETS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
+    ("bad_pass", "Bad pass", ("bad-pass",)),
+    ("ball_handling", "Ball handling", ("ball-handling",)),
+    ("travelling", "Travelling", ("travelling",)),
+    ("violations", "Violations & other", (
+        "other", "24-seconds-violation", "out-of-bounds", "8-seconds-violation",
+        "5-seconds-violation", "backcourt-violation", "3-seconds-violation",
+    )),
+)
+
+
+def _rate(numerator: float | int | None, denominator: float | int | None) -> float | None:
+    """A rate, or nothing. Never a zero standing in for an undefined value."""
+    if numerator is None or not denominator:
+        return None
+    return numerator / denominator
+
+
+def format_profile_value(meta: MetricMeta, value: float | None) -> str:
+    if value is None:
+        return "—"
+    if meta.unit == "seconds":
+        minutes, seconds = divmod(int(round(value)), 60)
+        return f"{minutes}:{seconds:02d}"
+    if meta.unit == "pct":
+        return f"{value * 100:.{meta.decimals}f}%"
+    return f"{value:.{meta.decimals}f}"
+
+
+def profile_values(team: TeamAnalytics) -> dict[str, float | None]:
+    """Every derived season rate for one team, from the artifact's counts.
+
+    One function so a value is computed once and the league ranking below reads
+    exactly what the page renders.
+    """
+    p = team.profile
+    t, s, r = p.transition, p.scoring, p.runs
+    games = r.games or team.games_n or 1
+
+    return {
+        "fb_rate": _rate(t.fb_fga, t.fga),
+        "fb_fg_pct": _rate(t.fb_fgm, t.fb_fga),
+        "fb_points_pg": _rate(t.fb_points, games),
+        "fb_rate_allowed": _rate(t.fb_fga_allowed, t.opp_fga),
+        "fb_fg_pct_allowed": _rate(t.fb_fgm_allowed, t.fb_fga_allowed),
+
+        "share_2pt": _rate(s.points_2pt, s.points),
+        "share_3pt": _rate(s.points_3pt, s.points),
+        "share_ft": _rate(s.points_ft, s.points),
+        "pot_pg": _rate(s.points_off_turnovers, games),
+        "points_per_opp_tov": _rate(s.points_off_turnovers, s.opponent_turnovers),
+        "second_chance_pg": _rate(s.second_chance_points, games),
+        "second_chance_conversion": _rate(s.scoring_oreb_possessions, s.oreb_possessions),
+        "assisted_share": _rate(s.assisted_fgm, s.assisted_fgm + s.unassisted_fgm),
+        "assisted_3pm_share": _rate(s.assisted_3pm, s.assisted_3pm + s.unassisted_3pm),
+
+        "runs_8_for_pg": _rate(r.runs_8_plus_for, games),
+        "runs_8_against_pg": _rate(r.runs_8_plus_against, games),
+        "largest_run_for_pg": _rate(r.largest_run_for_sum, games),
+        "largest_run_against_pg": _rate(r.largest_run_against_sum, games),
+        "scoring_droughts_pg": _rate(r.scoring_droughts_3m, games),
+        "fg_droughts_pg": _rate(r.fg_droughts_3m, games),
+        "longest_fg_drought_s": r.longest_fg_drought_s or None,
+    }
+
+
+def profile_ranks(teams: dict[str, TeamAnalytics]) -> dict[str, dict[str, tuple[int, int]]]:
+    """``{team_id: {metric: (rank, eligible)}}`` for the profile metrics.
+
+    Computed here rather than stamped at build time because these are season
+    figures over a fixed fourteen-team league — the whole ranking costs one
+    pass over fourteen small objects, and keeping it in the view layer means
+    the rank can never disagree with the value printed beside it.
+    """
+    values = {tid: profile_values(team) for tid, team in teams.items()}
+    out: dict[str, dict[str, tuple[int, int]]] = {tid: {} for tid in teams}
+
+    for key, meta in PROFILE_META.items():
+        present = {tid: v[key] for tid, v in values.items() if v.get(key) is not None}
+        if len(present) < 2:
+            continue
+        order = sorted(present.items(), key=lambda kv: kv[1],
+                       reverse=meta.direction != "lower_is_better")
+        n = len(order)
+        for position, (tid, _value) in enumerate(order, start=1):
+            out[tid][key] = (position, n)
+    return out
+
+
+def profile_cell(
+    key: str,
+    values: dict[str, float | None],
+    ranks: dict[str, tuple[int, int]] | None = None,
+) -> MetricCell | None:
+    """One profile metric ready to render, with its rank where one exists."""
+    meta = PROFILE_META.get(key)
+    if meta is None:
+        return None
+    value = values.get(key)
+    if value is None:
+        return None
+
+    rank = eligible = None
+    percentile = None
+    if ranks and key in ranks:
+        rank, eligible = ranks[key]
+        if eligible > 1:
+            percentile = round(100.0 * (eligible - rank) / (eligible - 1), 1)
+
+    return MetricCell(
+        key=key, label=meta.label, short=meta.short, value=value,
+        display=format_profile_value(meta, value), direction=meta.direction,
+        rank=rank, percentile=percentile, eligible_teams=eligible or 0,
+    )
+
+
+def transition_view(
+    team: TeamAnalytics, ranks: dict[str, tuple[int, int]] | None = None
+) -> list[MetricCell]:
+    """Five numbers. The attempt rate is style — a team that runs more is not a
+    better team — while conceding transition has a clear better end.
+
+    Nothing here has a half-court counterpart, and none is offered: a false
+    provider flag means only that the provider did not call the play a fast
+    break, and 5.7% of provider-negatives happen inside four seconds of a
+    change of possession.
+    """
+    values = profile_values(team)
+    return [c for key in TRANSITION_KEYS if (c := profile_cell(key, values, ranks))]
+
+
+@dataclass(frozen=True)
+class ScoringSources:
+    """Two different kinds of thing, kept apart in the type rather than in a
+    template's discipline."""
+
+    partition: list[MetricCell] = field(default_factory=list)
+    context: list[MetricCell] = field(default_factory=list)
+
+    @property
+    def partition_total(self) -> float:
+        return sum(c.value or 0.0 for c in self.partition)
+
+    @property
+    def partition_reconciles(self) -> bool:
+        """The three shares are the whole of scoring, so they must sum to one.
+        A template may only draw a part-to-whole when this is true."""
+        return abs(self.partition_total - 1.0) < 1e-6
+
+
+def scoring_sources_view(
+    team: TeamAnalytics, ranks: dict[str, tuple[int, int]] | None = None
+) -> ScoringSources:
+    """2PT/3PT/FT partition the points exactly. Everything else overlaps —
+    a fast-break layup off a steal is points off turnovers and fast-break
+    points and two-point scoring at the same time — so the contextual sources
+    are returned separately and never sum to anything."""
+    values = profile_values(team)
+    return ScoringSources(
+        partition=[c for key in SCORING_PARTITION_KEYS if (c := profile_cell(key, values, None))],
+        context=[c for key in SCORING_CONTEXT_KEYS if (c := profile_cell(key, values, ranks))],
+    )
+
+
+def runs_view(
+    team: TeamAnalytics, ranks: dict[str, tuple[int, int]] | None = None
+) -> list[MetricCell]:
+    """Scoring rhythm: runs made and conceded, and how often the team goes
+    quiet. Descriptive patterns — nothing here claims a cause."""
+    values = profile_values(team)
+    return [c for key in RUNS_KEYS if (c := profile_cell(key, values, ranks))]
+
+
+@dataclass(frozen=True)
+class ShotZoneRow:
+    key: str
+    label: str
+    share: MetricCell
+    attempts: int
+    efg: str
+    efg_value: float | None
+
+
+@dataclass(frozen=True)
+class ShotProfile:
+    """EXPERIMENTAL. Complete data, provisional validation.
+
+    Coordinate coverage is total — 24,432 of 24,432 shots, none left without a
+    zone — but the human check is twenty labelled shots from one game in one
+    arena, and the same twenty both diagnosed and confirmed the one rule change
+    made since. That is enough to describe where a team shoots from. It is not
+    enough to plot a shot, quote a distance, or rank a team on efficiency
+    inside a zone.
+    """
+
+    zones: list[ShotZoneRow] = field(default_factory=list)
+    rim: MetricCell | None = None
+    attempts: int = 0
+    unclassified: int = 0
+    validation_state: str = "provisional_deterministic"
+
+    @property
+    def is_experimental(self) -> bool:
+        return self.validation_state != "validated_deterministic"
+
+
+_ZONE_LABELS: tuple[tuple[str, str], ...] = (
+    ("lane_2pt", "Lane"),
+    ("midrange_2pt", "Mid-range"),
+    ("corner_3", "Corner 3"),
+    ("atb_3", "Above the break 3"),
+)
+
+
+def shot_profile_view(team: TeamAnalytics) -> ShotProfile:
+    """Attempt shares and per-zone eFG%, with the attempt count beside every
+    efficiency figure and no rank on any of them.
+
+    eFG% is ``points / 2 / attempts``: inside a two-point zone every make is
+    worth two, inside a three-point zone every make is worth three, and
+    ``(FGM + 0.5*3PM)/FGA`` reduces to the same thing in both cases.
+    """
+    s = team.profile.shots
+    if not s.fga:
+        return ShotProfile(validation_state=s.validation_state)
+
+    rows: list[ShotZoneRow] = []
+    for zone, label in _ZONE_LABELS:
+        attempts = s.zone_attempts.get(zone, 0)
+        share_key = f"zone_share_{zone}"
+        meta = SHOT_META[share_key]
+        share_value = attempts / s.fga
+        efg_value = _rate(s.zone_points.get(zone, 0) / 2.0, attempts)
+        rows.append(ShotZoneRow(
+            key=zone, label=label,
+            share=MetricCell(
+                key=share_key, label=meta.label, short=meta.short, value=share_value,
+                display=format_profile_value(meta, share_value), direction="neutral",
+            ),
+            attempts=attempts,
+            efg=f"{efg_value * 100:.1f}%" if efg_value is not None else "—",
+            efg_value=efg_value,
+        ))
+
+    rim_meta = SHOT_META["rim_share"]
+    rim_value = s.rim_attempts / s.fga
+    return ShotProfile(
+        zones=rows,
+        rim=MetricCell(
+            key="rim_share", label=rim_meta.label, short=rim_meta.short, value=rim_value,
+            display=format_profile_value(rim_meta, rim_value), direction="neutral",
+        ),
+        attempts=s.fga,
+        unclassified=s.unclassified,
+        validation_state=s.validation_state,
+    )
+
+
+@dataclass(frozen=True)
+class TurnoverBucket:
+    key: str
+    label: str
+    count: int
+    share: float
+    display: str
+
+
+@dataclass(frozen=True)
+class TurnoverView:
+    """The provider's own categories, grouped for reading and listed in full
+    underneath. These four are exhaustive over the ten, so they genuinely do
+    partition the total and may be drawn as one."""
+
+    total: int
+    buckets: list[TurnoverBucket] = field(default_factory=list)
+    detail: list[tuple[str, int, float]] = field(default_factory=list)
+    forced_total: int = 0
+    forced_buckets: list[TurnoverBucket] = field(default_factory=list)
+
+
+def _buckets(by_type: dict[str, int], total: int) -> list[TurnoverBucket]:
+    out: list[TurnoverBucket] = []
+    for key, label, members in TURNOVER_BUCKETS:
+        count = sum(by_type.get(m, 0) for m in members)
+        share = (count / total) if total else 0.0
+        out.append(TurnoverBucket(
+            key=key, label=label, count=count, share=share, display=f"{share * 100:.1f}%"
+        ))
+    return out
+
+
+def turnover_view(team: TeamAnalytics) -> TurnoverView:
+    """Turnover rate says how often; this says what kind.
+
+    The provider's ten categories are preserved verbatim rather than mapped
+    onto an invented scouting taxonomy — the source field is clean, with no
+    nulls anywhere in the season, so it is already the trusted representation.
+    """
+    tv = team.profile.turnovers
+    detail = [
+        (name, count, (count / tv.total) if tv.total else 0.0)
+        for name, count in sorted(tv.by_type.items(), key=lambda kv: (-kv[1], kv[0]))
+    ]
+    return TurnoverView(
+        total=tv.total,
+        buckets=_buckets(tv.by_type, tv.total),
+        detail=detail,
+        forced_total=tv.forced_total,
+        forced_buckets=_buckets(tv.forced_by_type, tv.forced_total),
+    )
+
+
+@dataclass(frozen=True)
+class ConsistencyCell:
+    """A three-level label, or nothing at all.
+
+    Nothing is the important case: the coefficient of variation is std over
+    |mean|, so for a metric that sits near zero it inflates without bound.
+    Where ``cv_applicable`` is false there is no consistency claim to make and
+    none is made.
+    """
+
+    key: str
+    label: str
+    short: str
+    level: str | None
+    cv: float | None
+    spread: str
+
+
+CONSISTENCY_LEVELS: tuple[tuple[float, str], ...] = ((0.10, "Steady"), (0.25, "Typical"))
+
+
+def consistency_view(
+    team: TeamAnalytics, keys: tuple[str, ...] = HEADLINE_KEYS
+) -> list[ConsistencyCell]:
+    """How steady each headline metric was, game to game.
+
+    Deliberately the unweighted per-game distribution rather than the season
+    value: a ten-shot night and a ninety-shot night genuinely do count equally
+    when the question is "what does a typical game look like".
+    """
+    out: list[ConsistencyCell] = []
+    for key in keys:
+        entry = team.profile.stability.get(key)
+        meta = METRIC_META.get(key)
+        if entry is None or meta is None:
+            continue
+        level = None
+        if entry.cv_applicable and entry.cv is not None:
+            level = "Variable"
+            for threshold, name in CONSISTENCY_LEVELS:
+                if abs(entry.cv) <= threshold:
+                    level = name
+                    break
+        spread = "—"
+        if entry.min is not None and entry.max is not None:
+            spread = f"{format_value(meta, entry.min)} to {format_value(meta, entry.max)}"
+        out.append(ConsistencyCell(
+            key=key, label=meta.label, short=meta.short,
+            level=level, cv=entry.cv if entry.cv_applicable else None, spread=spread,
+        ))
+    return out
+
+
+@dataclass(frozen=True)
+class ComebackView:
+    """Counts first. The denominators run from five to twenty-two across the
+    league, so a bare percentage would put a four-from-five and a
+    nine-from-twenty side by side as if they were the same claim."""
+
+    trailing_games: int
+    comeback_wins: int
+    leading_games: int
+    blown_leads: int
+
+    @property
+    def comeback_display(self) -> str:
+        return f"{self.comeback_wins} of {self.trailing_games}"
+
+    @property
+    def blown_display(self) -> str:
+        return f"{self.blown_leads} of {self.leading_games}"
+
+    @property
+    def has_comeback_sample(self) -> bool:
+        return self.trailing_games > 0
+
+    @property
+    def has_lead_sample(self) -> bool:
+        return self.leading_games > 0
+
+
+def comeback_view(team: TeamAnalytics) -> ComebackView:
+    c = team.profile.comeback
+    return ComebackView(
+        trailing_games=c.games_trailing_10_plus, comeback_wins=c.comeback_wins,
+        leading_games=c.games_leading_10_plus, blown_leads=c.blown_leads,
+    )
