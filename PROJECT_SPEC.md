@@ -13,6 +13,26 @@ Source of truth for the currently agreed product design. Compact on purpose.
 
 ---
 
+## 0. Amendments (recorded, not decided here)
+
+Sections 1–7 below are the originally agreed design and are left intact as the
+audit trail. Four decisions have since been taken and are recorded here so this
+document does not mislead a reader — each cites where the decision was made. An
+implementer may not change this list; it only records what already happened.
+
+| # | Amendment | Decided | Recorded in |
+|---|---|---|---|
+| A1 | **Video analytics removed from the MVP.** Gate 5 returned REMOVE after fresh-game evaluation found reliability and generalization insufficient. §2's locked "one complete matchday — 7 games" and §3's three video metrics no longer apply. The absence is declared explicitly in every report (`unavailable_evidence`). | Management, 2026-08-19 | `WORKLOG.md` Run 13; `BUILD_PLAN.md` §"Current stage status" |
+| A2 | **The three agents are Evidence Triage → Tactical Scout → Head Scout.** §2's locked "exactly three CrewAI agents" still holds; the Video Analysis Agent was replaced by Evidence Triage, a genuinely distinct role, rather than dropping to two. | Management, 2026-08-19 | `WORKLOG.md` Run 13 |
+| A3 | **Dataset is a full 14-team × 26-game season** (182 team-game records from 297 cached games), not the ~91-game single round-robin cycle in §2. This is §5's stretch goal, reached. | Stats track, 2026-08-15/16 | `WORKLOG.md` Runs 3–5 |
+| A4 | **Deployment is now in scope.** §6 lists it as out of scope; the product is now built to deploy (Railway), with deployment itself deferred rather than excluded. | Project owner, Run 14 brief | `docs/DEPLOYMENT.md`; `WORKLOG.md` Run 14 |
+
+Unchanged and still binding: team-level analysis only (no player analytics), the
+ten core team metrics, deterministic code computes every number, agents only
+interpret verified evidence, and no authentication.
+
+---
+
 ## 1. Product
 
 A web-based **Basketball Analytics and AI Scouting System** for the Israeli

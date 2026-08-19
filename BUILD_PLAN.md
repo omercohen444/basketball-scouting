@@ -104,7 +104,7 @@ should be **removed**.
 The video outcome shapes what follows, so later stages are listed as sequence,
 not schedule. **No dates are assigned here** — none have been agreed.
 
-1. **Video Analytics risk stage** (gates 0–5 above) ← current stage
+1. **Video Analytics risk stage** (gates 0–5 above) — closed, Gate 5 = REMOVE
 2. PBP ingestion — ~91 games, one round-robin cycle
 3. Team analytics — the ten core metrics
 4. Wins-vs-losses signals — the main section of the report
@@ -120,12 +120,39 @@ That is deliberate: the product survives Gate 5 returning "remove".
 
 ## Current stage status
 
+Last updated 2026-08-19 (Run 14). Detail for every line is in `WORKLOG.md`.
+
+### Video Risk Day — closed
+
+**Gate 5 outcome: REMOVE.** Management decision, recorded in `WORKLOG.md`
+Run 13: the video layer was built and fresh-game validated, and failed
+reliability gates. It is excluded from the MVP, and the report declares the
+absence explicitly rather than implying capability.
+
+What this branch's log actually documents about the gates:
+
+| Gate | Recorded outcome (this repository) |
+|---|---|
+| Gate 0 — Sources | **PASS** — public full-game video + matching PBP for `game_id=136`, cross-checked against 3 other rounds |
+| Gate 1 — Model feasibility | **PARTIAL** (CP1 verdict, Run 2). `gemini-2.5-flash` returned HTTP 404 for new users; `gemini-3.5-flash` pinned and verified. Clipping offsets confirmed honoured (exactly linear VIDEO-token scaling). Sync was falsified: the assumed slope of 1.0 was wrong (~0.946 measured), and 1 of 4 quarters held a genuine discontinuity |
+| Gates 2–4 | Executed on the `fresh-video-eval` branch, **not logged here.** This worktree was created from `1aa2af5` on the stats track and carries no CP2–CP4 video record |
+| Gate 5 — Decision | **REMOVE** |
+
+The detailed video evidence trail lives on the `fresh-video-eval` branch and in
+`docs/VIDEO_STAGE_PLAN.md`; do not infer CP2–CP4 outcomes from this file.
+
+The strategy in this file worked exactly as intended: the riskiest component was
+tested first, and removing it did not take the product with it.
+
+### Stages after the video risk stage
+
 | Stage | Status |
 |---|---|
-| Preparation / scaffolding | Complete — see `WORKLOG.md` |
-| Gate 0 — Sources | Not started |
-| Gate 1 — Model feasibility | Harness ready, no data |
-| Gate 2 — First end-to-end metric | Blocked on Gate 0 |
-| Gate 3 — Two metrics | Blocked on Gate 2 |
-| Gate 4 — One full game | Blocked on Gate 3 |
-| Gate 5 — Decision | Blocked on Gate 4 |
+| 2. PBP ingestion | Complete — 297 games cached, 182 team-game records |
+| 3. Team analytics | Complete — the ten core metrics, validated |
+| 4. Wins-vs-losses signals | Complete |
+| 5. Persistence — Supabase | Complete — schema applied, seeded, RLS verified |
+| 6. CrewAI agents | Complete — Triage / Tactical Scout / Head Scout, live-verified |
+| 7. FastAPI + web frontend | Complete — frontend is a functional placeholder by design |
+| 8. PDF scouting report | Complete |
+| Deployment (Railway) | Ready, not performed — see `docs/DEPLOYMENT.md` |
