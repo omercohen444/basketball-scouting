@@ -4,9 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
+  <meta name="color-scheme" content="light">
   <title>{% block title %}Opponent Scouting{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;550;600;650;700&display=swap">
   <link rel="stylesheet" href="/static/app.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🏀</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='%231b4965'/><text x='16' y='22' font-family='Arial' font-size='15' font-weight='bold' fill='white' text-anchor='middle'>OS</text></svg>">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -14,7 +19,7 @@
   <header class="topbar">
     <div class="wrap topbar-inner">
       <a class="brand" href="/">
-        <span class="brand-mark" aria-hidden="true">🏀</span>
+        <span class="brand-mark" aria-hidden="true">OS</span>
         <span>
           <strong>Opponent Scouting</strong>
           <em>Israeli Basketball Premier League · {{ season }}</em>
@@ -30,13 +35,14 @@
 
   <footer class="wrap footer">
     <p>
-      Every figure is computed deterministically from official play-by-play.
-      Agents select, prioritize and interpret that evidence — they do not compute it.
-      Team-level only: no player, scheme, or video-derived analysis.
+      <strong>Every figure is computed deterministically from official play-by-play.</strong>
+      Agents select, prioritise and interpret that evidence — they never compute it.
     </p>
-    <p class="muted">
-      Build {{ app_version }} · This interface is a functional placeholder; the final design is produced separately.
+    <p>
+      Team-level only: no player, lineup, scheme or video-derived analysis.
+      Reports are generated in advance; opening one costs nothing.
     </p>
+    <p>Build {{ app_version }}</p>
   </footer>
 
   <script src="/static/app.js" defer></script>

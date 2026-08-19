@@ -1,19 +1,46 @@
 {% extends "base.html" %}
 {% block title %}{{ report.team_name if report else (selected.team_name if selected else "Report") }} — Opponent Scouting{% endblock %}
 
+{#- One deterministic fact. This is the MEASURED layer: bordered, numeric,
+    tabular. It must never be mistaken for the prose around it. -#}
 {% macro evidence_card(ev) %}
 <li class="ev">
+  {#- The metric label already names its situation ("Clutch Effective FG%",
+      "Effective FG% When Trailing 6+"), so repeating the raw scope id here is
+      redundant noise that also wraps the label. Scope stays in the table. -#}
   <span class="ev-metric">{{ ev.metric }}</span>
-  <span class="ev-value">{{ ev.value }}</span>
-  <span class="ev-facts">
-    {% if ev.scope and ev.scope != "season" %}<span class="tag">{{ ev.scope }}</span>{% endif %}
-    {% if ev.league_rank %}rank {{ ev.league_rank }}{% endif %}
-    {% if ev.league_average %} · league avg {{ ev.league_average }}{% endif %}
-    {% if ev.win_loss.available and ev.win_loss.in_wins %}
-      · W {{ ev.win_loss.in_wins }} / L {{ ev.win_loss.in_losses }}{% if ev.win_loss.effect_size is not none %} (d={{ ev.win_loss.effect_size }}){% endif %}
+  <span class="ev-value num">{{ ev.value }}</span>
+  <span class="ev-rank">
+    {%- if ev.league_rank %}{{ ev.league_rank }}{% endif -%}
+    {%- if ev.league_average %} · lg avg {{ ev.league_average }}{% endif -%}
+  </span>
+
+  {% if ev.win_loss.available and ev.win_loss.in_wins %}
+    {%- set d = ev.win_loss.effect_size -%}
+    {%- set mag = (d | abs) if d is not none else 0 -%}
+    {%- set width = ([(mag * 55) | round | int, 100] | min) -%}
+  <span class="wl">
+    <span class="wl-values">
+      <span class="wl-w">W {{ ev.win_loss.in_wins }}</span>
+      <span class="wl-sep">/</span>
+      <span class="wl-l">L {{ ev.win_loss.in_losses }}</span>
+      {% if d is not none %}<span class="wl-gap num">gap {{ '%.2f' | format(mag) }} SD</span>{% endif %}
+    </span>
+    {% if d is not none %}
+    <span class="wl-bar {% if mag >= 0.8 %}is-strong{% elif mag < 0.3 %}is-weak{% endif %}"
+          role="img"
+          aria-label="Wins-versus-losses gap of {{ '%.2f' | format(mag) }} standard deviations">
+      <i style="width: {{ width }}%"></i>
+    </span>
     {% endif %}
-    · n={{ ev.sample_games }}g
-    <span class="tag tag-{{ ev.reliability }}">{{ ev.reliability }} reliability</span>
+  </span>
+  {% elif ev.win_loss.reason %}
+  <span class="wl-none">No win/loss split available for this metric.</span>
+  {% endif %}
+
+  <span class="ev-foot">
+    <span class="num">n={{ ev.sample_games }}g</span>
+    <span class="tag tag-{{ ev.reliability }}">{{ ev.reliability }}</span>
   </span>
 </li>
 {% endmacro %}
@@ -23,8 +50,8 @@
 
 {% if storage_error %}
 <div class="banner banner-warn">
-  Report storage is unreachable right now, so saved reports cannot be shown. The team list and
-  deterministic evidence are unaffected.
+  <strong>Report storage is unreachable right now,</strong> so saved reports cannot be shown.
+  The team list and deterministic evidence are unaffected.
 </div>
 {% endif %}
 
@@ -45,9 +72,8 @@
     <div>
       <p class="eyebrow">Opponent scouting report</p>
       <h1>{{ report.team_name }}</h1>
-      <p class="lede">
-        Season {{ report.season }} · {{ report.provenance.record }} · {{ report.provenance.games_n }} games
-        {% if report.provenance.date_range %}· {{ report.provenance.date_range_display }}{% endif %}
+      <p class="report-meta">
+        {{ report.season }} · {{ report.provenance.record }} · {{ report.provenance.games_n }} games{% if report.provenance.date_range %} · {{ report.provenance.date_range_display }}{% endif %}
       </p>
     </div>
     <div class="report-actions">
@@ -57,13 +83,16 @@
   </header>
 
   {% if report.provenance.pack_states %}
-  <div class="banner banner-info">
-    <strong>Data state:</strong> {{ report.provenance.pack_states | join(", ") }} —
-    win/loss comparisons are unavailable for this team and are deliberately absent below.
+  <div class="banner">
+    <strong>Data state: {{ report.provenance.pack_states | join(", ") }}.</strong>
+    Win/loss comparisons are unavailable for this team and are deliberately absent below.
   </div>
   {% endif %}
 
-  {% if report.scope_note %}<p class="scope">{{ report.scope_note }}</p>{% endif %}
+  {#- scope_note is "2025-26 Season · 18-8 Record · 26 Games" — the header
+      above already says exactly that, plus the date range. It stays in the
+      JSON contract for API consumers; printing it twice for a coach is just
+      noise. -#}
 
   <section class="block">
     <h2>Executive summary</h2>
@@ -73,30 +102,35 @@
   {% if report.recommendations %}
   <section class="block">
     <h2>Keys to Win</h2>
-    <p class="muted small">
-      Each key is an evidence-supported objective. A tactical option is included only
-      when the evidence points to that specific method — most keys have none, and that
-      is expected, not a gap.
+    <p class="muted small keys-note">
+      Each key is an evidence-supported objective, with the deterministic evidence behind it.
+      A tactical option appears only where the evidence points to that specific method — most
+      keys have none, and that is expected, not a gap.
     </p>
-    <ol class="recs">
+    <ol class="keys">
       {% for rec in report.recommendations | sort(attribute="priority") %}
-      <li class="rec">
-        <div class="rec-head">
-          <h3>{{ rec.objective }}</h3>
+      <li class="key">
+        <div class="key-head">
+          <span class="key-num" aria-hidden="true">{{ "%02d" | format(rec.priority) }}</span>
+          <h3 class="key-obj">{{ rec.objective }}</h3>
           <span class="tag tag-{{ rec.confidence }}">{{ rec.confidence }} confidence</span>
         </div>
-        <p><strong class="small">Why it matters:</strong> {{ rec.why_it_matters }}</p>
+
+        <p class="why"><b>Why it matters</b>{{ rec.why_it_matters }}</p>
+
         {% if rec.evidence %}
         <ul class="ev-list">
           {% for ev in rec.evidence[:4] %}{{ evidence_card(ev) }}{% endfor %}
         </ul>
         {% endif %}
+
         {% if rec.tactics %}
-        <ul class="plain small">
+        <ul class="tactics">
           {% for tactic in rec.tactics %}
-          <li>
-            <strong class="small">Tactical option:</strong> {{ tactic.method }}
-            <span class="muted small">— {{ tactic.mechanism }}</span>
+          <li class="tactic">
+            <span class="tactic-label">Tactical option</span>
+            <span class="tactic-method">{{ tactic.method }}</span>
+            <span class="tactic-why">{{ tactic.mechanism }}</span>
           </li>
           {% endfor %}
         </ul>
@@ -127,14 +161,17 @@
 
   {% if report.key_evidence %}
   <section class="block">
-    <h2>Key deterministic evidence</h2>
-    <p class="muted small">Computed from play-by-play. No value on this page was written by a model.</p>
-    <div class="table-scroll">
+    <h2>Deterministic evidence</h2>
+    <p class="muted small keys-note">
+      Computed from play-by-play. No value in this table was written by a model.
+    </p>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Deterministic evidence table">
       <table class="evidence-table">
         <thead>
           <tr>
-            <th>Metric</th><th>Scope</th><th>Value</th><th>League rank</th>
-            <th>League avg</th><th>Sample</th><th>Reliability</th>
+            <th scope="col">Metric</th><th scope="col">Scope</th><th scope="col">Value</th>
+            <th scope="col">League rank</th><th scope="col">League avg</th>
+            <th scope="col">Sample</th><th scope="col">Reliability</th>
           </tr>
         </thead>
         <tbody>
@@ -158,8 +195,7 @@
   {% if report.caveats or report.unavailable_evidence %}
   <section class="block">
     <h2>Data Limits</h2>
-    <p class="muted small">What materially affects how to read this report.</p>
-    <ul class="plain">
+    <ul class="limits">
       {% for caveat in report.caveats %}<li>{{ caveat }}</li>{% endfor %}
       {% for item in report.unavailable_evidence %}
       <li><strong>{{ item.label }}:</strong> {{ item.reason }}</li>

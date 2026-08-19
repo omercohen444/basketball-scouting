@@ -3,12 +3,18 @@
 
 {% block content %}
 <section class="hero">
+  <p class="eyebrow">Israeli Basketball Premier League · {{ season }}</p>
   <h1>Choose an opponent</h1>
   <p class="lede">
-    Season {{ season }} · {{ teams | length }} teams · {{ reports_n }} with a saved scouting report.
-    Reports combine full-season deterministic play-by-play analytics with a constrained
-    three-agent interpretation layer, and are generated in advance — opening one costs nothing.
+    Pre-game scouting reports built from full-season play-by-play. Every number is computed
+    deterministically; a constrained three-agent layer selects and interprets that evidence,
+    and never calculates it.
   </p>
+  <div class="home-note">
+    <span>{{ teams | length }} teams</span>
+    <span>{{ reports_n }} with a saved report</span>
+    <span>Generated in advance — opening one is free</span>
+  </div>
   {% include "_selector.html" %}
 </section>
 

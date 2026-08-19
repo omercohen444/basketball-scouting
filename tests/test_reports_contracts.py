@@ -220,6 +220,32 @@ def test_short_coach_note_appears_only_for_codes_actually_cited():
     assert COACH_LIMITATION_NOTES["neutral_direction"] not in without_note
 
 
+def test_near_duplicate_caveats_about_the_same_topic_collapse_to_one():
+    """Observed in a live report: the model wrote its own note about small
+    clutch/trailing samples, and the canonical note for
+    ``unweighted_segment_mean`` said the same thing in different words, so the
+    coach read it twice. Exact-string dedupe cannot catch that."""
+    from basketball_scout.reports.contracts import COACH_LIMITATION_NOTES, _coach_caveats
+
+    model_note = (
+        "The clutch and trailing metrics are based on smaller subsets of games "
+        "and carry moderate reliability compared to the season-long metrics."
+    )
+    card = build().key_evidence[0].model_copy(update={"limitations": ["unweighted_segment_mean"]})
+
+    out = _coach_caveats([model_note], [card])
+    assert model_note in out, "the report-specific wording is the one worth keeping"
+    assert COACH_LIMITATION_NOTES["unweighted_segment_mean"] not in out
+    assert len(out) == 1
+
+
+def test_caveats_are_capped_so_the_section_stays_readable():
+    from basketball_scout.reports.contracts import MAX_COACH_CAVEATS, _coach_caveats
+
+    many = [f"A distinct limitation number {i}." for i in range(10)]
+    assert len(_coach_caveats(many, [])) == MAX_COACH_CAVEATS
+
+
 def test_caveats_have_no_duplicates_across_model_and_coach_notes():
     from basketball_scout.reports.contracts import _coach_caveats
 

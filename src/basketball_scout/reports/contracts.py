@@ -384,20 +384,63 @@ _UNAVAILABLE_GROUPS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
 )
 
 
+# Data Limits must state each limitation once. Exact-string dedupe is not
+# enough: the model writes its own caveat about small clutch samples, and the
+# canonical note for ``unweighted_segment_mean`` says the same thing in
+# different words, so the coach reads it twice. Each topic below claims a set
+# of keywords; the first caveat to touch a topic keeps it and later ones are
+# dropped. Model caveats are ordered first, so a report-specific wording wins
+# over the generic note it duplicates.
+_CAVEAT_TOPICS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("situational_sample", (
+        "clutch", "trailing", "segment", "situational", "small sample",
+        "smaller sample", "smaller subset", "small number of possessions",
+    )),
+    ("style_not_quality", ("style, not quality", "neutral", "inherently good", "shot mix")),
+    ("transition_count", ("transition", "fast break")),
+    ("correlation_not_cause", ("correlation", "causation", "does not imply", "not imply")),
+)
+
+# A coach reads this section last and briefly. More than a few lines and it
+# stops being read at all, which is worse than a shorter list.
+MAX_COACH_CAVEATS = 3
+
+
+def _caveat_topic(text: str) -> str | None:
+    low = text.lower()
+    for topic, keywords in _CAVEAT_TOPICS:
+        if any(k in low for k in keywords):
+            return topic
+    return None
+
+
 def _coach_caveats(rendered_caveats: list[str], key_evidence: list[EvidenceCard]) -> list[str]:
     """Genuinely agent-authored notes, plus a short substitute for whichever
     limitation codes are actually present on evidence THIS report cites —
-    never the verbose legend text render.py attaches for the full artifact."""
+    never the verbose legend text render.py attaches for the full artifact.
+
+    Deduplicated by topic, not just by exact string, and capped: this section
+    exists to change how the numbers above are read, not to enumerate every
+    caveat the pipeline could name."""
     model_caveats = [c for c in rendered_caveats if c not in _LEGEND_TEXTS]
     cited_codes = {code for card in key_evidence for code in card.limitations}
     coach_notes = [COACH_LIMITATION_NOTES[code] for code in sorted(cited_codes) if code in COACH_LIMITATION_NOTES]
 
     seen: set[str] = set()
+    seen_topics: set[str] = set()
     out: list[str] = []
     for caveat in (*model_caveats, *coach_notes):
-        if caveat not in seen:
-            seen.add(caveat)
-            out.append(caveat)
+        if caveat in seen:
+            continue
+        topic = _caveat_topic(caveat)
+        if topic is not None and topic in seen_topics:
+            continue
+        seen.add(caveat)
+        if topic is not None:
+            seen_topics.add(topic)
+        out.append(caveat)
+        if len(out) >= MAX_COACH_CAVEATS:
+            break
     return out
 
 

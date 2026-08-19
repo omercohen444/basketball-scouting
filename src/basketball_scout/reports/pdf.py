@@ -22,8 +22,8 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import (
+    CondPageBreak,
     KeepTogether,
-    PageBreak,
     Paragraph,
     SimpleDocTemplate,
     Spacer,
@@ -221,8 +221,8 @@ def build_report_pdf(report: PublicReport) -> bytes:
     story.append(Paragraph(_meta_line(report), st["subtitle"]))
     story.append(Paragraph(f"Generated {_safe(report.generated_at)}", st["small"]))
     story.append(Spacer(1, 4))
-    if report.scope_note:
-        story.append(Paragraph(f"<i>{_safe(report.scope_note)}</i>", st["small"]))
+    # scope_note restates season/record/games, which _meta_line already prints
+    # directly above it. Kept in the API contract, dropped from the document.
     if report.provenance.pack_states:
         story.append(Spacer(1, 3))
         story.append(
@@ -238,7 +238,13 @@ def build_report_pdf(report: PublicReport) -> bytes:
     story.append(Paragraph(_safe(report.executive_summary), st["body"]))
 
     # -- Keys to Win (most actionable content goes early) --------------------
+    #
+    # Every heading below is guarded by CondPageBreak rather than PageBreak.
+    # The difference is the whole fix: PageBreak always burns the rest of the
+    # page, which is how a 6-line page 3 with 196mm of white space happened;
+    # CondPageBreak only breaks when the section genuinely cannot start here.
     if report.recommendations:
+        story.append(CondPageBreak(96))
         story.append(Paragraph("Keys to Win", st["h2"]))
         story.append(
             Paragraph(
@@ -272,18 +278,22 @@ def build_report_pdf(report: PublicReport) -> bytes:
             story.append(KeepTogether(block))
 
     # -- narrative sections --------------------------------------------------
+    # The heading rides inside the first claim's KeepTogether block so it can
+    # never strand alone at the foot of a page. ``sections.items()`` filters
+    # empty sections, so index 0 always exists.
     for _key, title, claims in report.sections.items():
-        story.append(Paragraph(title, st["h2"]))
-        for claim in claims:
+        for index, claim in enumerate(claims):
             block = [Paragraph(_safe(claim.text), st["claim"])]
             for card in claim.evidence[:4]:
                 block.append(Paragraph(_evidence_line(card), st["evidence"]))
             block.append(Spacer(1, 4))
+            if index == 0:
+                block.insert(0, Paragraph(_safe(title), st["h2"]))
             story.append(KeepTogether(block))
 
     # -- deterministic evidence ---------------------------------------------
     if report.key_evidence:
-        story.append(PageBreak())
+        story.append(CondPageBreak(120))
         story.append(Paragraph("Key Deterministic Evidence", st["h2"]))
         story.append(
             Paragraph(
@@ -299,6 +309,7 @@ def build_report_pdf(report: PublicReport) -> bytes:
     # section — a coach needs "what to watch out for", not two headings that
     # say overlapping things.
     if report.caveats or report.unavailable_evidence:
+        story.append(CondPageBreak(60))
         story.append(Paragraph("Data Limits", st["h2"]))
         for caveat in report.caveats:
             story.append(Paragraph(f"&#183; {_safe(caveat)}", st["body"]))

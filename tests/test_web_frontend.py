@@ -63,15 +63,51 @@ def test_team_page_renders_a_generated_report(client):
 
     assert "Executive summary" in body
     assert "Keys to Win" in body
-    assert "Why it matters:" in body
-    assert "Key deterministic evidence" in body
+    assert "Why it matters" in body
+    assert "Deterministic evidence" in body
     assert "Data Limits" in body
     assert f"/api/reports/{report_id}/pdf" in body
     assert "Download PDF" in body
     # The stub backend alternates 0/1 tactics per Key — with the synthetic
     # pack's 12 evidence items it always produces at least one, so this locks
     # in that a present tactic actually renders.
-    assert "Tactical option:" in body
+    assert "Tactical option" in body
+
+
+def test_the_three_information_types_are_distinguishable_in_the_markup(client):
+    """The load-bearing property of the design: a coach must be able to tell
+    measured evidence from an agent's interpretation from an optional tactical
+    suggestion. Each gets its own class hook, so the distinction survives any
+    later restyling — it is structural, not a matter of how it happens to look."""
+    generate(client)
+    body = client.get("/teams/segev:4").text
+
+    assert 'class="ev"' in body, "measured evidence must render as its own card"
+    assert 'class="why"' in body, "interpretation must render as plain prose, not a card"
+    assert 'class="tactic"' in body, "a tactical option must render as its own inset block"
+    assert 'class="tactic-label">Tactical option<' in body, (
+        "a suggestion must be labelled as one, not left to look like a measurement"
+    )
+
+
+def test_win_loss_split_is_surfaced_as_a_comparison_not_buried_in_prose(client):
+    """W/L difference is one of the most practically useful things here, so it
+    gets an explicit wins-value / losses-value / gap treatment on the card."""
+    generate(client)
+    body = client.get("/teams/segev:4").text
+    assert 'class="wl-values"' in body
+    assert 'class="wl-w"' in body and 'class="wl-l"' in body
+    assert "SD</span>" in body, "the gap needs a unit, or the number means nothing"
+
+
+def test_report_page_has_no_horizontal_overflow_hazards(client):
+    """The evidence table is the one element that cannot fit a phone; it must
+    live in its own scroll container rather than widening the page."""
+    generate(client)
+    body = client.get("/teams/segev:4").text
+    assert 'class="table-scroll"' in body
+    assert "<table" in body
+    assert body.index('class="table-scroll"') < body.index("<table")
 
 
 def test_team_page_hides_validation_and_provenance_detail(client):
