@@ -5,6 +5,83 @@ session — not a place for terminal output.
 
 ---
 
+## 2026-08-20 — Run 22: Submission freeze (documentation only)
+
+**STATUS: READY FOR SUBMISSION.** No runtime file changed in this run.
+
+**Objective:** leave the repository fit for course submission, instructor review
+and public portfolio review. Not product development — no analytics, no
+features, no report regeneration, no Gemini call, no formula touched.
+
+### Final project state
+
+| | |
+|---|---|
+| Final commit | the submission commit this entry ships in — tagged `v1.0.0-mvp` |
+| Last runtime change | `410eb4a` "Record the release" (Run 21) |
+| Branch | `no-video-mvp` |
+| Public URL | https://web-production-82a60.up.railway.app |
+| Tests | **1,205** — 1,203 pass, 2 conditionally skip, **none network-marked** |
+| CI | GitHub Actions green |
+| Railway | auto-deploys `no-video-mvp`; docs-only change, runtime unchanged |
+| Analytics contract | `analytics-v2`, 14 artifacts, hash-verified at load |
+| EvidencePacks | 14 packs, 25 items each, **all hashes unchanged** |
+| Stored reports | 14, untouched — no regeneration, no provider call |
+| Dataset | 2025-26 regular season, 182 games, 364 team-game records |
+
+### Work completed
+
+- **README rewritten.** Live-demo link and release first; "deterministic code
+  calculates, agents interpret" as the organising idea; shipped surfaces;
+  deterministic-capability summary; an accurate pipeline description that does
+  not oversell agent autonomy (no numeric field in any agent schema; 18 rules;
+  reports are snapshots; a public page view never invokes Gemini); a Mermaid
+  architecture diagram that shows both consumers of the deterministic layer —
+  the website reads the analytics artifacts, the agents read the EvidencePack;
+  the video layer as a validation decision rather than a shipped feature; a
+  limitations section; the real tech stack; the validation gates; local-run
+  instructions that need no credentials; six screenshots.
+- **Two factual errors corrected.** The README attributed the lopsided 22-4
+  record to Maccabi Tel Aviv; it is **24-2** (22-4 is Hapoel Tel Aviv). Team-game
+  records read 182; the correct figure is **364**.
+- **`docs/DEMO.md` added** — a 3–5 minute instructor walkthrough of the live
+  site, with the likely questions and their answers.
+- **`docs/assets/`** — six screenshots from the released production UI,
+  downscaled to 784px, 669 KB total.
+- **`docs/DEPLOYMENT.md`** — the local antivirus `SSL_CERT_FILE` workaround is
+  now explicitly fenced as one development machine's shell setting, never a
+  Railway variable, never application configuration, and skippable by anyone
+  deploying elsewhere. Nothing in `src/` reads it.
+
+### Verification
+
+- Security audit clean: only `.env.example` is tracked and it holds empty
+  placeholders; every "secret-shaped" grep hit is the *word* `service_role` or
+  `sb_secret_` in documentation, a SQL grant or a test fixture; no developer
+  absolute path in any tracked file; no key, token or credential anywhere.
+- All six screenshots inspected before committing: public league data only, no
+  URL bar, no credentials, no personal data.
+- Every documentation link in the README resolves to a tracked file.
+- Repository root holds 15 tracked files, no junk, no untracked strays.
+- Full suite re-run: 1,203 passed, 2 skipped, 0 failed.
+
+### Unresolved
+
+- **No `LICENSE` file.** Reported rather than chosen — picking a licence is the
+  author's decision, not this run's. It does not block submission; a public
+  repository with no licence is simply "all rights reserved" by default.
+- **No formal course-submission artifact exists in the repository.** Only
+  incidental references to "the course MVP" in `PROJECT_SPEC.md`. Verify the
+  course submission portal separately.
+
+### Next recommended technical action
+
+None for the MVP — it is frozen. The first post-MVP item, if work resumes, is a
+fresh blind validation sample for shot geometry from a second arena; that is the
+single limitation that currently keeps a built capability off the product.
+
+---
+
 ## 2026-08-20 — Run 21: Final UX polish and public release
 
 **STATUS: RELEASED. MVP feature-frozen.**

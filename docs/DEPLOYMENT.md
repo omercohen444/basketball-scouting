@@ -130,31 +130,41 @@ step if not.
 
 Pushing to `no-video-mvp` redeploys automatically.
 
-### The Railway CLI on this machine — read this first
+### The Railway CLI on one development machine — local workaround only
 
-The CLI (and therefore the Railway MCP, which is the same binary) fails every
-request with:
+> **This section describes a workaround for one Windows laptop. It is not a
+> production requirement, it is not part of the deployment, and the path below
+> must never be added to a Railway environment variable or to application
+> configuration.** Production runs on Railway's own trust store like any other
+> platform, and the deployed service has no such setting. If you are deploying
+> this project anywhere else, skip this section entirely.
+
+On the development machine used to build this project, the CLI (and therefore
+the Railway MCP, which is the same binary) fails every request with:
 
 ```
 invalid peer certificate: UnknownIssuer
 ```
 
-Avast intercepts HTTPS, and the CLI's Rust HTTP client trusts only its own
-bundled roots — the same interception CLAUDE.md documents for Python, but
-without `truststore` to fall back on. Point it at Avast's root and it works:
+Local antivirus intercepts HTTPS, and the CLI's Rust HTTP client trusts only
+its own bundled roots — the same interception CLAUDE.md documents for Python,
+but without `truststore` to fall back on. Pointing the *shell* at the
+interceptor's root makes the CLI work:
 
 ```bash
+# Local shell only. Never a Railway variable, never in application config.
 export SSL_CERT_FILE="C:\\ProgramData\\Avast Software\\Avast\\wscert.pem"
 railway whoami        # now succeeds
 ```
 
-Set that in the shell before any `railway` command. There is nothing wrong with
-the login or the token; it is purely the certificate chain.
+Set that in the shell before any `railway` command **on that machine**. There
+is nothing wrong with the login or the token; it is purely the local
+certificate chain. Nothing in `src/` reads this variable.
 
 ### How it was created (reproducible)
 
 ```bash
-export SSL_CERT_FILE="C:\\ProgramData\\Avast Software\\Avast\\wscert.pem"
+export SSL_CERT_FILE="..."   # local shell workaround above; omit on any other machine
 railway init --name basketball-scouting --json
 railway add --service web \
   --repo omercohen444/basketball-scouting --branch no-video-mvp \
