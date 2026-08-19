@@ -13,12 +13,34 @@ constrained three-agent pipeline selects which evidence matters, explains it and
 prioritizes it — and writes no numbers at all, because its schemas have nowhere
 to put one.
 
+**Live:** https://web-production-82a60.up.railway.app
+
+```mermaid
+flowchart LR
+  PBP[Official play-by-play<br/>297 games cached] --> STATS[Deterministic analytics<br/>possession engine · four factors<br/>league context · W/L · segments]
+  STATS --> PACK[(Versioned EvidencePack<br/>14 teams · hash-checked)]
+
+  PACK --> A1[Evidence Triage<br/>keep 8-12 signals]
+  A1 --> A2[Tactical Scout<br/>signals to tendencies]
+  A2 --> A3[Head Scout<br/>report + Keys to Win]
+
+  A3 --> VAL{Deterministic<br/>validation<br/>R1-R18}
+  VAL -- reject --> A3
+  VAL -- pass --> RENDER[Render: numbers re-attached<br/>from the pack, not the model]
+
+  RENDER --> DB[(Supabase)]
+  DB --> WEB[FastAPI + Jinja<br/>public site]
+  DB --> PDF[PDF]
+
+  classDef det fill:#eaeff3,stroke:#1b4965,color:#12181d;
+  classDef agent fill:#fff,stroke:#8a939e,stroke-dasharray:4 3,color:#12181d;
+  class PBP,STATS,PACK,VAL,RENDER,DB,WEB,PDF det;
+  class A1,A2,A3 agent;
 ```
-official play-by-play  →  deterministic analytics  →  versioned EvidencePack
-     →  Evidence Triage  →  Tactical Scout  →  Head Scout
-     →  deterministic validation + rendering  →  FastAPI  →  Supabase
-     →  public site  ·  PDF
-```
+
+Solid boxes are deterministic and authoritative. Dashed boxes are the agents:
+they choose and explain, and the numbers are re-attached from the pack after
+they are done.
 
 ---
 
@@ -31,9 +53,10 @@ official play-by-play  →  deterministic analytics  →  versioned EvidencePack
 | Agent layer — 3 CrewAI agents, validation, rendering | Complete, live-verified |
 | Production evidence packs (14 teams, in Git) | Complete |
 | FastAPI + repository + Supabase persistence | Complete, live-verified |
-| PDF + web frontend | Complete (frontend is a functional placeholder) |
+| PDF + web frontend | Complete — "Scouting Desk" design, responsive, verified at 1280px and 375px |
+| Reports for all 14 opponents | Generated and persisted |
 | CI | Passing |
-| Railway deployment | Ready, not yet performed — see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) |
+| Railway deployment | **Live** — https://web-production-82a60.up.railway.app |
 | Video analytics | **Prototyped, evaluated, and deliberately excluded** — see below |
 
 ### About the video layer
@@ -107,6 +130,46 @@ one admin-only endpoint.
 
 Without Supabase configured the app still boots and serves an honest empty
 state, using in-memory storage and logging a warning.
+
+---
+
+## How the agent output is kept honest
+
+The prompt is how good output is obtained; the validator is how it is
+guaranteed. Every rule is a pure function over `(pack, agent output)` in
+`agents/validation.py`, so the whole thing is exercisable offline with
+synthetic input — no model, no key, no network.
+
+A rejection is fed back to the agent once, with the specific finding. A second
+failure raises rather than emitting a partially-valid report.
+
+| | Rejects |
+|---|---|
+| **R1–R2** | Dangling or unavailable evidence ids |
+| **R3–R4** | Metrics this pipeline doesn't compute; player, scheme or video claims |
+| **R5, R7** | Uncited claims; signal and recommendation counts outside their bands |
+| **R6** | Win/loss framing for a team whose record is too lopsided to support it |
+| **R9** | A degree word ("elite", "exceptional") the cited evidence doesn't reach |
+| **R10** | Causal language about what is only a win/loss correlation |
+| **R11** | Half-court, "by design", shot-contest — evidence that does not exist here |
+| **R12** | A tactic citing evidence its own Key to Win does not rest on |
+| **R13** | "Stable"/"unchanged" contradicted by a large win/loss effect |
+| **R14** | Rhythm, intensity, momentum — constructs nothing here measures |
+| **R15** | "Early"/"late" without matching first-half or clutch evidence |
+| **R16** | An objective about their offence backed only by defensive metrics |
+| **R17** | A technique in the objective, where a measurable outcome belongs |
+| **R18** | Internal claim-strength vocabulary leaking into coach-facing prose |
+
+Two further rules are absent because the schema makes them impossible rather
+than detectable — the preferred approach wherever it is available. The head
+scout cites implication ids and never evidence ids, so it structurally cannot
+introduce new evidence; and no agent schema has a numeric field, so no agent
+can state a number. Likewise a Key to Win carries at most two tactics because
+`max_length=2` refuses a third before validation is ever reached.
+
+Claim strength and confidence are re-derived in Python from provenance and
+reliability, and can only be lowered — never raised — from what the model
+proposed. The coach sees the resolved value.
 
 ---
 

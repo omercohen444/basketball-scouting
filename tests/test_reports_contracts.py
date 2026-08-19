@@ -239,6 +239,23 @@ def test_near_duplicate_caveats_about_the_same_topic_collapse_to_one():
     assert len(out) == 1
 
 
+def test_a_caveat_that_only_restates_an_unavailable_group_is_dropped():
+    """Observed live: the model wrote a caveat naming missing video-derived
+    metrics and scheme data — both of which render as their own bullets in the
+    same Data Limits section, three lines further down."""
+    from basketball_scout.reports.contracts import _coach_caveats
+
+    echo = (
+        "This report lacks video-derived metrics such as shot contests or "
+        "on-ball pressure, and defensive scheme or coverage information."
+    )
+    specific = "The trailing-6+ split rests on 13 games rather than the full season."
+
+    out = _coach_caveats([echo, specific], [])
+    assert echo not in out
+    assert specific in out
+
+
 def test_caveats_are_capped_so_the_section_stays_readable():
     from basketball_scout.reports.contracts import MAX_COACH_CAVEATS, _coach_caveats
 

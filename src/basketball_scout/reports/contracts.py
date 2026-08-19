@@ -401,9 +401,28 @@ _CAVEAT_TOPICS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("correlation_not_cause", ("correlation", "causation", "does not imply", "not imply")),
 )
 
+# The four _UNAVAILABLE_GROUPS render as their own bullets directly beneath the
+# caveats, so a model caveat that merely restates one of them is read twice.
+# Acknowledging an absence is legitimate (the prompt explicitly allows it) —
+# it just must not be said in both halves of the same short section.
+_UNAVAILABLE_ECHOES: tuple[str, ...] = (
+    "video-derived", "no video", "shot contest", "on-ball pressure", "shot creation",
+    "defensive scheme", "scheme or coverage", "coverage or", "play-calling",
+    "player-level", "player or lineup", "lineup data", "lineup analytics",
+    "team-level only", "pass-tracking",
+    "shot-zone", "shot zone", "shot location", "shot-distance", "shot distance",
+)
+
 # A coach reads this section last and briefly. More than a few lines and it
 # stops being read at all, which is worse than a shorter list.
 MAX_COACH_CAVEATS = 3
+
+
+def _echoes_unavailable(text: str) -> bool:
+    """True when a caveat only restates one of the fixed unavailable groups,
+    which are rendered as their own bullets in the same section."""
+    low = text.lower()
+    return any(term in low for term in _UNAVAILABLE_ECHOES)
 
 
 def _caveat_topic(text: str) -> str | None:
@@ -422,7 +441,10 @@ def _coach_caveats(rendered_caveats: list[str], key_evidence: list[EvidenceCard]
     Deduplicated by topic, not just by exact string, and capped: this section
     exists to change how the numbers above are read, not to enumerate every
     caveat the pipeline could name."""
-    model_caveats = [c for c in rendered_caveats if c not in _LEGEND_TEXTS]
+    model_caveats = [
+        c for c in rendered_caveats
+        if c not in _LEGEND_TEXTS and not _echoes_unavailable(c)
+    ]
     cited_codes = {code for card in key_evidence for code in card.limitations}
     coach_notes = [COACH_LIMITATION_NOTES[code] for code in sorted(cited_codes) if code in COACH_LIMITATION_NOTES]
 

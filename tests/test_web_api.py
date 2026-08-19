@@ -364,3 +364,59 @@ def test_openapi_documents_the_whole_surface_and_nothing_more(client):
         "/teams/{team_id}",
         "/reports/{report_id}",
     }
+
+
+# ---- the cost model ----------------------------------------------------------
+
+
+def test_no_public_read_can_reach_the_provider(tmp_path, repo):
+    """The product's central promise: browsing costs nothing.
+
+    Generation is the only paid operation, so every public route must be
+    servable by an app whose backend factory *explodes if called*. That is a
+    stronger statement than "we didn't observe a call" — it makes reaching the
+    provider from a read path a test failure rather than a billing surprise.
+    """
+    write_synthetic_packs(tmp_path)
+
+    # Generate once with a working stub, then rebuild the app so that any
+    # attempt to construct an agent backend during a read is fatal.
+    seeded = TestClient(make_app(tmp_path, repository=repo))
+    report_id = generate(seeded).json()["report_id"]
+
+    def explode():
+        raise AssertionError("a public read tried to construct an agent backend")
+
+    client = TestClient(make_app(tmp_path, repository=repo, backend_factory=explode))
+
+    for path in (
+        "/",
+        "/teams/segev:4",
+        "/teams/segev_4",
+        f"/reports/{report_id}",
+        "/health",
+        "/api/teams",
+        "/api/reports/latest/segev:4",
+        f"/api/reports/{report_id}",
+        f"/api/reports/{report_id}/pdf",
+        "/api/openapi.json",
+    ):
+        assert client.get(path).status_code == 200, path
+
+
+def test_generation_is_the_only_route_that_requires_a_credential(client):
+    """Everything except the admin endpoint must work with no token at all."""
+    report_id = generate(client).json()["report_id"]
+
+    for path in ("/", "/teams/segev:4", "/api/teams", f"/api/reports/{report_id}",
+                 f"/api/reports/{report_id}/pdf", "/api/reports/latest/segev:4"):
+        assert client.get(path).status_code == 200, path
+
+    unauthenticated = client.post("/api/admin/reports/generate", json={"team_id": "segev:4"})
+    assert unauthenticated.status_code == 401
+    wrong_token = client.post(
+        "/api/admin/reports/generate",
+        json={"team_id": "segev:4"},
+        headers={"X-Admin-Token": "not-the-token"},
+    )
+    assert wrong_token.status_code == 401

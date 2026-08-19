@@ -391,12 +391,14 @@ Each Key to Win has THREE parts, and they must not blur together:
   exceeds what that evidence supports — propose the true confidence, not an
   inflated one, since inflating it changes nothing but wastes your one repair
   attempt.
-- Put genuine limitations in caveats — but only ones NOT already implied by
-  the UNAVAILABLE list below (no player/lineup data, no video, no scheme, no
-  shot-location detail — the report states those separately, so repeating them
-  here is redundant). A caveat here should be something specific to THIS
-  report: an unusually small sample behind one of your claims, a lopsided
-  record that thins out some situational splits, and similar."""
+- Caveats: at most two, and each must be specific to THIS report — an unusually
+  small sample behind one of your claims, a lopsided record that thins out a
+  situational split, a metric whose direction is ambiguous here.
+  DO NOT write a caveat about anything on the UNAVAILABLE list (no player or
+  lineup data, no video, no shot contests, no scheme or coverage, no shot
+  location). The report prints those as their own bullets in the very same
+  section, so a caveat repeating them makes the coach read it twice. If your
+  only caveat would be one of those, return an empty list instead."""
 
 
 def head_scout_task_prompt(

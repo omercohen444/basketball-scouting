@@ -117,21 +117,58 @@ step if not.
 
 ---
 
-## 5. Deploying (not yet done)
+## 5. Deploying — done
 
-Railway's UI produced repeated errors during setup on 2026-08-18, so deployment
-was deliberately deferred. The GitHub App is already installed and has access to
-the repository.
+**Live: https://web-production-82a60.up.railway.app**
 
-1. Railway → **New Project** → **Deploy from GitHub repo** →
-   `omercohen444/basketball-scouting`.
-2. Service → **Settings** → **Source** → set the branch to `no-video-mvp`.
-3. Service → **Variables** → add `SUPABASE_URL`, `SUPABASE_SECRET_KEY`,
-   `REPORT_ADMIN_TOKEN`, and `GEMINI_API_KEY` if the deployment should be able
-   to generate.
-4. Deploy. `railway.json` supplies the build, start command and healthcheck.
-5. Service → **Settings** → **Networking** → **Generate Domain**.
-6. Smoke-test the public URL:
+| | |
+|---|---|
+| Project | `basketball-scouting` (`22e68932-7f16-4cf0-a430-f7bd98d85467`) |
+| Environment | `production` |
+| Service | `web`, source `omercohen444/basketball-scouting`, branch `no-video-mvp` |
+| Domain | `web-production-82a60.up.railway.app` |
+
+Pushing to `no-video-mvp` redeploys automatically.
+
+### The Railway CLI on this machine — read this first
+
+The CLI (and therefore the Railway MCP, which is the same binary) fails every
+request with:
+
+```
+invalid peer certificate: UnknownIssuer
+```
+
+Avast intercepts HTTPS, and the CLI's Rust HTTP client trusts only its own
+bundled roots — the same interception CLAUDE.md documents for Python, but
+without `truststore` to fall back on. Point it at Avast's root and it works:
+
+```bash
+export SSL_CERT_FILE="C:\\ProgramData\\Avast Software\\Avast\\wscert.pem"
+railway whoami        # now succeeds
+```
+
+Set that in the shell before any `railway` command. There is nothing wrong with
+the login or the token; it is purely the certificate chain.
+
+### How it was created (reproducible)
+
+```bash
+export SSL_CERT_FILE="C:\\ProgramData\\Avast Software\\Avast\\wscert.pem"
+railway init --name basketball-scouting --json
+railway add --service web \
+  --repo omercohen444/basketball-scouting --branch no-video-mvp \
+  -v "SUPABASE_URL=$SUPABASE_URL" \
+  -v "SUPABASE_SECRET_KEY=$SUPABASE_SECRET_KEY" \
+  -v "REPORT_ADMIN_TOKEN=$REPORT_ADMIN_TOKEN" \
+  -v "GEMINI_API_KEY=$GEMINI_API_KEY"
+railway domain --service web
+```
+
+Source the values from `.env`; never paste a secret into a command line
+literally. `railway.json` supplies the builder, start command and healthcheck.
+
+### Smoke test
 
 ```
 GET  /health                          → {"status":"ok", "storage":"supabase", "evidence_packs":{"teams_n":14,…}}
