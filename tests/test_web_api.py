@@ -9,7 +9,14 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 from pack_factories import PRODUCTION_PACKS_DIR, write_synthetic_packs
-from product_factories import ADMIN_TOKEN, admin_headers, make_app, make_settings
+from analytics_factories import write_synthetic_analytics
+from product_factories import (
+    ADMIN_TOKEN,
+    admin_headers,
+    make_app,
+    make_settings,
+    public_routes,
+)
 
 from basketball_scout.persistence.memory import InMemoryReportRepository
 from basketball_scout.persistence.repository import RepositoryError, SchemaMissingError
@@ -25,7 +32,9 @@ def repo() -> InMemoryReportRepository:
 @pytest.fixture
 def client(tmp_path, repo) -> TestClient:
     write_synthetic_packs(tmp_path)
-    return TestClient(make_app(tmp_path, repository=repo))
+    analytics = tmp_path / "analytics"
+    write_synthetic_analytics(analytics)
+    return TestClient(make_app(tmp_path, repository=repo, analytics_dir=analytics))
 
 
 def generate(client: TestClient, team_id: str = "segev:4", **body):
@@ -335,17 +344,16 @@ def test_no_public_route_can_reach_the_agent_backend(tmp_path, repo):
         raise AssertionError("a public route tried to construct an agent backend")
 
     write_synthetic_packs(tmp_path)
-    seeded = TestClient(make_app(tmp_path, repository=repo))
+    analytics = tmp_path / "analytics"
+    write_synthetic_analytics(analytics)
+    seeded = TestClient(make_app(tmp_path, repository=repo, analytics_dir=analytics))
     report_id = generate(seeded).json()["report_id"]
 
-    client = TestClient(make_app(tmp_path, repository=repo, backend_factory=forbidden))
-    assert client.get("/health").status_code == 200
-    assert client.get("/api/teams").status_code == 200
-    assert client.get("/api/reports/latest/segev:4").status_code == 200
-    assert client.get(f"/api/reports/{report_id}").status_code == 200
-    assert client.get(f"/api/reports/{report_id}/pdf").status_code == 200
-    assert client.get("/").status_code == 200
-    assert client.get("/teams/segev:4").status_code == 200
+    client = TestClient(
+        make_app(tmp_path, repository=repo, analytics_dir=analytics, backend_factory=forbidden)
+    )
+    for path in public_routes(report_id):
+        assert client.get(path).status_code == 200, path
 
 
 # ---- openapi ----------------------------------------------------------------
@@ -362,6 +370,9 @@ def test_openapi_documents_the_whole_surface_and_nothing_more(client):
         "/api/admin/reports/generate",
         "/",
         "/teams/{team_id}",
+        "/teams/{team_id}/{tab}",
+        "/explore",
+        "/scouting/{team_id}",
         "/reports/{report_id}",
     }
 
@@ -378,29 +389,22 @@ def test_no_public_read_can_reach_the_provider(tmp_path, repo):
     provider from a read path a test failure rather than a billing surprise.
     """
     write_synthetic_packs(tmp_path)
+    analytics = tmp_path / "analytics"
+    write_synthetic_analytics(analytics)
 
     # Generate once with a working stub, then rebuild the app so that any
     # attempt to construct an agent backend during a read is fatal.
-    seeded = TestClient(make_app(tmp_path, repository=repo))
+    seeded = TestClient(make_app(tmp_path, repository=repo, analytics_dir=analytics))
     report_id = generate(seeded).json()["report_id"]
 
     def explode():
         raise AssertionError("a public read tried to construct an agent backend")
 
-    client = TestClient(make_app(tmp_path, repository=repo, backend_factory=explode))
+    client = TestClient(
+        make_app(tmp_path, repository=repo, analytics_dir=analytics, backend_factory=explode)
+    )
 
-    for path in (
-        "/",
-        "/teams/segev:4",
-        "/teams/segev_4",
-        f"/reports/{report_id}",
-        "/health",
-        "/api/teams",
-        "/api/reports/latest/segev:4",
-        f"/api/reports/{report_id}",
-        f"/api/reports/{report_id}/pdf",
-        "/api/openapi.json",
-    ):
+    for path in public_routes(report_id):
         assert client.get(path).status_code == 200, path
 
 
@@ -408,8 +412,7 @@ def test_generation_is_the_only_route_that_requires_a_credential(client):
     """Everything except the admin endpoint must work with no token at all."""
     report_id = generate(client).json()["report_id"]
 
-    for path in ("/", "/teams/segev:4", "/api/teams", f"/api/reports/{report_id}",
-                 f"/api/reports/{report_id}/pdf", "/api/reports/latest/segev:4"):
+    for path in public_routes(report_id):
         assert client.get(path).status_code == 200, path
 
     unauthenticated = client.post("/api/admin/reports/generate", json={"team_id": "segev:4"})

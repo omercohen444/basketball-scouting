@@ -1,0 +1,30 @@
+{% from "_macros.html" import metric_td %}
+
+<section class="section">
+  <h2>Game log</h2>
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th class="sticky">Date</th>
+          <th>Opponent</th><th>Result</th><th class="n">Score</th>
+          {%- for key, label in game_columns %}<th class="n">{{ label }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {%- for row in games %}
+        <tr>
+          <td class="sticky n dim">{{ row.date }}</td>
+          <td><span class="dim small">{{ row.venue }}</span> {{ row.game.opponent_name }}</td>
+          <td style="color: {% if row.game.win %}var(--win){% else %}var(--loss){% endif %}; font-weight:600">{{ row.result }}</td>
+          <td class="n">{{ row.score }}</td>
+          {%- for key, _label in game_columns %}{{ metric_td(row.get(key)) }}{% endfor %}
+        </tr>
+        {%- endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="small dim" style="margin-top:8px">
+    Single games carry no league rank — one game is not ranked against a season.
+  </p>
+</section>

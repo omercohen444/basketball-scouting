@@ -21,7 +21,11 @@ from basketball_scout.analytics.views import (
     SEGMENT_DEFINITIONS,
     SEGMENT_LABELS,
     SampleView,
+    METRIC_FAMILIES,
+    ExplorerRow,
     display_label,
+    explorer_columns,
+    explorer_rows,
     format_value,
     largest_differences,
     metric_cell,
@@ -107,10 +111,27 @@ def test_a_healthy_sample_gets_no_badge():
 
 
 def test_sample_view_carries_the_outcome_through_from_the_cell():
-    view = sample_view(SegmentCell(segment="q4", outcome="losses", games=3,
+    view = sample_view(SegmentCell(segment="q4", outcome="losses", games=2,
                                    possessions=40, sample_state="insufficient"))
     assert view.outcome == "losses"
     assert "loss" in (view.badge or "")
+
+
+def test_the_badge_names_whichever_count_actually_binds():
+    """Clutch spans plenty of games but few possessions. Saying "14 games" there
+    would give a reason that is not the reason the cell is thin."""
+    thin_possessions = SampleView(state="limited", games=14, possessions=61)
+    assert thin_possessions.badge == "Limited sample — 61 possessions"
+
+    thin_games = SampleView(state="limited", games=4, possessions=800, outcome="losses")
+    assert thin_games.badge == "Limited sample — 4 losses"
+
+
+def test_the_insufficient_badge_uses_the_floor_not_the_warning_line():
+    """80 possessions is under the "limited" line but over the floor, so a cell
+    that is insufficient at 80 must be insufficient on games, and say so."""
+    view = SampleView(state="insufficient", games=2, possessions=80, outcome="losses")
+    assert view.badge == "Insufficient sample — 2 losses"
 
 
 # ---- the mislabelled legacy metric ------------------------------------------
@@ -230,3 +251,93 @@ def test_every_segment_has_a_label_and_a_definition():
         assert segment in SEGMENT_LABELS, segment
         assert segment in SEGMENT_DEFINITIONS, segment
         assert SEGMENT_DEFINITIONS[segment].endswith(".")
+
+
+# ---- the explorer -----------------------------------------------------------
+
+
+def _league(**per_team):
+    """A synthetic league keyed by team id, each entry a games-per-team count."""
+    return {
+        tid: build_team_analytics(tid, [make_bundle(win=(i < wins)) for i in range(games)],
+                                  f"TEAM {tid}", "2025-26")
+        for tid, (wins, games) in per_team.items()
+    }
+
+
+def test_the_explorer_ranks_every_team_it_can_rank():
+    teams = _league(**{f"segev:{i}": (13, 26) for i in range(2, 6)})
+    rows = explorer_rows(teams, segment="q1", outcome="all", family="efficiency")
+    assert len(rows) == 4
+    assert [r.rank for r in rows] == [1, 2, 3, 4]
+
+
+def test_a_cell_below_the_floor_is_listed_but_left_unranked():
+    """Absence is information. A team with too little of a segment still
+    appears — it just carries a state instead of a position."""
+    teams = _league(**{"segev:2": (26, 26), "segev:3": (13, 26)})
+    rows = explorer_rows(teams, segment="full", outcome="losses", family="efficiency")
+    undefeated = next(r for r in rows if r.team_id == "segev:2")
+    assert undefeated.sample.state == "insufficient"
+    assert undefeated.rank == 0
+    assert not undefeated.sample.is_usable
+
+
+def test_vs_season_is_measured_against_the_same_outcome_not_the_whole_season():
+    """The column would stop meaning anything otherwise: in Losses/Q4 the
+    baseline must be that team's full-game play *in losses*.
+
+    Wins and losses are given genuinely different scorelines here, so the two
+    candidate baselines cannot coincide and the assertion below is real.
+    """
+    bundles = [
+        make_bundle(win=True, score_for=95, score_against=75) for _ in range(13)
+    ] + [
+        make_bundle(win=False, score_for=70, score_against=90) for _ in range(13)
+    ]
+    teams = {"segev:2": build_team_analytics("segev:2", bundles, "TEST", "2025-26")}
+    team = teams["segev:2"]
+
+    segment_value = team.cell("q1", "losses").metrics["net_rating"]
+    loss_baseline = team.cell("full", "losses").metrics["net_rating"]
+    season_baseline = team.cell("full", "all").metrics["net_rating"]
+    assert loss_baseline != pytest.approx(season_baseline), "fixture is not discriminating"
+
+    row = explorer_rows(teams, segment="q1", outcome="losses", family="efficiency")[0]
+    assert row.vs_season == pytest.approx(segment_value - loss_baseline)
+    assert row.vs_season != pytest.approx(segment_value - season_baseline)
+
+
+def test_the_full_game_row_has_nothing_to_compare_itself_against():
+    teams = _league(**{"segev:2": (13, 26)})
+    row = explorer_rows(teams, segment="full", outcome="all", family="efficiency")[0]
+    assert row.vs_season is None
+    assert row.vs_season_display == "—"
+
+
+def _row(*, primary_key: str, vs_season: float) -> ExplorerRow:
+    return ExplorerRow(rank=1, team_id="segev:2", team_name="T", cells={},
+                       sample=SampleView(state="sufficient", games=26, possessions=2000),
+                       vs_season=vs_season, vs_season_display="", primary_key=primary_key)
+
+
+def test_a_fall_in_turnover_rate_reads_as_better_not_worse():
+    """Direction is read from the metric, so the arrow on TOV% points the other
+    way from the arrow on eFG%."""
+    good = _row(primary_key="tov_pct", vs_season=-0.03)
+    bad = _row(primary_key="tov_pct", vs_season=+0.03)
+    assert good.vs_season_direction == 1
+    assert bad.vs_season_direction == -1
+
+
+def test_a_style_metric_never_reads_as_better_or_worse():
+    assert _row(primary_key="pace", vs_season=+8.0).vs_season_direction == 0
+
+
+def test_every_family_names_columns_that_exist():
+    for family in METRIC_FAMILIES:
+        columns = explorer_columns(family)
+        assert columns
+        for key, label in columns:
+            assert key in METRIC_META, key
+            assert label

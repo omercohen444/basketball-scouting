@@ -21,6 +21,7 @@ from basketball_scout.config import REPO_ROOT
 
 #: The real, committed production artifacts. Used by the integrity tests.
 PRODUCTION_PACKS_DIR = REPO_ROOT / "data" / "evidence_packs"
+PRODUCTION_ANALYTICS_DIR = PRODUCTION_PACKS_DIR.parent / "analytics"
 
 # The stub backend keeps 8-12 signals and validation rejects anything outside
 # that band, so a synthetic pack needs at least 8 distinct candidates to be a

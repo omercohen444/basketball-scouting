@@ -15,22 +15,40 @@ import logging
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
+from ..analytics.schema import OUTCOMES, SEGMENTS
+from ..analytics.views import (
+    METRIC_FAMILIES,
+    OUTCOME_LABELS,
+    QUARTER_SEGMENTS,
+    SEGMENT_DEFINITIONS,
+    SEGMENT_LABELS,
+    SITUATION_SEGMENTS,
+    SORTABLE,
+    TEAM_TABS,
+    dumbbell_bounds,
+    explorer_columns,
+    explorer_rows,
+    factor_leaders,
+    game_log,
+    headline_metrics,
+    largest_differences,
+    league_leaders,
+    league_rows,
+    quarter_bars,
+    scatter_mean_position,
+    scatter_points,
+    segment_rows,
+    split_rows,
+    team_four_factors,
+)
 from ..persistence.repository import RepositoryError
 from ..reports.contracts import PublicReport
 from ..reports.service import UnknownTeamError
 from .context import AppContext
 from .errors import bad_request, not_found, unavailable
-from ..analytics.views import (
-    SORTABLE,
-    factor_leaders,
-    league_leaders,
-    league_rows,
-    scatter_mean_position,
-    scatter_points,
-)
 from .logos import initials, logo_url
 from .security import enforce_api_rate_limit, get_context
 
@@ -115,13 +133,152 @@ def league(
     return templates.TemplateResponse(request, "league.html", context)
 
 
-@router.get("/teams/{team_id}", response_class=HTMLResponse, summary="Latest report for a team")
-def team_report(request: Request, team_id: str, ctx: AppContext = Depends(get_context)) -> HTMLResponse:
+GAME_LOG_COLUMNS: tuple[tuple[str, str], ...] = (
+    ("offensive_rating", "ORtg"), ("defensive_rating", "DRtg"), ("net_rating", "Net"),
+    ("pace", "Pace"), ("efg_pct", "eFG%"), ("tov_pct", "TOV%"),
+    ("orb_pct", "ORB%"), ("ft_rate", "FTr"),
+)
+
+VALID_TABS = {key for key, _label in TEAM_TABS}
+
+
+def _resolve(ctx: AppContext, team_id: str) -> str:
     try:
-        resolved = ctx.service.resolve_team_id(team_id)
+        return ctx.service.resolve_team_id(team_id)
     except UnknownTeamError:
         raise bad_request("Unknown team", code="unknown_team") from None
 
+
+@router.get("/teams/{team_id}", response_class=HTMLResponse, summary="Team analytics")
+def team_overview(
+    request: Request, team_id: str, view: str = "", ctx: AppContext = Depends(get_context)
+) -> HTMLResponse:
+    # The report used to live at this URL. Anything still pointing here with the
+    # old intent is redirected rather than silently shown something else.
+    if view == "report":
+        return RedirectResponse(f"/scouting/{team_id}", status_code=302)
+    return _render_team(request, ctx, team_id, "overview")
+
+
+@router.get("/teams/{team_id}/{tab}", response_class=HTMLResponse, summary="Team analytics tab")
+def team_tab(
+    request: Request, team_id: str, tab: str, ctx: AppContext = Depends(get_context)
+) -> HTMLResponse:
+    if tab not in VALID_TABS:
+        raise not_found("No such view for this team")
+    return _render_team(request, ctx, team_id, tab)
+
+
+def _render_team(request: Request, ctx: AppContext, team_id: str, tab: str) -> HTMLResponse:
+    resolved = _resolve(ctx, team_id)
+
+    if not ctx.analytics.available or not ctx.analytics.has_team(resolved):
+        raise unavailable(
+            "Analytics artifacts are not present in this deployment.",
+            code="analytics_unavailable",
+        )
+
+    team = ctx.analytics.team(resolved)
+    context = {
+        **_base(request, ctx, active="teams"),
+        "team": team,
+        "tab": tab,
+        "tabs": TEAM_TABS,
+        "headline": headline_metrics(team),
+    }
+
+    if tab == "overview":
+        rows = split_rows(team)
+        context.update(
+            factors=team_four_factors(team),
+            quarters=quarter_bars(team),
+            top_differences=largest_differences(rows),
+            bounds=dumbbell_bounds(rows),
+            splits_unavailable=_splits_note(team),
+        )
+    elif tab == "splits":
+        rows = split_rows(team)
+        wins = team.cell("full", "wins")
+        losses = team.cell("full", "losses")
+        context.update(
+            rows=rows,
+            bounds=dumbbell_bounds(rows),
+            wins_n=team.wins,
+            losses_n=team.losses,
+            wins_usable=bool(wins and wins.sample_state != "insufficient"),
+            losses_usable=bool(losses and losses.sample_state != "insufficient"),
+            split_warning=_splits_note(team),
+        )
+    elif tab == "quarters":
+        context.update(
+            quarters=quarter_bars(team),
+            rows=segment_rows(team, QUARTER_SEGMENTS),
+        )
+    elif tab == "situations":
+        context.update(rows=segment_rows(team, SITUATION_SEGMENTS))
+    elif tab == "games":
+        context.update(games=game_log(team), game_columns=GAME_LOG_COLUMNS)
+
+    return templates.TemplateResponse(request, "team.html", context)
+
+
+def _splits_note(team) -> str:
+    """Why a wins-against-losses comparison is thin, in a sentence. Empty when
+    both sides clear the bar and there is nothing to warn about."""
+    for outcome, singular, plural in (("losses", "loss", "losses"), ("wins", "win", "wins")):
+        cell = team.cell("full", outcome)
+        if cell is None or cell.sample_state == "sufficient":
+            continue
+        counted = f"{cell.games} {singular if cell.games == 1 else plural}"
+        qualifier = "Insufficient" if cell.sample_state == "insufficient" else "Limited"
+        return f"{qualifier} sample — {counted}."
+    return ""
+
+
+@router.get("/explore", response_class=HTMLResponse, summary="Analytics explorer")
+def explore(
+    request: Request,
+    segment: str = "full",
+    outcome: str = "all",
+    family: str = "efficiency",
+    ctx: AppContext = Depends(get_context),
+) -> HTMLResponse:
+    if not ctx.analytics.available:
+        raise unavailable(
+            "Analytics artifacts are not present in this deployment.",
+            code="analytics_unavailable",
+        )
+
+    # Every filter arrives from a URL a user can edit, so an unknown value falls
+    # back to the default rather than raising.
+    segment = segment if segment in SEGMENTS else "full"
+    outcome = outcome if outcome in OUTCOMES else "all"
+    family = family if family in METRIC_FAMILIES else "efficiency"
+
+    teams = ctx.analytics.load_all()
+    return templates.TemplateResponse(
+        request,
+        "explore.html",
+        {
+            **_base(request, ctx, active="explore"),
+            "rows": explorer_rows(teams, segment=segment, outcome=outcome, family=family),
+            "columns": explorer_columns(family),
+            "segment": segment, "outcome": outcome, "family": family,
+            "segment_label": SEGMENT_LABELS.get(segment, segment),
+            "segment_definition": SEGMENT_DEFINITIONS.get(segment, ""),
+            "outcome_label": OUTCOME_LABELS.get(outcome, outcome),
+            "segments": [(k, SEGMENT_LABELS[k]) for k in SEGMENTS],
+            "outcomes": [(k, OUTCOME_LABELS[k]) for k in OUTCOMES],
+            "families": [(k, v[0]) for k, v in METRIC_FAMILIES.items()],
+        },
+    )
+
+
+@router.get("/scouting/{team_id}", response_class=HTMLResponse, summary="AI scouting report")
+def scouting_report(
+    request: Request, team_id: str, ctx: AppContext = Depends(get_context)
+) -> HTMLResponse:
+    resolved = _resolve(ctx, team_id)
     teams = ctx.service.list_teams()
     selected = next((t for t in teams if t.team_id == resolved), None)
 
@@ -130,8 +287,8 @@ def team_report(request: Request, team_id: str, ctx: AppContext = Depends(get_co
     try:
         report = ctx.service.get_latest(resolved)
     except RepositoryError as exc:
-        # An unreachable database should not blank the page; show the selector
-        # and an honest banner instead.
+        # An unreachable database should not blank the page; show an honest
+        # banner instead.
         log.error("storage failure rendering %s: %s", resolved, exc)
         storage_error = True
 
@@ -139,7 +296,7 @@ def team_report(request: Request, team_id: str, ctx: AppContext = Depends(get_co
         request,
         "report.html",
         {
-            **_base(request, ctx),
+            **_base(request, ctx, active="scouting"),
             "teams": teams,
             "selected": selected,
             "team_id": resolved,

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% from "_macros.html" import crest, metric_td, sample %}
+{% block title %}Explorer — IBPL Analytics{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Explorer</p>
+    <h1>{{ outcome_label }} · {{ segment_label }}</h1>
+  </div>
+  <span class="small dim">{{ segment_definition }}</span>
+</div>
+
+<div class="filters">
+  <div class="fgroup">
+    <span class="flabel">Outcome</span>
+    {%- for key, label in outcomes %}
+    <a class="fopt{% if outcome == key %} is-active{% endif %}"
+       href="/explore?segment={{ segment }}&outcome={{ key }}&family={{ family }}">{{ label }}</a>
+    {%- endfor %}
+  </div>
+  <div class="fgroup">
+    <span class="flabel">Segment</span>
+    {%- for key, label in segments %}
+    <a class="fopt{% if segment == key %} is-active{% endif %}"
+       href="/explore?segment={{ key }}&outcome={{ outcome }}&family={{ family }}">{{ label }}</a>
+    {%- endfor %}
+  </div>
+  <div class="fgroup">
+    <span class="flabel">Metrics</span>
+    {%- for key, label in families %}
+    <a class="fopt{% if family == key %} is-active{% endif %}"
+       href="/explore?segment={{ segment }}&outcome={{ outcome }}&family={{ key }}">{{ label }}</a>
+    {%- endfor %}
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table class="data">
+    <thead>
+      <tr>
+        <th class="n">#</th>
+        <th class="sticky">Team</th>
+        {%- for _key, label in columns %}<th class="n">{{ label }}</th>{% endfor %}
+        <th class="n">vs season</th>
+        <th class="n">Games</th><th class="n">Poss</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {%- for row in rows %}
+      <tr{% if not row.sample.is_usable %} class="is-thin"{% endif %}>
+        <td class="n dim">{{ row.rank or '—' }}</td>
+        <td class="sticky">
+          <a class="team-cell" href="/teams/{{ row.team_id }}">
+            {{ crest(row.team_id, row.team_name) }}<span>{{ row.team_name }}</span>
+          </a>
+        </td>
+        {%- for key, _label in columns %}{{ metric_td(row.get(key)) }}{% endfor %}
+        <td class="n"
+            {% if row.vs_season_direction > 0 %}style="color:var(--win)"{% elif row.vs_season_direction < 0 %}style="color:var(--loss)"{% endif %}>
+          {{ row.vs_season_display }}
+        </td>
+        <td class="n dim">{{ row.sample.games }}</td>
+        <td class="n dim">{{ row.sample.possessions }}</td>
+        <td>{{ sample(row.sample, inline=true) }}</td>
+      </tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p class="small dim" style="margin-top:10px; max-width: 90ch">
+  <strong>vs season</strong> compares each team against its own full-game value under the same
+  outcome — so in “Losses · Q4” the baseline is that team's play in losses, not its overall
+  season. It separates “this team is good” from “this team changes here”.
+  Rows below the sample floor are dimmed and left unranked.
+</p>
+{% endblock %}

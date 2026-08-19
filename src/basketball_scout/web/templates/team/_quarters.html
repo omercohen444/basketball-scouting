@@ -1,0 +1,11 @@
+{% from "_macros.html" import metric_td, bar_chart, sample, segment_table %}
+
+<div class="chart-card" style="margin-bottom:16px">
+  <h3>Net rating by quarter</h3>
+  {{ bar_chart(quarters) }}
+</div>
+
+<section class="section">
+  <h2>Quarter detail</h2>
+  {{ segment_table(rows) }}
+</section>

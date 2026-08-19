@@ -17,7 +17,7 @@ import builtins
 
 import pytest
 from fastapi.testclient import TestClient
-from pack_factories import PRODUCTION_PACKS_DIR
+from pack_factories import PRODUCTION_ANALYTICS_DIR, PRODUCTION_PACKS_DIR
 from product_factories import admin_headers, make_app, make_service
 
 from basketball_scout.agents.pack_store import PackStore
@@ -91,21 +91,21 @@ def test_the_degeneration_gate_survives_serialization_and_rendering():
 
 def test_the_degenerate_team_renders_without_a_win_loss_column():
     repo = InMemoryReportRepository()
-    client = TestClient(make_app(PRODUCTION_PACKS_DIR, repository=repo))
+    client = TestClient(make_app(PRODUCTION_PACKS_DIR, repository=repo, analytics_dir=PRODUCTION_ANALYTICS_DIR))
     client.post(
         "/api/admin/reports/generate",
         json={"team_id": DEGENERATE_TEAM},
         headers=admin_headers(),
     )
 
-    body = client.get(f"/teams/{DEGENERATE_TEAM}").text
+    body = client.get(f"/scouting/{DEGENERATE_TEAM}").text
     assert "no_win_loss_evidence" in body, "the data-state banner is missing"
     assert "· W " not in body, "a win/loss split rendered for a team that has none"
 
 
 def test_the_api_serves_the_real_thing(team_ids):
     repo = InMemoryReportRepository()
-    client = TestClient(make_app(PRODUCTION_PACKS_DIR, repository=repo))
+    client = TestClient(make_app(PRODUCTION_PACKS_DIR, repository=repo, analytics_dir=PRODUCTION_ANALYTICS_DIR))
 
     teams = client.get("/api/teams").json()
     assert teams["teams_n"] == 14
@@ -149,7 +149,7 @@ def test_a_deployment_without_crewai_serves_everything_but_generation(monkeypatc
     # The public surface is unaffected: a report that already exists still
     # serves, including its PDF.
     repo = InMemoryReportRepository()
-    seeded = TestClient(make_app(PRODUCTION_PACKS_DIR, repository=repo))
+    seeded = TestClient(make_app(PRODUCTION_PACKS_DIR, repository=repo, analytics_dir=PRODUCTION_ANALYTICS_DIR))
     report_id = seeded.post(
         "/api/admin/reports/generate", json={"team_id": "segev:4"}, headers=admin_headers()
     ).json()["report_id"]
@@ -158,6 +158,7 @@ def test_a_deployment_without_crewai_serves_everything_but_generation(monkeypatc
         make_app(
             PRODUCTION_PACKS_DIR,
             repository=repo,
+            analytics_dir=PRODUCTION_ANALYTICS_DIR,
             backend_factory=default_backend_factory(Settings(gemini_api_key="x"), "m"),
         )
     )
@@ -165,4 +166,5 @@ def test_a_deployment_without_crewai_serves_everything_but_generation(monkeypatc
     assert lean.get("/api/teams").status_code == 200
     assert lean.get("/api/reports/latest/segev:4").status_code == 200
     assert lean.get(f"/api/reports/{report_id}/pdf").status_code == 200
-    assert lean.get("/teams/segev:4").status_code == 200
+    for path in ("/", "/teams/segev:4", "/teams/segev:4/splits", "/explore", "/scouting/segev:4"):
+        assert lean.get(path).status_code == 200, path

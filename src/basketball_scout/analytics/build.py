@@ -403,8 +403,22 @@ def artifact_filename(team_id: str) -> str:
 def build_all(
     settings: Settings | None = None, *, stats_dir: Path | None = None
 ) -> tuple[dict[str, AnalyticsArtifact], AnalyticsIndex]:
-    """Build every team's artifact and the index. Raises on a partial cache."""
+    """Build every team's artifact and the index from the cached league."""
     by_team, team_names, season = load_league_possessions(settings, stats_dir=stats_dir)
+    return build_from_bundles(by_team, team_names, season)
+
+
+def build_from_bundles(
+    by_team: dict[str, list[TeamGameBundle]],
+    team_names: dict[str, str],
+    season: str,
+) -> tuple[dict[str, AnalyticsArtifact], AnalyticsIndex]:
+    """The build itself, over bundles already in memory. Raises on a partial cache.
+
+    Separate from :func:`build_all` so the completeness guard and the whole
+    aggregation path can be exercised against synthetic bundles, with no cached
+    play-by-play on disk.
+    """
     assert_complete_league(by_team)
 
     teams = {

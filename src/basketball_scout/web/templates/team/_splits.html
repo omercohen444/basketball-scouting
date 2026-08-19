@@ -1,0 +1,54 @@
+{% from "_macros.html" import dumbbell, sample %}
+
+<section class="section">
+  <h2>Wins against losses</h2>
+
+  {%- if not wins_usable or not losses_usable %}
+  <div class="banner banner-warn">
+    <strong>{{ split_warning }}</strong>
+    A comparison needs enough of both. The values that cannot be supported are withheld
+    rather than shown with a caveat attached.
+  </div>
+  {%- endif %}
+
+  <div class="table-wrap" style="padding: 14px 16px">
+    {%- for row in rows %}
+      {{ dumbbell(row, bounds.get(row.meta.key, (0, 1))[0], bounds.get(row.meta.key, (0, 1))[1]) }}
+    {%- endfor %}
+    <div class="legend">
+      <span><i class="swatch swatch-w"></i>Wins ({{ wins_n }})</span>
+      <span><i class="swatch swatch-l"></i>Losses ({{ losses_n }})</span>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Detail</h2>
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th class="sticky">Metric</th>
+          <th class="n">Overall</th><th class="n">Wins</th><th class="n">Losses</th>
+          <th class="n">Difference</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {%- for row in rows %}
+        <tr>
+          <td class="sticky">{{ row.meta.label }}</td>
+          <td class="n">{{ row.display(row.overall) }}</td>
+          <td class="n">{{ row.display(row.wins) }}</td>
+          <td class="n">{{ row.display(row.losses) }}</td>
+          <td class="n{% if row.favours_wins is true %} " style="color:var(--win)"{% elif row.favours_wins is false %} " style="color:var(--loss)"{% else %}"{% endif %}>{{ row.delta_display }}</td>
+          <td class="small dim">{% if row.is_outcome_context %}outcome context{% endif %}</td>
+        </tr>
+        {%- endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="small dim" style="margin-top:8px">
+    "Outcome context" marks the four metrics that describe the result rather than explain it.
+    No significance test is computed anywhere in this system, and none is implied.
+  </p>
+</section>

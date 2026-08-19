@@ -93,3 +93,37 @@
     {%- endif %}
   </div>
 {%- endmacro %}
+
+{#- A table of segments (quarters, situations). Every row carries its sample,
+    and a row below the floor is dimmed rather than removed — "we have too
+    little of this" is itself worth showing. -#}
+{% macro segment_table(rows, show_definition=false, metrics=none) -%}
+  {%- set cols = metrics or [
+        ('offensive_rating', 'ORtg'), ('defensive_rating', 'DRtg'), ('net_rating', 'Net'),
+        ('efg_pct', 'eFG%'), ('tov_pct', 'TOV%'), ('orb_pct', 'ORB%')] -%}
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th class="sticky">{{ 'Situation' if show_definition else 'Period' }}</th>
+          {%- for _key, label in cols %}<th class="n">{{ label }}</th>{% endfor %}
+          <th class="n">Games</th><th class="n">Poss</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {%- for row in rows %}
+        <tr{% if not row.sample.is_usable %} class="is-thin"{% endif %}>
+          <td class="sticky">
+            {{ row.label }}
+            {%- if show_definition %}<div class="small dim">{{ row.definition }}</div>{% endif %}
+          </td>
+          {%- for key, _label in cols %}{{ metric_td(row.get(key)) }}{% endfor %}
+          <td class="n dim">{{ row.sample.games }}</td>
+          <td class="n dim">{{ row.sample.possessions }}</td>
+          <td>{{ sample(row.sample, inline=true) }}</td>
+        </tr>
+        {%- endfor %}
+      </tbody>
+    </table>
+  </div>
+{%- endmacro %}

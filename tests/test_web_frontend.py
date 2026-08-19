@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import pytest
 from fastapi.testclient import TestClient
+from analytics_factories import write_synthetic_analytics
 from pack_factories import write_synthetic_packs
 from product_factories import admin_headers, make_app
 
@@ -24,7 +25,9 @@ def repo() -> InMemoryReportRepository:
 @pytest.fixture
 def client(tmp_path, repo) -> TestClient:
     write_synthetic_packs(tmp_path)
-    return TestClient(make_app(tmp_path, repository=repo))
+    analytics = tmp_path / "analytics"
+    write_synthetic_analytics(analytics)
+    return TestClient(make_app(tmp_path, repository=repo, analytics_dir=analytics))
 
 
 def generate(client: TestClient, team_id: str = "segev:4"):
@@ -51,23 +54,26 @@ def test_the_landing_page_carries_the_global_navigation(client):
         assert f">{label}</a>" in body, label
 
 
-def test_the_landing_page_says_so_when_analytics_are_absent(client):
+def test_the_landing_page_says_so_when_analytics_are_absent(tmp_path, repo):
     """A deployment without the analytics artifact must degrade honestly rather
     than render an empty table — the scouting reports still work."""
-    body = client.get("/").text
+    write_synthetic_packs(tmp_path)
+    bare = TestClient(make_app(tmp_path, repository=repo))
+    body = bare.get("/").text
     assert "Analytics artifacts are not present" in body
+    assert bare.get("/scouting/segev:4").status_code == 200
 
 
-def test_team_page_shows_the_empty_state_before_generation(client):
-    body = client.get("/teams/segev:4").text
+def test_scouting_page_shows_the_empty_state_before_generation(client):
+    body = client.get("/scouting/segev:4").text
     assert "No scouting report has been generated" in body
     # The empty state must say generation is not something a visitor triggers.
     assert "never triggers" in body
 
 
-def test_team_page_renders_a_generated_report(client):
+def test_scouting_page_renders_a_generated_report(client):
     report_id = generate(client).json()["report_id"]
-    body = client.get("/teams/segev:4").text
+    body = client.get("/scouting/segev:4").text
 
     assert "Executive summary" in body
     assert "Keys to Win" in body
@@ -88,7 +94,7 @@ def test_the_three_information_types_are_distinguishable_in_the_markup(client):
     suggestion. Each gets its own class hook, so the distinction survives any
     later restyling — it is structural, not a matter of how it happens to look."""
     generate(client)
-    body = client.get("/teams/segev:4").text
+    body = client.get("/scouting/segev:4").text
 
     assert 'class="ev"' in body, "measured evidence must render as its own card"
     assert 'class="why"' in body, "interpretation must render as plain prose, not a card"
@@ -102,7 +108,7 @@ def test_win_loss_split_is_surfaced_as_a_comparison_not_buried_in_prose(client):
     """W/L difference is one of the most practically useful things here, so it
     gets an explicit wins-value / losses-value / gap treatment on the card."""
     generate(client)
-    body = client.get("/teams/segev:4").text
+    body = client.get("/scouting/segev:4").text
     assert 'class="wl-values"' in body
     assert 'class="wl-w"' in body and 'class="wl-l"' in body
     assert "SD</span>" in body, "the gap needs a unit, or the number means nothing"
@@ -112,17 +118,17 @@ def test_report_page_has_no_horizontal_overflow_hazards(client):
     """The evidence table is the one element that cannot fit a phone; it must
     live in its own scroll container rather than widening the page."""
     generate(client)
-    body = client.get("/teams/segev:4").text
+    body = client.get("/scouting/segev:4").text
     assert 'class="table-scroll"' in body
     assert "<table" in body
     assert body.index('class="table-scroll"') < body.index("<table")
 
 
-def test_team_page_hides_validation_and_provenance_detail(client):
+def test_scouting_page_hides_validation_and_provenance_detail(client):
     """The report is for a coach, not an instructor auditing the pipeline —
     detailed validation, hashes, model/backend identifiers must not appear."""
     generate(client)
-    body = client.get("/teams/segev:4").text
+    body = client.get("/scouting/segev:4").text
     assert "Automated validation" not in body
     assert "Hard rejections" not in body
     assert "Pack hash" not in body
@@ -132,20 +138,20 @@ def test_team_page_hides_validation_and_provenance_detail(client):
     assert "agents-v1" not in body
 
 
-def test_team_page_shows_no_internal_claim_strength_labels(client):
+def test_scouting_page_shows_no_internal_claim_strength_labels(client):
     """(established)/(indicated)/(speculative) are audit vocabulary — they
     stay in the JSON contract but must never render for a coach."""
     generate(client)
-    body = client.get("/teams/segev:4").text
+    body = client.get("/scouting/segev:4").text
     for label in ("(established)", "(indicated)", "(speculative)"):
         assert label not in body
 
 
-def test_team_page_merges_caveats_and_unavailable_into_one_section(client):
+def test_scouting_page_merges_caveats_and_unavailable_into_one_section(client):
     """Goal 5: one short "Data Limits" section, not two separate headings
     that say overlapping things."""
     generate(client)
-    body = client.get("/teams/segev:4").text
+    body = client.get("/scouting/segev:4").text
     assert "Caveats</h2>" not in body
     assert "Not available in this data" not in body
     assert body.count("Data Limits") == 1
@@ -158,9 +164,20 @@ def test_report_permalink_renders(client):
     assert "Executive summary" in response.text
 
 
-def test_team_page_slug_form_works(client):
+def test_the_underscore_slug_form_works_on_both_team_surfaces(client):
+    """`segev_4` is the URL-safe spelling of `segev:4`; both routes accept it."""
     generate(client)
     assert client.get("/teams/segev_4").status_code == 200
+    assert client.get("/scouting/segev_4").status_code == 200
+
+
+def test_the_old_report_url_still_reaches_the_report(client):
+    """`/teams/{id}` used to serve the report and now serves analytics, so the
+    old intent is redirected rather than silently answered with something else."""
+    generate(client)
+    response = client.get("/teams/segev:4?view=report", follow_redirects=False)
+    assert response.status_code == 302
+    assert response.headers["location"] == "/scouting/segev:4"
 
 
 def test_unknown_team_renders_an_html_error_page_not_json(client):
@@ -184,7 +201,7 @@ def test_storage_failure_shows_a_banner_rather_than_a_blank_page(tmp_path):
 
     write_synthetic_packs(tmp_path)
     client = TestClient(make_app(tmp_path, repository=Down()))
-    response = client.get("/teams/segev:4")
+    response = client.get("/scouting/segev:4")
     assert response.status_code == 200
     assert "Report storage is unreachable" in response.text
     assert "connection refused" not in response.text
@@ -201,7 +218,7 @@ def test_no_secret_or_token_reaches_the_browser(client):
     """The pages carry no credential of any kind — that is why a public visitor
     cannot trigger generation even though the endpoint exists."""
     generate(client)
-    for path in ("/", "/teams/segev:4", "/static/app.js", "/static/app.css"):
+    for path in ("/", "/teams/segev:4", "/scouting/segev:4", "/static/app.js", "/static/app.css"):
         body = client.get(path).text.lower()
         for forbidden in ("test-admin-token", "x-admin-token", "sb_secret", "apikey", "gemini_api_key"):
             assert forbidden not in body, f"{forbidden} leaked into {path}"
@@ -225,7 +242,7 @@ def test_model_prose_is_escaped_in_html(tmp_path, repo):
     client = TestClient(make_app(tmp_path, repository=repo, backend_factory=lambda: Injecting()))
     generate(client)
 
-    body = client.get("/teams/segev:4").text
+    body = client.get("/scouting/segev:4").text
     assert payload not in body
     assert "&lt;script&gt;" in body
 
@@ -235,6 +252,10 @@ def test_frontend_never_constructs_an_agent_backend(tmp_path, repo):
         raise AssertionError("a page render tried to construct an agent backend")
 
     write_synthetic_packs(tmp_path)
-    client = TestClient(make_app(tmp_path, repository=repo, backend_factory=forbidden))
-    assert client.get("/").status_code == 200
-    assert client.get("/teams/segev:4").status_code == 200
+    analytics = tmp_path / "analytics"
+    write_synthetic_analytics(analytics)
+    client = TestClient(
+        make_app(tmp_path, repository=repo, analytics_dir=analytics, backend_factory=forbidden)
+    )
+    for path in ("/", "/teams/segev:4", "/teams/segev:4/splits", "/explore", "/scouting/segev:4"):
+        assert client.get(path).status_code == 200, path

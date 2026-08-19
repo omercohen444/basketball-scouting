@@ -10,7 +10,7 @@ possession/bundle shape, and a hand-rolled `Possession` is 20 fields wide.
 
 from __future__ import annotations
 
-from basketball_scout.analytics.build import TeamGameBundle
+from basketball_scout.analytics.build import TeamGameBundle, build_from_bundles, write_all
 from basketball_scout.stats.models import DerivedMetrics, TeamGameComponents, TeamGameStats
 from basketball_scout.stats.possession import Possession
 
@@ -133,3 +133,16 @@ def make_league(teams: int = 14, games: int = 26) -> dict[str, list[TeamGameBund
         ]
         for t in range(2, 2 + teams)
     }
+
+
+def write_synthetic_analytics(out_dir) -> None:
+    """A complete synthetic league written as artifacts, for the web tests.
+
+    Real committed artifacts are never loaded into the web suite — a test about
+    routing should not depend on the league's actual numbers — but the routes
+    still need *something* structurally valid to render.
+    """
+    by_team = make_league()
+    names = {tid: f"TEAM {tid.split(':')[-1]}" for tid in by_team}
+    artifacts, index = build_from_bundles(by_team, names, "2025-26")
+    write_all(artifacts, index, out_dir)

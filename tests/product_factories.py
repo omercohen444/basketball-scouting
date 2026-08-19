@@ -97,3 +97,38 @@ def make_app(
 
 def admin_headers(token: str = ADMIN_TOKEN) -> dict[str, str]:
     return {"X-Admin-Token": token}
+
+
+# Every route a member of the public can GET, in one place. Three separate
+# guarantees read this list — no route reaches the agent backend, no route
+# reaches the provider, no route needs a credential — so a new surface that is
+# added to the app but forgotten here shows up as a failing OpenAPI test rather
+# than as an untested billing path.
+PUBLIC_HTML_ROUTES: tuple[str, ...] = (
+    "/",
+    "/teams/segev:4",
+    "/teams/segev_4",
+    "/teams/segev:4/splits",
+    "/teams/segev:4/quarters",
+    "/teams/segev:4/situations",
+    "/teams/segev:4/games",
+    "/explore",
+    "/explore?segment=q4&outcome=losses&family=four_factors",
+    "/scouting/segev:4",
+)
+
+PUBLIC_API_ROUTES: tuple[str, ...] = (
+    "/health",
+    "/api/teams",
+    "/api/reports/latest/segev:4",
+    "/api/openapi.json",
+)
+
+
+def public_routes(report_id: str) -> tuple[str, ...]:
+    """Every public GET, including the ones that need a generated report."""
+    return PUBLIC_HTML_ROUTES + PUBLIC_API_ROUTES + (
+        f"/reports/{report_id}",
+        f"/api/reports/{report_id}",
+        f"/api/reports/{report_id}/pdf",
+    )

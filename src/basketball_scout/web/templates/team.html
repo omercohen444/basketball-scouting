@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "_macros.html" import crest %}
+{% block title %}{{ team.team_name }} — IBPL Analytics{% endblock %}
+
+{% block subnav %}
+<div class="subnav">
+  <div class="shell subnav-inner">
+    {%- for key, label in tabs %}
+    <a href="/teams/{{ team.team_id }}{{ '' if key == 'overview' else '/' ~ key }}"
+       class="{% if tab == key %}is-active{% endif %}"
+       {% if tab == key %}aria-current="page"{% endif %}>{{ label }}</a>
+    {%- endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="team-head">
+  <div class="team-id">
+    {{ crest(team.team_id, team.team_name, big=true) }}
+    <div>
+      <h1>{{ team.team_name }}</h1>
+      <div class="rec">{{ team.record }} · {{ team.games_n }} games · {{ season }}</div>
+    </div>
+  </div>
+
+  <div class="headline-metrics">
+    {%- for cell in headline %}
+    <div class="headline{% if cell.is_style %} is-style{% endif %}">
+      <span class="k">{{ cell.short }}</span>
+      <span class="v">{{ cell.display }}</span>
+      <span class="r">{{ cell.rank_display or '—' }}</span>
+    </div>
+    {%- endfor %}
+    <div class="headline">
+      <span class="k">Scouting</span>
+      <a class="btn" href="/scouting/{{ team.team_id }}" style="margin-top:2px">AI report →</a>
+    </div>
+  </div>
+</div>
+
+{% include "team/_" ~ tab ~ ".html" %}
+{% endblock %}

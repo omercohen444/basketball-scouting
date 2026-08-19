@@ -1,0 +1,54 @@
+{% from "_macros.html" import factor_card, bar_chart, dumbbell %}
+
+<div class="cols-2">
+  <div>
+    <section class="section">
+      <h2>Offensive four factors</h2>
+      <div class="factor-grid">
+        {%- for cell in factors.offense %}{{ factor_card(cell) }}{% endfor %}
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Defensive four factors</h2>
+      <div class="factor-grid">
+        {%- for cell in factors.defense %}{{ factor_card(cell) }}{% endfor %}
+      </div>
+      <p class="small dim" style="margin-top:8px">
+        Derived from the opponent's own box score in each game. League ranks for these
+        appear on the <a href="/">league table</a>, where the whole league is in scope.
+      </p>
+    </section>
+  </div>
+
+  <div class="chart-card">
+    <h3>Net rating by quarter</h3>
+    {{ bar_chart(quarters) }}
+    <p class="small dim" style="margin-top:10px">
+      Around 520 possessions per quarter across the season.
+      <a href="/teams/{{ team.team_id }}/quarters">Full quarter detail →</a>
+    </p>
+  </div>
+</div>
+
+<section class="section">
+  <h2>What changes between wins and losses</h2>
+  {%- if top_differences %}
+  <div class="table-wrap" style="padding: 12px 14px">
+    {%- for row in top_differences %}
+      {{ dumbbell(row, bounds.get(row.meta.key, (0, 1))[0], bounds.get(row.meta.key, (0, 1))[1]) }}
+    {%- endfor %}
+    <div class="legend">
+      <span><i class="swatch swatch-w"></i>Wins</span>
+      <span><i class="swatch swatch-l"></i>Losses</span>
+    </div>
+  </div>
+  <p class="small dim" style="margin-top:8px">
+    Descriptive factors only. Offensive, defensive and net rating are excluded here —
+    a team outscoring its opponent in the games it wins is true by definition, not a reason.
+    <a href="/teams/{{ team.team_id }}/splits">Full splits →</a>
+  </p>
+  {%- else %}
+  <p class="dim small">{{ splits_unavailable }}</p>
+  {%- endif %}
+</section>

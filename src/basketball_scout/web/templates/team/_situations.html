@@ -1,0 +1,10 @@
+{% from "_macros.html" import metric_td, sample, segment_table %}
+
+<section class="section">
+  <h2>Situations</h2>
+  {{ segment_table(rows, show_definition=true) }}
+  <p class="small dim" style="margin-top:8px">
+    Pace is absent from these rows on purpose: none of these situations has a defined
+    elapsed time, so there is no honest denominator for it.
+  </p>
+</section>
