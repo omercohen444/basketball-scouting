@@ -5,6 +5,61 @@ session — not a place for terminal output.
 
 ---
 
+## 2026-08-20 — Run 21: Final UX polish and public release
+
+**STATUS: RELEASED. MVP feature-frozen.**
+Public URL: https://web-production-82a60.up.railway.app
+
+**Objective:** the four usability corrections from the approved visual review,
+then push, CI, Railway verification and production QA.
+
+**One commit:** `dff7de5` "Make metric names reach their definitions, and the team
+filter reachable". Tests 1,149 → **1,205**.
+
+**Metric names became terms.** Every label links to its exact anchor —
+`#offensive-rating`, `#opp-tov-pct`, `#zone-share-corner-3` — never to the top of a
+fourteen-section reference. One function does the mapping and the glossary builds
+its own anchors from it, so a link and its target cannot drift apart. A metric with
+no entry renders plain text: a link that lands someone in the wrong place is worse
+than none, because it looks like it worked. A hairline dotted underline says "this
+term has a definition"; table headers that are already sort controls carry a single
+superscript question mark instead, since a header cannot be two links at once.
+Anchors clear the sticky bar by 12px, measured.
+
+**Two ambiguities fixed.** "Net rating by quarter" now says *per 100 possessions* —
+`+17.1` beside a bar chart reads as a point margin otherwise. Per-game counts became
+`PoT/g`, `2nd ch./g`, `8+ conceded/g`; a duration already formatted `6:45` was left
+alone as self-evident.
+
+**The Games team filter was unreachable past the ninth team.** The strip scrolled but
+the scrollbar had been hidden, so a desktop user could neither tell more teams existed
+nor get to them. Visible slim scrollbar, chips that no longer shrink, CSS scroll
+shadows on whichever edge still hides content. Verified by scrolling to each of the
+fifteen chips at 1440, 1024 and 375 — all reachable, none clipped, page never scrolls
+sideways.
+
+**Methodology gained a turnover-types section** — the Profile page rendered a four-way
+display grouping over the provider's ten categories that nothing defined.
+
+**Release.** Pushed `dff7de5`; GitHub Actions green on that exact SHA, every step
+including the pack-load and no-credential-boot checks. Railway verified explicitly
+rather than assumed: repo `omercohen444/basketball-scouting`, branch `no-video-mvp`,
+active deployment commit `dff7de5b32a7e540578c4f97c2ed41fecb95b171`. Production
+`/health` reports supabase storage, 14 teams, `analytics-v2`.
+
+Production QA: 20 routes 200, all 14 logos, both static assets, 14/14 saved reports,
+PDF valid, permalink live, 0 broken anchors across six surfaces, `Trailing 6+` absent
+from all fourteen scouting pages, Maccabi Tel Aviv still degrading honestly, and zero
+provider activity in the deploy logs. Production `app.css` is byte-identical to the
+file the scroll behaviour was measured against.
+
+**Report safety held.** All 14 pack hashes unchanged, stored reports untouched, no
+regeneration, no Gemini call.
+
+**The MVP is feature-frozen.** Any further improvement is post-MVP.
+
+---
+
 ## 2026-08-20 — Run 20: Final MVP completion — enrichment, four surfaces, methodology
 
 **STATUS: STOPPED AT THE SINGLE HUMAN VISUAL CHECKPOINT. Nothing pushed, nothing
