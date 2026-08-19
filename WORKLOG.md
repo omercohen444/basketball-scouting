@@ -5,6 +5,131 @@ session — not a place for terminal output.
 
 ---
 
+## 2026-08-19 — Run 14: Product foundation — FastAPI, Supabase, PDF, frontend (`no-video-mvp`)
+
+**Objective:** Turn the proven agent layer into a deployable product: portable
+deterministic evidence, a repository abstraction, Supabase persistence, a
+protected generation endpoint, PDF, a working frontend, CI, and Railway
+readiness. Autonomous overnight run; started at `8eaf6cc`, worktree clean.
+
+**The problem that shaped everything: `data/` is git-ignored.** The agent layer
+rebuilt each pack by walking 297 cached PBP games and 182 processed records, so
+a deployment had no way to run at all. Solved by serializing the deterministic
+layer once, offline: `data/evidence_packs/` holds 14 versioned artifacts
+(~600 KB, tracked) wrapping each `EvidencePack` in an envelope with provenance
+the pack schema deliberately does not carry (source game ids, fingerprint,
+counts, versions — the pack is `extra="forbid"` because it is the agent
+contract). `pack_hash` is sha256 over a canonical serialization and is
+recomputed at load, so a tampered artifact fails loudly. Rebuilds are
+byte-stable, so `build_production_packs.py --check` answers "do the committed
+artifacts still match the source data?" in one command.
+
+**Architecture added.** `persistence/` (five-method `Protocol`, in-memory +
+Supabase-over-PostgREST adapters), `reports/` (`PublicReport` contract, ReportLab
+PDF, and `ReportService` — the single generate path shared by the API and the
+CLI), `web/` (FastAPI, six routes, Jinja frontend). Layering is one-directional
+and `web/` holds no basketball logic.
+
+**Deliberately not `supabase-py`.** The contract is five methods over three
+tables, `httpx` was already in the tree, and Run 13 had already seen one install
+silently downgrade `pydantic` under a verified pin. Plain httpx keeps the wire
+format visible in one file and adds no resolution risk.
+
+**Supabase is live.** The CLI turned out to be logged in, so
+`supabase db query --linked` applied `0001_init.sql` and `0002_seed_teams.sql`
+through the Management API — no DB password needed. Three tables, JSONB-first
+(`report_json` is the exact public payload the API serves; `evidence_json` is
+the pack artifact it came from). RLS enabled on all three with **no policies**
+and privileges revoked from `anon`/`authenticated`, so a leaked anon key reads
+nothing. Verified live: `has_table_privilege('anon',
+'public.scouting_reports', 'SELECT')` returns `false`.
+
+**Two real defects found by building against the live project:**
+
+1. `SUPABASE_URL` in `.env` already ended in `/rest/v1`, so appending it again
+   produced `/rest/v1/rest/v1/...` and a `PGRST125 "Invalid path"` that looks
+   exactly like a missing table. `rest_base_url()` now accepts both forms.
+2. Supabase's default privileges do **not** cover tables created through the
+   Management API — `service_role` had no SELECT and PostgREST answered `42501`.
+   The migration now grants explicitly rather than inheriting.
+
+**Three defects found by the tests, all fixed in the source rather than the
+test:** `generated_at` has second precision, so two reports saved in the same
+second tied and "latest" resolved by uuid order (both repositories now break the
+tie deterministically); `build_context` called `repository.list_teams()` during
+app construction, so an unreachable database stopped the process from starting;
+the rate limiter pruned before insertion, making its cap a ceiling-plus-one.
+Also: the 404 handler was registered on FastAPI's `HTTPException` subclass while
+the router raises Starlette's base class, so framework-default error bodies were
+escaping — now registered on the base.
+
+**Performance:** `/api/teams` was issuing one Supabase round-trip per team
+(~5 s). Added `latest_report_refs()` to the repository contract — one query for
+the whole league, ~420 ms live.
+
+**Cost and safety model, tested rather than asserted.** No public route can
+construct an agent backend (verified by wiring a factory that raises and driving
+every public route including the PDF). The entire caller-supplied surface is a
+team id from a fixed 14-entry allowlist plus a boolean; `GenerateRequest` is
+`extra="forbid"`, which turns "no free text reaches a prompt" into an assertion.
+Admin token compared with `compare_digest`; unset means generation is *disabled*,
+never open; the admin limiter counts unauthenticated attempts so the token
+cannot be probed. Errors leak nothing — a connection string, a file path and an
+exception message are all confirmed absent from responses.
+
+**LIVE ACCEPTANCE — passed.** `segev:4` HAPOEL JERUSALEM through the real
+product path: committed pack → CrewAI (`gemini-3.5-flash`) → validation →
+Supabase → API → PDF. **3 provider calls, 0 repair retries, 0 transient retries,
+0 hard rejections, 1 warning, 140.5 s.** The warning is `R8` (a recommendation
+claimed high confidence on moderate-reliability clutch evidence) — the validator
+working on live output. The full write path was rehearsed first with the
+deterministic stub backend, at zero provider cost, before spending anything.
+Details in `artifacts/acceptance/README.md`; the generated PDF is committed
+alongside it.
+
+**Tests: 732 passed** (541 baseline + 191 new), no credentials, no network, no
+regressions. New coverage includes all 14 shipped packs loading and
+hash-checking, tamper/version rejection, Supabase wire mapping via
+`MockTransport`, the never-save-an-invalid-report rule, transient-vs-permanent
+provider classification, every API route and error shape, XSS escaping of
+model-authored prose, and the migration's RLS posture.
+
+**CI passing** on GitHub Actions, first run. It installs `requirements-ci.txt`
+(the full list minus CrewAI, which no offline test needs;
+`tests/test_requirements.py` keeps the two manifests from drifting), asserts no
+credential is present, and separately proves the 14 shipped packs load and the
+app serves `/health` and `/api/teams` in a clean checkout with nothing
+configured.
+
+**Railway: ready, not deployed** (per instruction). `railway.json`, `Procfile`,
+`.python-version`, and `main.py` — a shim that puts `src/` on the path so
+`uvicorn main:app --host 0.0.0.0 --port $PORT` works on a platform that only
+runs pip install and a start command.
+
+**Docs:** `docs/ARCHITECTURE.md`, `docs/SECURITY.md`, `docs/DEPLOYMENT.md`,
+rewritten `README.md`, expanded `.env.example`, and
+`artifacts/stitch_handoff/` — a designer-facing handoff with real API fixtures
+(report, teams, errors, OpenAPI) and seven hard constraints the final frontend
+may not break.
+
+**Unresolved / deliberate:**
+
+- Only Jerusalem was generated with a real provider. Batch generation exists
+  (`--all`, gated behind `--yes`, with `--dry-run` and `--stub`), but spending
+  39 calls to demonstrate a working loop would be waste.
+- The frontend is a functional placeholder by design; final visual design is a
+  separate step against the Stitch handoff.
+- `requirements.txt` includes CrewAI, so a Railway image is large. A serve-only
+  deployment can install `requirements-ci.txt` instead — the admin endpoint then
+  degrades to a clean 503 because `agents/crew.py` is imported lazily.
+
+**Next recommended technical action:** deploy to Railway (§5 of
+`docs/DEPLOYMENT.md`), then generate the remaining 13 reports with
+`scripts/ops/generate_reports.py --all --yes`. Everything else is downstream of
+having a public URL.
+
+---
+
 ## 2026-08-19 — Run 13: Agent layer, no-video MVP (`no-video-mvp`)
 
 **Objective:** Management re-scoped the MVP to **no video** (the video layer was

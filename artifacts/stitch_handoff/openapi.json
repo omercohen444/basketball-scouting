@@ -1,0 +1,1169 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Basketball Analytics and AI Scouting System",
+    "description": "Opponent scouting for the Israeli Basketball Premier League.\n\nDeterministic play-by-play analytics compute every number; a constrained\nthree-agent pipeline selects, interprets and prioritizes that evidence and writes\nno numbers of its own. Public routes only ever read reports that were already\ngenerated, validated and saved.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "ops"
+        ],
+        "summary": "Liveness and configuration snapshot",
+        "description": "Never touches the database or the provider — it must stay cheap enough\nfor a platform health check to hit it constantly.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/teams": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "List the supported opponents",
+        "operationId": "list_teams_api_teams_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/latest/{team_id}": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Latest saved report for one team",
+        "operationId": "latest_report_api_reports_latest__team_id__get",
+        "parameters": [
+          {
+            "name": "team_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Team Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/{report_id}": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "One saved report by id",
+        "operationId": "get_report_api_reports__report_id__get",
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/{report_id}/pdf": {
+      "get": {
+        "tags": [
+          "api"
+        ],
+        "summary": "PDF of a saved report",
+        "description": "Rendered from the stored report. Never calls the provider.",
+        "operationId": "get_report_pdf_api_reports__report_id__pdf_get",
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF document",
+            "content": {
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/reports/generate": {
+      "post": {
+        "tags": [
+          "api"
+        ],
+        "summary": "Generate, validate and save a report (admin only)",
+        "description": "The only endpoint that can spend a provider call.\n\nDeclared ``def`` (not ``async def``) on purpose: FastAPI runs it in the\nthreadpool, so a generation that takes a minute does not block the event loop\nfor everybody reading saved reports.",
+        "operationId": "generate_report_api_admin_reports_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "ui"
+        ],
+        "summary": "Opponent selector",
+        "operationId": "home__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/{team_id}": {
+      "get": {
+        "tags": [
+          "ui"
+        ],
+        "summary": "Latest report for a team",
+        "operationId": "team_report_teams__team_id__get",
+        "parameters": [
+          {
+            "name": "team_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Team Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/{report_id}": {
+      "get": {
+        "tags": [
+          "ui"
+        ],
+        "summary": "One saved report",
+        "operationId": "report_permalink_reports__report_id__get",
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ClaimView": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "claim_strength": {
+            "type": "string",
+            "enum": [
+              "established",
+              "indicated",
+              "speculative"
+            ],
+            "title": "Claim Strength",
+            "default": "speculative"
+          },
+          "implication_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Implication Refs"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceCard"
+            },
+            "type": "array",
+            "title": "Evidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "ClaimView",
+        "description": "One statement in a report section, with the evidence it rests on."
+      },
+      "EvidenceCard": {
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "title": "Evidence Id"
+          },
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "league_rank": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "League Rank"
+          },
+          "league_percentile": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "League Percentile"
+          },
+          "league_average": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "League Average"
+          },
+          "sample_games": {
+            "type": "integer",
+            "title": "Sample Games",
+            "default": 0
+          },
+          "sample_possessions": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample Possessions"
+          },
+          "reliability": {
+            "type": "string",
+            "enum": [
+              "high",
+              "moderate",
+              "low"
+            ],
+            "title": "Reliability",
+            "default": "moderate"
+          },
+          "validation_state": {
+            "type": "string",
+            "title": "Validation State",
+            "default": "validated_deterministic"
+          },
+          "direction": {
+            "type": "string",
+            "title": "Direction",
+            "default": "neutral"
+          },
+          "win_loss": {
+            "$ref": "#/components/schemas/WinLossCard"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "evidence_id",
+          "metric",
+          "scope",
+          "value"
+        ],
+        "title": "EvidenceCard",
+        "description": "One deterministic fact, pre-formatted for display.\n\nEvery value here is a *string the backend already formatted*. A frontend must\nnever recompute or reformat these — that is the boundary that keeps the\nauthoritative numbers deterministic."
+      },
+      "GenerateRequest": {
+        "properties": {
+          "team_id": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Team Id"
+          },
+          "force_regenerate": {
+            "type": "boolean",
+            "title": "Force Regenerate",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "team_id"
+        ],
+        "title": "GenerateRequest",
+        "description": "The complete admin generation input.\n\n``extra=\"forbid\"`` is load-bearing: it is what makes \"no arbitrary free-text\nreaches a prompt\" checkable rather than merely intended."
+      },
+      "GenerateResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "team_id": {
+            "type": "string",
+            "title": "Team Id"
+          },
+          "report_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Report Id"
+          },
+          "persisted": {
+            "type": "boolean",
+            "title": "Persisted",
+            "default": false
+          },
+          "backend": {
+            "type": "string",
+            "title": "Backend",
+            "default": "unknown"
+          },
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Name"
+          },
+          "provider_calls": {
+            "type": "integer",
+            "title": "Provider Calls",
+            "default": 0
+          },
+          "stage_attempts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Stage Attempts"
+          },
+          "transient_retries": {
+            "type": "integer",
+            "title": "Transient Retries",
+            "default": 0
+          },
+          "duration_ms": {
+            "type": "integer",
+            "title": "Duration Ms",
+            "default": 0
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "rejects": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Rejects"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "report": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicReport"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "team_id"
+        ],
+        "title": "GenerateResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "PublicReport": {
+        "properties": {
+          "report_id": {
+            "type": "string",
+            "title": "Report Id"
+          },
+          "report_version": {
+            "type": "string",
+            "title": "Report Version",
+            "default": "report-v1"
+          },
+          "team_id": {
+            "type": "string",
+            "title": "Team Id"
+          },
+          "team_name": {
+            "type": "string",
+            "title": "Team Name"
+          },
+          "season": {
+            "type": "string",
+            "title": "Season"
+          },
+          "generated_at": {
+            "type": "string",
+            "title": "Generated At"
+          },
+          "backend": {
+            "type": "string",
+            "title": "Backend",
+            "default": "unknown"
+          },
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Name"
+          },
+          "scope_note": {
+            "type": "string",
+            "title": "Scope Note",
+            "default": ""
+          },
+          "executive_summary": {
+            "type": "string",
+            "title": "Executive Summary",
+            "default": ""
+          },
+          "sections": {
+            "$ref": "#/components/schemas/ReportSections"
+          },
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendationView"
+            },
+            "type": "array",
+            "title": "Recommendations"
+          },
+          "key_evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceCard"
+            },
+            "type": "array",
+            "title": "Key Evidence"
+          },
+          "caveats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Caveats"
+          },
+          "unavailable_evidence": {
+            "items": {
+              "$ref": "#/components/schemas/UnavailableEvidenceView"
+            },
+            "type": "array",
+            "title": "Unavailable Evidence"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/ReportProvenance"
+          },
+          "validation": {
+            "$ref": "#/components/schemas/ValidationSummary"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "report_id",
+          "team_id",
+          "team_name",
+          "season",
+          "generated_at",
+          "provenance"
+        ],
+        "title": "PublicReport",
+        "description": "The complete, frontend-safe scouting report."
+      },
+      "RecommendationView": {
+        "properties": {
+          "recommendation_id": {
+            "type": "string",
+            "title": "Recommendation Id"
+          },
+          "priority": {
+            "type": "integer",
+            "title": "Priority"
+          },
+          "directive": {
+            "type": "string",
+            "title": "Directive"
+          },
+          "rationale": {
+            "type": "string",
+            "title": "Rationale"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "high",
+              "moderate",
+              "low"
+            ],
+            "title": "Confidence",
+            "default": "moderate"
+          },
+          "implication_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Implication Refs"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceCard"
+            },
+            "type": "array",
+            "title": "Evidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recommendation_id",
+          "priority",
+          "directive",
+          "rationale"
+        ],
+        "title": "RecommendationView",
+        "description": "One game-plan priority — advice to *our* team."
+      },
+      "ReportProvenance": {
+        "properties": {
+          "pack_id": {
+            "type": "string",
+            "title": "Pack Id"
+          },
+          "pack_hash": {
+            "type": "string",
+            "title": "Pack Hash",
+            "default": ""
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "default": "segev"
+          },
+          "season": {
+            "type": "string",
+            "title": "Season",
+            "default": "unknown"
+          },
+          "record": {
+            "type": "string",
+            "title": "Record",
+            "default": ""
+          },
+          "games_n": {
+            "type": "integer",
+            "title": "Games N",
+            "default": 0
+          },
+          "date_range": {
+            "type": "string",
+            "title": "Date Range",
+            "default": ""
+          },
+          "definition_version": {
+            "type": "string",
+            "title": "Definition Version",
+            "default": "unknown"
+          },
+          "evidence_version": {
+            "type": "string",
+            "title": "Evidence Version",
+            "default": "unknown"
+          },
+          "pack_states": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Pack States"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "pack_id"
+        ],
+        "title": "ReportProvenance",
+        "description": "Where the numbers came from. Shown to the reader, not just stored."
+      },
+      "ReportSections": {
+        "properties": {
+          "offensive_identity": {
+            "items": {
+              "$ref": "#/components/schemas/ClaimView"
+            },
+            "type": "array",
+            "title": "Offensive Identity"
+          },
+          "strengths": {
+            "items": {
+              "$ref": "#/components/schemas/ClaimView"
+            },
+            "type": "array",
+            "title": "Strengths"
+          },
+          "vulnerabilities": {
+            "items": {
+              "$ref": "#/components/schemas/ClaimView"
+            },
+            "type": "array",
+            "title": "Vulnerabilities"
+          },
+          "transition_notes": {
+            "items": {
+              "$ref": "#/components/schemas/ClaimView"
+            },
+            "type": "array",
+            "title": "Transition Notes"
+          },
+          "turnover_notes": {
+            "items": {
+              "$ref": "#/components/schemas/ClaimView"
+            },
+            "type": "array",
+            "title": "Turnover Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ReportSections"
+      },
+      "TeamSummary": {
+        "properties": {
+          "team_id": {
+            "type": "string",
+            "title": "Team Id"
+          },
+          "team_name": {
+            "type": "string",
+            "title": "Team Name"
+          },
+          "season": {
+            "type": "string",
+            "title": "Season"
+          },
+          "games_n": {
+            "type": "integer",
+            "title": "Games N",
+            "default": 0
+          },
+          "wins": {
+            "type": "integer",
+            "title": "Wins",
+            "default": 0
+          },
+          "losses": {
+            "type": "integer",
+            "title": "Losses",
+            "default": 0
+          },
+          "record": {
+            "type": "string",
+            "title": "Record",
+            "default": ""
+          },
+          "has_report": {
+            "type": "boolean",
+            "title": "Has Report",
+            "default": false
+          },
+          "latest_report_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Report Id"
+          },
+          "latest_generated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Generated At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "team_id",
+          "team_name",
+          "season"
+        ],
+        "title": "TeamSummary",
+        "description": "One selectable opponent, plus whether a saved report exists for it."
+      },
+      "TeamsResponse": {
+        "properties": {
+          "season": {
+            "type": "string",
+            "title": "Season"
+          },
+          "teams_n": {
+            "type": "integer",
+            "title": "Teams N"
+          },
+          "teams": {
+            "items": {
+              "$ref": "#/components/schemas/TeamSummary"
+            },
+            "type": "array",
+            "title": "Teams"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "season",
+          "teams_n",
+          "teams"
+        ],
+        "title": "TeamsResponse"
+      },
+      "UnavailableEvidenceView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "reason"
+        ],
+        "title": "UnavailableEvidenceView"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "ValidationNote": {
+        "properties": {
+          "rule": {
+            "type": "string",
+            "title": "Rule"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rule",
+          "message"
+        ],
+        "title": "ValidationNote"
+      },
+      "ValidationSummary": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok",
+            "default": true
+          },
+          "rejects_n": {
+            "type": "integer",
+            "title": "Rejects N",
+            "default": 0
+          },
+          "warnings_n": {
+            "type": "integer",
+            "title": "Warnings N",
+            "default": 0
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationNote"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ValidationSummary",
+        "description": "User-facing validation outcome.\n\nWarnings are shown, not hidden: a warning is the deterministic layer telling\nthe reader where to be careful, which is exactly the sort of thing a scouting\nreport should say out loud."
+      },
+      "WinLossCard": {
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "title": "Available",
+            "default": false
+          },
+          "in_wins": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "In Wins"
+          },
+          "in_losses": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "In Losses"
+          },
+          "effect_size": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effect Size"
+          },
+          "favorable_in_wins": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Favorable In Wins"
+          },
+          "sample": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "WinLossCard",
+        "description": "Wins-vs-losses split for one metric.\n\n``available`` is false whenever the deterministic layer masked the effect —\nthe numbers are then genuinely absent, not hidden, and ``reason`` says why."
+      }
+    }
+  }
+}

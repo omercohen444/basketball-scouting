@@ -1,0 +1,55 @@
+{
+  "no_report_for_team": {
+    "request": "GET /api/reports/latest/segev:13",
+    "status": 404,
+    "body": {
+      "error": {
+        "code": "not_found",
+        "message": "No saved report exists for this team yet"
+      }
+    }
+  },
+  "unknown_team": {
+    "request": "GET /api/reports/latest/not-a-team",
+    "status": 400,
+    "body": {
+      "error": {
+        "code": "unknown_team",
+        "message": "Unknown team id"
+      }
+    }
+  },
+  "unknown_report": {
+    "request": "GET /api/reports/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": {
+      "error": {
+        "code": "not_found",
+        "message": "Report not found"
+      }
+    }
+  },
+  "rate_limited": {
+    "request": "any /api route once the per-IP window is exhausted",
+    "status": 429,
+    "body": {
+      "error": {
+        "code": "rate_limited",
+        "message": "Too many requests. Please wait before trying again."
+      }
+    },
+    "headers": {
+      "Retry-After": "seconds until the window resets"
+    }
+  },
+  "storage_unavailable": {
+    "request": "any /api read while the database is unreachable",
+    "status": 503,
+    "body": {
+      "error": {
+        "code": "unavailable",
+        "message": "A required backing service is unavailable. Try again shortly."
+      }
+    }
+  }
+}
