@@ -33,21 +33,29 @@ def generate(client: TestClient, team_id: str = "segev:4"):
     )
 
 
-def test_home_renders_the_selector_and_every_team(client):
+def test_the_landing_page_is_the_league_not_a_report_picker(client):
+    """The product decision this whole redesign turns on: a visitor arrives at
+    league analytics, not at a menu of AI documents."""
     response = client.get("/")
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
     body = response.text
-    assert 'id="team-select"' in body
-    assert "HAPOEL JERUSALEM" in body
-    assert "Choose an opponent" in body
+    assert "League overview" in body
+    assert "Israeli Basketball Premier League" in body
+    assert "Possession-level play-by-play" in body
 
 
-def test_home_marks_which_teams_have_a_report(client):
-    assert "No report yet" in client.get("/").text
-    generate(client)
+def test_the_landing_page_carries_the_global_navigation(client):
     body = client.get("/").text
-    assert "Report ready" in body
+    for label in ("League", "Teams", "Explorer", "Games", "Compare", "Scouting", "Methodology"):
+        assert f">{label}</a>" in body, label
+
+
+def test_the_landing_page_says_so_when_analytics_are_absent(client):
+    """A deployment without the analytics artifact must degrade honestly rather
+    than render an empty table — the scouting reports still work."""
+    body = client.get("/").text
+    assert "Analytics artifacts are not present" in body
 
 
 def test_team_page_shows_the_empty_state_before_generation(client):

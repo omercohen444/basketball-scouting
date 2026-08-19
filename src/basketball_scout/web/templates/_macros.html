@@ -1,0 +1,95 @@
+{#- Shared components. Every one of these takes an already-decided view model:
+    the template's job is markup, not judgement. In particular nothing here
+    decides whether a metric may be coloured — that arrives as `cell.tint`,
+    which the view layer forces to zero for style metrics. -#}
+
+{% macro crest(team_id, team_name, big=false) -%}
+  {%- set url = logo_url(team_id) -%}
+  {%- if url -%}
+    <img class="crest{% if big %} crest-lg{% endif %}" src="{{ url }}" alt=""
+         width="{{ 44 if big else 20 }}" height="{{ 44 if big else 20 }}" loading="lazy" decoding="async">
+  {%- else -%}
+    <span class="crest-fallback{% if big %} crest-lg{% endif %}" aria-hidden="true">{{ initials(team_name) }}</span>
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro team_link(team_id, team_name, tab="") -%}
+  <a class="team-cell" href="/teams/{{ team_id }}{{ '/' ~ tab if tab else '' }}">
+    {{ crest(team_id, team_name) }}<span>{{ team_name }}</span>
+  </a>
+{%- endmacro %}
+
+{#- One metric in a table cell: value, rank superscript, and a tint that is
+    always zero for style metrics. -#}
+{% macro metric_td(cell) -%}
+  {%- if cell -%}
+    <td class="n{% if cell.tint %} tint-{{ cell.tint }}{% endif %}{% if cell.is_style %} is-style{% endif %}">
+      {{ cell.display }}{% if cell.rank %}<span class="rk">{{ cell.rank }}</span>{% endif %}
+    </td>
+  {%- else -%}
+    <td class="n dim">—</td>
+  {%- endif -%}
+{%- endmacro %}
+
+{#- Sample size, always visible. `badge` is None only when the sample is fine. -#}
+{% macro sample(view, inline=false) -%}
+  {%- if view.badge -%}
+    <span class="sample-badge{% if not view.is_usable %} is-insufficient{% endif %}">{{ view.badge }}</span>
+  {%- endif -%}
+  {%- if not inline %}<span class="sample">{{ view.detail }}</span>{% endif -%}
+{%- endmacro %}
+
+{% macro factor_card(cell) -%}
+  {%- if cell %}
+  <div class="factor{% if cell.is_style %} is-style{% endif %}">
+    <div class="k">{{ cell.short }}</div>
+    <div class="v">{{ cell.display }}</div>
+    <div class="r">{% if cell.rank %}{{ cell.rank_display }}{% else %}—{% endif %}</div>
+    {%- if cell.percentile is not none and not cell.is_style %}
+    <div class="rankbar" role="img" aria-label="{{ cell.rank_display }}">
+      <i style="width: {{ cell.percentile | round | int }}%"></i><u style="left: 50%"></u>
+    </div>
+    {%- endif %}
+  </div>
+  {%- endif -%}
+{%- endmacro %}
+
+{#- Grouped bars, e.g. net rating by quarter. `rows` is [(label, value, display)]. -#}
+{% macro bar_chart(rows, zero_line=true) -%}
+  {%- set values = rows | map(attribute=1) | list -%}
+  {%- set peak = (values | map('abs') | max) or 1 -%}
+  <div class="bars">
+    {%- for label, value, display in rows %}
+    <div class="bar-col">
+      <span class="val">{{ display }}</span>
+      <span class="bar{% if value < 0 %} is-negative{% endif %}"
+            style="height: {{ ((value | abs) / peak * 88) | round(1) }}%"></span>
+      <span class="lbl">{{ label }}</span>
+    </div>
+    {%- endfor %}
+  </div>
+{%- endmacro %}
+
+{#- Wins vs losses for one metric. Refuses to colour a style metric, because
+    "faster in wins" is an observation, not a virtue. -#}
+{% macro dumbbell(row, lo, hi) -%}
+  {%- set span = (hi - lo) or 1 -%}
+  <div class="dumbbell{% if row.meta.direction == 'neutral' %} is-style{% endif %}">
+    <span class="metric">{{ row.meta.label }}</span>
+    {%- if row.wins is not none and row.losses is not none %}
+    {%- set wpos = ((row.wins - lo) / span * 100) | round(1) -%}
+    {%- set lpos = ((row.losses - lo) / span * 100) | round(1) -%}
+    <span class="track">
+      <span class="line" style="left: {{ [wpos, lpos] | min }}%; right: {{ 100 - ([wpos, lpos] | max) }}%"></span>
+      <span class="dot dot-l" style="left: {{ lpos }}%" title="Losses {{ row.display(row.losses) }}"></span>
+      <span class="dot dot-w" style="left: {{ wpos }}%" title="Wins {{ row.display(row.wins) }}"></span>
+    </span>
+    <span class="delta{% if row.favours_wins is true %} is-good{% elif row.favours_wins is false %} is-bad{% endif %}">
+      {{ row.delta_display }}
+    </span>
+    {%- else %}
+    <span class="track"><span class="line" style="left:0; right:0"></span></span>
+    <span class="delta dim">—</span>
+    {%- endif %}
+  </div>
+{%- endmacro %}

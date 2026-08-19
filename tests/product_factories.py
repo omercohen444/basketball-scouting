@@ -76,12 +76,21 @@ def make_app(
     *,
     repository: InMemoryReportRepository | None = None,
     settings: Settings | None = None,
+    analytics_dir: Path | None = None,
     backend_factory=NO_BACKEND,
 ):
+    """A test app.
+
+    ``analytics_dir`` defaults to a path that does not exist, so a test gets the
+    honest "analytics unavailable" state unless it deliberately points at
+    artifacts. That keeps the analytics store from silently loading the real
+    committed league into tests that are about something else.
+    """
     return create_app(
         settings=settings or make_settings(),
         repository=repository or InMemoryReportRepository(),
         packs_dir=packs_dir,
+        analytics_dir=analytics_dir if analytics_dir is not None else packs_dir / "_no_analytics",
         backend_factory=(lambda: StubBackend()) if backend_factory is NO_BACKEND else backend_factory,
     )
 

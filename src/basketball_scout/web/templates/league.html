@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% from "_macros.html" import crest, team_link, metric_td %}
+{% block title %}League — IBPL Analytics{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Israeli Basketball Premier League</p>
+    <h1>League overview</h1>
+  </div>
+  <a class="btn" href="/methodology">How these numbers are built →</a>
+</div>
+
+<div class="context-strip">
+  <span>{{ season }}</span>
+  <span>{{ rows | length }} teams</span>
+  <span>{{ games_n }} team-games</span>
+  <span>Possession-level play-by-play</span>
+</div>
+
+{% if not analytics_available %}
+<div class="banner banner-warn">
+  <strong>Analytics artifacts are not present in this deployment.</strong>
+  Saved scouting reports are unaffected.
+</div>
+{% else %}
+
+<div class="kpis">
+  {%- for leader in leaders %}
+  <div class="kpi">
+    <div class="k">{{ leader.label }}</div>
+    <div class="v">{{ leader.display }}</div>
+    <div class="t">{{ crest(leader.team_id, leader.team_name) }}<span>{{ leader.team_name }}</span></div>
+  </div>
+  {%- endfor %}
+</div>
+
+<div class="cols-2">
+  <div class="chart-card">
+    <h3>League landscape — offense against defense</h3>
+    {#- Hand-drawn SVG rather than a charting library: fourteen labelled,
+        clickable points is not a case a library makes easier, and this keeps
+        the page working with JavaScript disabled. -#}
+    {#- viewBox is in pixel-scale units so a font-size reads as it looks. A
+        small viewBox would make every `9px` nine *user units* — enormous. -#}
+    {%- set W = 1000 %}{% set H = 420 %}{% set PAD = 30 %}
+    {%- set px = W - PAD * 2 %}{% set py = H - PAD * 2 %}
+    <svg class="scatter" viewBox="0 0 {{ W }} {{ H }}" role="img"
+         aria-label="Offensive rating against defensive rating for all {{ rows | length }} teams">
+      {%- if mean %}
+      {%- set mx = PAD + (mean.x / 100 * px) %}
+      {%- set my = PAD + ((100 - mean.y) / 100 * py) %}
+      <line class="grid" x1="{{ PAD }}" y1="{{ my | round(1) }}" x2="{{ W - PAD }}" y2="{{ my | round(1) }}" stroke-dasharray="4 4" />
+      <line class="grid" x1="{{ mx | round(1) }}" y1="{{ PAD }}" x2="{{ mx | round(1) }}" y2="{{ H - PAD }}" stroke-dasharray="4 4" />
+      {%- endif %}
+      <text class="axis-label" x="{{ PAD }}" y="16">Better defense ↑</text>
+      <text class="axis-label" x="{{ W - PAD }}" y="{{ H - 8 }}" text-anchor="end">Better offense →</text>
+      {%- for p in points %}
+      {%- set cx = PAD + (p.x / 100 * px) %}
+      {%- set cy = PAD + ((100 - p.y) / 100 * py) %}
+      <a href="/teams/{{ p.team_id }}">
+        <title>{{ p.team_name }} — ORtg {{ p.ortg }}, DRtg {{ p.drtg }}, Net {{ p.net }}</title>
+        <circle class="pt" cx="{{ cx | round(1) }}" cy="{{ cy | round(1) }}" r="5" />
+        <text class="pt-label" x="{{ cx | round(1) }}" y="{{ (cy - 11) | round(1) }}" text-anchor="middle">{{ p.abbr }}</text>
+      </a>
+      {%- endfor %}
+    </svg>
+    <p class="small dim" style="margin-top:6px">
+      The defensive axis is inverted, so up and to the right is better on both. Dashed lines mark the league average.
+    </p>
+  </div>
+
+  <div class="chart-card">
+    <h3>Four factors — leaders</h3>
+    <table class="data">
+      <tbody>
+        {%- for group in factor_leaders %}
+        <tr>
+          <td class="dim small">{{ group.label }}</td>
+          <td>{{ crest(group.team_id, group.team_name) }}</td>
+          <td class="small">{{ group.team_name }}</td>
+          <td class="n">{{ group.display }}</td>
+        </tr>
+        {%- endfor %}
+      </tbody>
+    </table>
+    <p class="small dim" style="margin-top:8px">
+      Offensive factors first, then the defensive side of the same four.
+    </p>
+  </div>
+</div>
+
+<section class="section">
+  <h2>Advanced team table</h2>
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th class="sticky">Team</th>
+          <th class="n">W-L</th>
+          {%- for key, label in columns %}
+          <th class="n{% if sort == key %} is-sorted{% endif %}">
+            <a href="/?sort={{ key }}">{{ label }}{% if sort == key %} ▾{% endif %}</a>
+          </th>
+          {%- endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {%- for row in rows %}
+        <tr>
+          <td class="sticky">{{ team_link(row.team_id, row.team_name) }}</td>
+          <td class="n dim">{{ row.record }}</td>
+          {%- for key, _label in columns %}{{ metric_td(row.get(key)) }}{% endfor %}
+        </tr>
+        {%- endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="small dim" style="margin-top:8px">
+    Superscripts are league rank. Shading follows rank, and is deliberately absent from
+    pace and free-throw rate — neither has a better end.
+  </p>
+</section>
+{% endif %}
+{% endblock %}

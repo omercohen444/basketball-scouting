@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from ..agents.pack_store import PackStore
+from ..analytics.store import AnalyticsStore
 from ..config import Settings, load_settings
 from ..persistence.memory import InMemoryReportRepository
 from ..persistence.repository import ReportRepository
@@ -30,6 +31,7 @@ class AppContext:
 
     settings: Settings
     pack_store: PackStore
+    analytics: AnalyticsStore
     repository: ReportRepository
     service: ReportService
     api_limiter: FixedWindowRateLimiter
@@ -61,6 +63,7 @@ class AppContext:
                 if packs_available
                 else None,
             },
+            "analytics": self.analytics.health(),
             "generation_configured": self.generation_configured,
         }
 
@@ -94,11 +97,15 @@ def build_context(
     settings: Settings | None = None,
     repository: ReportRepository | None = None,
     packs_dir: Path | None = None,
+    analytics_dir: Path | None = None,
     backend_factory=None,
     seed_teams: bool = True,
 ) -> AppContext:
     settings = settings or load_settings()
     pack_store = PackStore(packs_dir or settings.evidence_packs_dir)
+    # A second, independent artifact. Missing analytics degrades those pages
+    # rather than the whole site, exactly as a missing pack does.
+    analytics = AnalyticsStore(analytics_dir or settings.analytics_dir)
     repository = repository if repository is not None else build_repository(settings)
 
     service = ReportService(
@@ -118,6 +125,7 @@ def build_context(
     return AppContext(
         settings=settings,
         pack_store=pack_store,
+        analytics=analytics,
         repository=repository,
         service=service,
         api_limiter=FixedWindowRateLimiter(settings.api_rate_limit_per_minute, 60.0),

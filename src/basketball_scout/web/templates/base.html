@@ -5,44 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
   <meta name="color-scheme" content="light">
-  <title>{% block title %}Opponent Scouting{% endblock %}</title>
+  <title>{% block title %}IBPL Analytics{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;550;600;650;700&display=swap">
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="/static/app.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='%231b4965'/><text x='16' y='22' font-family='Arial' font-size='15' font-weight='bold' fill='white' text-anchor='middle'>OS</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='5' fill='%2312303f'/><text x='16' y='22' font-family='Inter,Arial' font-size='14' font-weight='700' fill='white' text-anchor='middle'>IB</text></svg>">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
 
   <header class="topbar">
-    <div class="wrap topbar-inner">
+    <div class="shell topbar-inner">
       <a class="brand" href="/">
-        <span class="brand-mark" aria-hidden="true">OS</span>
-        <span>
-          <strong>Opponent Scouting</strong>
-          <em>Israeli Basketball Premier League · {{ season }}</em>
-        </span>
+        <span class="brand-mark" aria-hidden="true">IB</span>
+        <span class="brand-text">IBPL Analytics</span>
       </a>
-      {% block topbar_extra %}{% endblock %}
+
+      <nav class="nav" aria-label="Primary">
+        {%- for key, label in NAV %}
+        <a class="nav-link{% if active == key %} is-active{% endif %}"
+           href="{{ {'league': '/', 'teams': '/teams/segev:4', 'explore': '/explore',
+                     'games': '/games', 'compare': '/compare',
+                     'scouting': '/scouting/segev:4', 'methodology': '/methodology'}[key] }}"
+           {% if active == key %}aria-current="page"{% endif %}>{{ label }}</a>
+        {%- endfor %}
+      </nav>
+
+      <span class="season">{{ season }}</span>
     </div>
   </header>
 
-  <main id="main" class="wrap">
+  {% block subnav %}{% endblock %}
+
+  <main id="main" class="shell">
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="wrap footer">
+  <footer class="shell footer">
     <p>
       <strong>Every figure is computed deterministically from official play-by-play.</strong>
       Agents select, prioritise and interpret that evidence — they never compute it.
     </p>
     <p>
       Team-level only: no player, lineup, scheme or video-derived analysis.
-      Reports are generated in advance; opening one costs nothing.
+      <a href="/methodology">What this data can and cannot show →</a>
     </p>
-    <p>Build {{ app_version }}</p>
+    <p class="build">Build {{ app_version }}</p>
   </footer>
 
   <script src="/static/app.js" defer></script>

@@ -331,3 +331,241 @@ def largest_differences(rows: list[SplitRow], limit: int = 3) -> list[SplitRow]:
     ]
     scored.sort(key=lambda r: abs(r.delta or 0), reverse=True)
     return scored[:limit]
+
+
+# ---- league -----------------------------------------------------------------
+
+
+LEAGUE_COLUMNS: tuple[str, ...] = (
+    "offensive_rating", "defensive_rating", "net_rating", "pace",
+    "efg_pct", "tov_pct", "orb_pct", "ft_rate",
+)
+LEAGUE_OPPONENT_COLUMNS: tuple[str, ...] = ("opp_efg_pct", "opp_tov_pct", "drb_pct")
+
+SORTABLE: dict[str, MetricMeta] = {**METRIC_META, **OPPONENT_META}
+
+
+@dataclass(frozen=True)
+class LeagueRow:
+    team_id: str
+    team_name: str
+    record: str
+    wins: int
+    losses: int
+    metrics: dict[str, MetricCell]
+
+    def get(self, key: str) -> MetricCell | None:
+        return self.metrics.get(key)
+
+    def sort_value(self, key: str) -> float:
+        """Missing values sort to the bottom whichever way the column runs, so
+        an absent metric never masquerades as a good one."""
+        cell = self.metrics.get(key)
+        return cell.value if cell and cell.value is not None else float("-inf")
+
+
+def league_rows(teams: dict[str, TeamAnalytics], *, sort: str = "net_rating") -> list[LeagueRow]:
+    """One row per team at season scope, with the defensive four factors joined.
+
+    Opponent metrics are derived per team from its own game rows and ranked
+    across the league here rather than living in the artifact's cells: they are
+    a property of the season aggregate, not of a segment.
+    """
+    opponent_values: dict[str, dict[str, float]] = {
+        tid: opponent_factors(team.games) for tid, team in teams.items()
+    }
+
+    opponent_ranks: dict[str, dict[str, tuple[int, float]]] = {tid: {} for tid in teams}
+    for key in LEAGUE_OPPONENT_COLUMNS:
+        meta = OPPONENT_META[key]
+        pairs = [(tid, v[key]) for tid, v in opponent_values.items() if key in v]
+        if len(pairs) < 2:
+            continue
+        pairs.sort(key=lambda kv: kv[1], reverse=meta.direction != "lower_is_better")
+        n = len(pairs)
+        for position, (tid, _value) in enumerate(pairs, start=1):
+            opponent_ranks[tid][key] = (position, round(100.0 * (n - position) / (n - 1), 1))
+
+    rows: list[LeagueRow] = []
+    for tid, team in teams.items():
+        cell = team.cell("full", "all")
+        metrics: dict[str, MetricCell] = {}
+        if cell is not None:
+            for key in LEAGUE_COLUMNS:
+                built = metric_cell(key, cell)
+                if built:
+                    metrics[key] = built
+        for key in LEAGUE_OPPONENT_COLUMNS:
+            value = opponent_values[tid].get(key)
+            if value is None:
+                continue
+            meta = OPPONENT_META[key]
+            rank, percentile = opponent_ranks[tid].get(key, (None, None))
+            metrics[key] = MetricCell(
+                key=key, label=meta.label, short=meta.short, value=value,
+                display=format_value(meta, value), direction=meta.direction,
+                rank=rank, percentile=percentile, eligible_teams=len(opponent_values),
+            )
+        rows.append(
+            LeagueRow(team_id=tid, team_name=team.team_name, record=team.record,
+                      wins=team.wins, losses=team.losses, metrics=metrics)
+        )
+
+    meta = SORTABLE.get(sort) or METRIC_META["net_rating"]
+    rows.sort(key=lambda r: r.sort_value(meta.key), reverse=meta.direction != "lower_is_better")
+    return rows
+
+
+@dataclass(frozen=True)
+class LeagueLeader:
+    label: str
+    team_id: str
+    team_name: str
+    display: str
+
+
+def league_leaders(rows: list[LeagueRow]) -> list[LeagueLeader]:
+    """The four headline facts.
+
+    Pace is here as a fact — *fastest*, not *best*. A fast team is not thereby
+    a good one, and the label has to keep saying so.
+    """
+    wanted = (
+        ("Best offense", "offensive_rating"),
+        ("Best defense", "defensive_rating"),
+        ("Best net rating", "net_rating"),
+        ("Fastest pace", "pace"),
+    )
+    out: list[LeagueLeader] = []
+    for label, key in wanted:
+        meta = METRIC_META[key]
+        candidates = [r for r in rows if r.get(key) and r.get(key).value is not None]
+        if not candidates:
+            continue
+        picker = min if meta.direction == "lower_is_better" else max
+        best = picker(candidates, key=lambda r: r.get(key).value)
+        out.append(LeagueLeader(label=label, team_id=best.team_id,
+                                team_name=best.team_name, display=best.get(key).display))
+    return out
+
+
+def scatter_points(rows: list[LeagueRow]) -> list[dict[str, object]]:
+    """Offense against defense, normalised to a 0-100 box.
+
+    The defensive axis is inverted so up-and-right is unambiguously good.
+    Plotted raw, the best defences sit at the bottom and the chart reads
+    backwards to anyone glancing at it.
+    """
+    pts = [
+        r for r in rows
+        if r.get("offensive_rating") and r.get("defensive_rating")
+        and r.get("offensive_rating").value is not None
+        and r.get("defensive_rating").value is not None
+    ]
+    if not pts:
+        return []
+    ortgs = [r.get("offensive_rating").value for r in pts]
+    drtgs = [r.get("defensive_rating").value for r in pts]
+    o_lo, o_hi = min(ortgs), max(ortgs)
+    d_lo, d_hi = min(drtgs), max(drtgs)
+    o_pad = (o_hi - o_lo) * 0.14 or 1.0
+    d_pad = (d_hi - d_lo) * 0.14 or 1.0
+    o_lo, o_hi = o_lo - o_pad, o_hi + o_pad
+    d_lo, d_hi = d_lo - d_pad, d_hi + d_pad
+
+    labels = disambiguate([r.team_name for r in pts])
+    out: list[dict[str, object]] = []
+    for r in pts:
+        ortg = r.get("offensive_rating").value
+        drtg = r.get("defensive_rating").value
+        out.append({
+            "team_id": r.team_id,
+            "team_name": r.team_name,
+            "abbr": labels[r.team_name],
+            "x": round((ortg - o_lo) / (o_hi - o_lo) * 100, 2),
+            # inverted: a LOW defensive rating is good, so it belongs high up
+            "y": round((d_hi - drtg) / (d_hi - d_lo) * 100, 2),
+            "ortg": r.get("offensive_rating").display,
+            "drtg": r.get("defensive_rating").display,
+            "net": r.get("net_rating").display if r.get("net_rating") else "",
+        })
+    return out
+
+
+CLUB_PREFIXES = {"hapoel", "maccabi", "ironi", "bnei", "elitzur", "elizur"}
+
+
+def abbreviate(team_name: str) -> str:
+    """A short chart label, keeping the town rather than the club — three sides
+    are called Maccabi and four Hapoel, so the club is the less useful half."""
+    words = [w for w in team_name.split() if w]
+    significant = [w for w in words if w.lower() not in CLUB_PREFIXES] or words
+    if len(significant) == 1:
+        return significant[0][:3].upper()
+    return "".join(w[0] for w in significant[:3]).upper()
+
+
+def disambiguate(names: list[str]) -> dict[str, str]:
+    """Abbreviations that are unique across the given names.
+
+    Dropping the club works until two clubs share a town: Maccabi and Hapoel
+    Tel Aviv both reduce to "TA", which on a scatter plot is two unlabelled
+    dots. Where that happens the club initial goes back on the front.
+    """
+    short = {name: abbreviate(name) for name in names}
+    counts: dict[str, int] = {}
+    for value in short.values():
+        counts[value] = counts.get(value, 0) + 1
+
+    for name, value in list(short.items()):
+        if counts[value] < 2:
+            continue
+        first = name.split()[0]
+        if first.lower() in CLUB_PREFIXES:
+            short[name] = f"{first[0].upper()}{value}"
+    return short
+
+
+def league_mean(rows: list[LeagueRow], key: str) -> float | None:
+    vals = [r.get(key).value for r in rows if r.get(key) and r.get(key).value is not None]
+    return sum(vals) / len(vals) if vals else None
+
+
+def scatter_mean_position(rows: list[LeagueRow], points: list[dict[str, object]]) -> dict[str, float]:
+    """Where the league average sits inside the same normalised box, for the
+    crosshair. Derived from the points so it cannot drift from them."""
+    if not points:
+        return {}
+    return {
+        "x": sum(float(p["x"]) for p in points) / len(points),
+        "y": sum(float(p["y"]) for p in points) / len(points),
+    }
+
+
+FACTOR_LEADER_KEYS: tuple[str, ...] = (
+    "efg_pct", "tov_pct", "orb_pct", "ft_rate",
+    "opp_efg_pct", "opp_tov_pct", "drb_pct",
+)
+
+
+def factor_leaders(rows: list[LeagueRow]) -> list[LeagueLeader]:
+    """Who leads each of the four factors, offense then defense.
+
+    Free-throw rate is included because it is one of the four, but it is a
+    style metric — so the label says "highest", not "best". Everything else
+    resolves by its own direction, which is why the turnover leader is the team
+    that commits fewest and the opponent-turnover leader is the one that forces
+    most.
+    """
+    out: list[LeagueLeader] = []
+    for key in FACTOR_LEADER_KEYS:
+        meta = SORTABLE[key]
+        candidates = [r for r in rows if r.get(key) and r.get(key).value is not None]
+        if not candidates:
+            continue
+        picker = min if meta.direction == "lower_is_better" else max
+        best = picker(candidates, key=lambda r: r.get(key).value)
+        label = f"Highest {meta.short}" if meta.direction == "neutral" else meta.short
+        out.append(LeagueLeader(label=label, team_id=best.team_id,
+                                team_name=best.team_name, display=best.get(key).display))
+    return out

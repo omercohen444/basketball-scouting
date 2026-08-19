@@ -56,12 +56,14 @@ def create_app(
     settings: Settings | None = None,
     repository: ReportRepository | None = None,
     packs_dir: Path | None = None,
+    analytics_dir: Path | None = None,
     backend_factory=None,
 ) -> FastAPI:
     ctx = context or build_context(
         settings=settings,
         repository=repository,
         packs_dir=packs_dir,
+        analytics_dir=analytics_dir,
         backend_factory=backend_factory,
     )
 

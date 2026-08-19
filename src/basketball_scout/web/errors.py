@@ -71,10 +71,34 @@ def install_error_handlers(app, templates=None) -> None:
 
     def _html_or_json(request: Request, status_code: int, code: str, message: str, headers=None):
         if templates is not None and not _is_api(request):
+            # base.html reads `season`, `app_version` and `active`. An error can
+            # be raised before a view has assembled any of that — and a 500
+            # handler that itself raises because the layout wanted a variable
+            # is the worst possible failure. Supply safe defaults, and pull the
+            # real values only if a context happens to exist.
+            ctx = getattr(request.app.state, "ctx", None)
+            season = "unknown"
+            app_version = ""
+            if ctx is not None:
+                app_version = getattr(ctx, "app_version", "")
+                try:
+                    if ctx.pack_store.available:
+                        season = ctx.pack_store.index.season
+                except Exception:  # noqa: BLE001 - never fail while rendering an error
+                    pass
+
             response = templates.TemplateResponse(
                 request,
                 "error.html",
-                {"status_code": status_code, "code": code, "message": message},
+                {
+                    "status_code": status_code,
+                    "code": code,
+                    "message": message,
+                    "season": season,
+                    "app_version": app_version,
+                    "active": "",
+                    "analytics_available": False,
+                },
                 status_code=status_code,
             )
             if headers:
