@@ -87,12 +87,15 @@ deterministic stub backend, at zero provider cost, before spending anything.
 Details in `artifacts/acceptance/README.md`; the generated PDF is committed
 alongside it.
 
-**Tests: 732 passed** (541 baseline + 191 new), no credentials, no network, no
+**Tests: 740 passed** (541 baseline + 199 new), no credentials, no network, no
 regressions. New coverage includes all 14 shipped packs loading and
 hash-checking, tamper/version rejection, Supabase wire mapping via
 `MockTransport`, the never-save-an-invalid-report rule, transient-vs-permanent
 provider classification, every API route and error shape, XSS escaping of
-model-authored prose, and the migration's RLS posture.
+model-authored prose, and the migration's RLS posture. `test_production_end_to_
+end.py` additionally drives all 14 **real** packs through the whole chain with
+the stub backend and requires a valid PDF from each — the synthetic-pack tests
+cannot answer whether the committed evidence survives the renderer.
 
 **CI passing** on GitHub Actions, first run. It installs `requirements-ci.txt`
 (the full list minus CrewAI, which no offline test needs;
@@ -122,6 +125,19 @@ may not break.
 - `requirements.txt` includes CrewAI, so a Railway image is large. A serve-only
   deployment can install `requirements-ci.txt` instead — the admin endpoint then
   degrades to a clean 503 because `agents/crew.py` is imported lazily.
+
+**Documentation honesty correction made this run.** `PROJECT_SPEC.md` and
+`BUILD_PLAN.md` still described video as the current stage. Both now record
+reality — as *records* of decisions already taken, each citing where it was
+decided, with §1-7 of the spec left intact as the audit trail. A first draft of
+the gate table asserted PASS for Gates 1-4; that was fabrication. This branch's
+log records only Gate 0 PASS and CP1 PARTIAL and carries no CP2-CP4 record
+(that work lives on `fresh-video-eval`), and the table now says exactly that.
+
+**The frontend was also checked in a real browser**, not only through the test
+client: home, a loaded report, the empty state and the error page all render
+correctly in dark mode, which is how the raw-timestamp date range was spotted
+and fixed.
 
 **Next recommended technical action:** deploy to Railway (§5 of
 `docs/DEPLOYMENT.md`), then generate the remaining 13 reports with
